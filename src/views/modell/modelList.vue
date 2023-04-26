@@ -6,6 +6,28 @@
             <BreadcrumbItem>模型管理</BreadcrumbItem>
             <BreadcrumbItem>模型列表</BreadcrumbItem>
         </Breadcrumb>
+        <Row class="rowbox">
+            <Col span="4" >
+                <Input v-model="value1" placeholder="唯一标识" clearable style="width: 200px" />
+            </Col>
+            <Col span="4" >
+               <Select v-model="value2" clearable style="width:200px" placeholder="适用对象">
+                    <Option v-for="item in objectoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                </Select>
+            </Col>
+            <Col span="4">
+                <Select v-model="value3" clearable style="width:200px" placeholder="模型功能">
+                    <Option v-for="item in funcoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                </Select>
+            </col>
+            <Col span="4">
+                <Input v-model="value4" placeholder="更新日期" clearable style="width: 200px" />
+            </Col>
+            <Col span="6">
+                <Button  @click="searchItem" style="margin-right:15px">查询</Button>
+                <Button type="primary" to="/modelAdd">新增</Button>
+            </Col>
+        </Row>
         <Table border :columns="columns6" :data="showData"></Table>
         <Page
             class="flex j-center"
@@ -52,6 +74,65 @@ export default {
         data () {
             return {
                 isModal: false,
+                value1: '',
+                value2: '',
+                value3: '',
+                value4: '',
+
+                objectoption:
+                [
+                    {
+                        value: 'New York',
+                        label: 'New York'
+                    },
+                    {
+                        value: 'London',
+                        label: 'London'
+                    },
+                    {
+                        value: 'Sydney',
+                        label: 'Sydney'
+                    },
+                    {
+                        value: 'Ottawa',
+                        label: 'Ottawa'
+                    },
+                    {
+                        value: 'Paris',
+                        label: 'Paris'
+                    },
+                    {
+                        value: 'Canberra',
+                        label: 'Canberra'
+                    }
+                ],
+                funcoption:
+                [
+                    {
+                        value: 'New York',
+                        label: 'New York'
+                    },
+                    {
+                        value: 'London',
+                        label: 'London'
+                    },
+                    {
+                        value: 'Sydney',
+                        label: 'Sydney'
+                    },
+                    {
+                        value: 'Ottawa',
+                        label: 'Ottawa'
+                    },
+                    {
+                        value: 'Paris',
+                        label: 'Paris'
+                    },
+                    {
+                        value: 'Canberra',
+                        label: 'Canberra'
+                    }
+                ],
                 columns6: [
                     {
                         title: '序号',
@@ -195,5 +276,11 @@ export default {
     }
 </script>
 <style>
-    .ivu-table-overflowX{ overflow-x: hidden;} 
+    .ivu-table-overflowX{ overflow-x: hidden;}
+    
+    .rowbox{
+        margin-bottom: 25px;
+        margin-top: 25px;
+        margin-left: 10px;
+    }
 </style>

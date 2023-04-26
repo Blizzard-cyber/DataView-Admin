@@ -6,6 +6,26 @@
             <BreadcrumbItem>设备管理</BreadcrumbItem>
             <BreadcrumbItem>设备列表</BreadcrumbItem>
         </Breadcrumb>
+        <Row class="rowbox">
+            <Col span="4" >
+                <Input v-model="value1" placeholder="设备名称" clearable style="width: 200px" />
+            </Col>
+            <Col span="4" >
+               <Input v-model="value2" placeholder="设备类型" clearable style="width: 200px" />
+            </Col>
+            <Col span="4">
+                <Select v-model="value3" clearable style="width:200px" placeholder="蓝牙类型">
+                    <Option v-for="item in blueteethoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                </Select>
+            </col>
+            <Col span="4">
+                <Input v-model="value4" placeholder="创建日期" clearable style="width: 200px" />
+            </Col>
+            <Col span="6">
+                <Button  @click="searchItem" style="margin-right:15px">查询</Button>
+                <Button type="primary" to="/deviceAdd">新增</Button>
+            </Col>
+        </Row>
         <Table border :columns="columns6" :data="showData"></Table>
         <Page
             class="flex j-center"
@@ -52,6 +72,38 @@ export default {
         data () {
             return {
                 isModal: false,
+                value1: '',
+                value2: '',
+                value3: '',
+                value4: '',
+
+                blueteethoption:
+                [
+                    {
+                        value: 'New York',
+                        label: 'New York'
+                    },
+                    {
+                        value: 'London',
+                        label: 'London'
+                    },
+                    {
+                        value: 'Sydney',
+                        label: 'Sydney'
+                    },
+                    {
+                        value: 'Ottawa',
+                        label: 'Ottawa'
+                    },
+                    {
+                        value: 'Paris',
+                        label: 'Paris'
+                    },
+                    {
+                        value: 'Canberra',
+                        label: 'Canberra'
+                    }
+                ],
                 columns6: [
                     {
                         title: '序号',
@@ -127,17 +179,25 @@ export default {
                 userList:[],
                 modalItem: [
                     {
-                        label: '姓名',
+                        label: '序号',
                         value: '',
                     },
                     {
-                        label: '年龄',
+                        label: '设备名称',
                         value: '',
                     },
                     {
-                        label: '性别',
+                        label: '设备类型',
                         value: ''
-                    }
+                    },
+                    {
+                        label: '蓝牙类型',
+                        value: ''
+                    },
+                    {
+                        label: '创建时间',
+                        value: ''
+                    },
                 ],
                 // userData: {}
                 currentPage: 0,
@@ -175,9 +235,11 @@ export default {
                 this.modalStatus = 'edit'
                 this.isModal = true
                 //自动填入当前用户原有的信息
-                this.modalItem[0].value = userData.name
-                this.modalItem[1].value = userData.age || ''
-                this.modalItem[2].value = userData.gender ? "男" : "女" || ''
+                this.modalItem[0].value = userData.id
+                this.modalItem[1].value = userData.name
+                this.modalItem[2].value = userData.dtype
+                this.modalItem[3].value = userData.btype
+                this.modalItem[4].value = userData.time
                 this.userData = userData     
             },
             cancel() {
@@ -196,4 +258,9 @@ export default {
 </script>
 <style>
     .ivu-table-overflowX{ overflow-x: hidden;} 
+    .rowbox{
+        margin-bottom: 25px;
+        margin-top: 25px;
+        margin-left: 10px;
+    }
 </style>
