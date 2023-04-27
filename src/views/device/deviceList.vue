@@ -45,16 +45,18 @@
                 <span>修改用户</span>
             </p>
             <Form label-position="left"  :label-width="100">
-                <FormItem 
-                    :label="item.label"
-                    v-for="item of modalItem" 
-                    v-if="!item.hide"
-                    :key="item.label">
-                    <Input 
-                        :type="item.type || 'text'" 
-                        v-model="item.value" 
-                        style="width:300px" />
-                </FormItem>
+                <template v-for="item of modalItem">
+                    <FormItem 
+                        :label="item.label"
+                        v-if="!item.hide"
+                        :key="item.label">
+                        <Input 
+                            :type="item.type || 'text'" 
+                            v-model="item.value" 
+                            style="width:300px" />
+                    </FormItem>
+                </template>
+                    
             </Form>
             <div slot="footer">
                 <slot name="footer">
@@ -246,12 +248,18 @@ export default {
                 this.isModal = false
             },
             clickModalEvent() {
+                // TODO:modify!!!!
                 this.$Message.success('修改成功');
                 this.isModal = false
             },
             remove (index) {
+                // TODO:delete!!!!
                 this.userList.splice(index, 1);
                 this.$Message.success('删除成功');
+            },
+            searchItem() {
+                // TODO:search!!!
+                this.$Message.success('查找失败');
             }
         }
     }

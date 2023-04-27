@@ -48,11 +48,7 @@
                     <FormItem label="数据描述" prop="datadescription">
                         <Input v-model="addData.datadescription" placeholder=""  type="textarea" :autosize="{minRows: 2,maxRows: 5}"></Input>
                     </FormItem>
-                    
-
                 </Form>
-                
-            
             </Modal> 
         </FormItem>
         <FormItem>
@@ -106,7 +102,7 @@
                 },
                 ruleValidate: {
                     name: [
-                        { required: true, message: '模型名称不能为空', trigger: 'blur' },
+                        { required: true, message: '设备名称不能为空', trigger: 'blur' },
                         // { type: 'string', message: 'Incorrect email format', trigger: 'blur' }
                     ],
                     
@@ -126,6 +122,7 @@
         },
         methods: {
              handleCreate (val) {
+                // TODO:add data type!!!!
                 this.intypeoption.push({
                     value: val,
                     label: val
@@ -134,6 +131,7 @@
             handleSubmit (name) {
                 this.$refs[name].validate((valid) => {
                     if (valid) {
+                        // TODO:submit!!!!
                         this.$Message.success('Success!');
                     } else {
                         this.$Message.error('Fail!');
