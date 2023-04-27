@@ -126,6 +126,19 @@
                             <MenuItem name="2-2" to="/deviceAdd">设备添加</MenuItem>
                             
                         </Submenu>
+                        <Submenu name="3">
+                            <template slot="title">
+                                <Icon type="ios-bulb"></Icon>
+                                <span>模型训练</span>
+                            </template>
+                            <MenuItem name="2-1" to="/trainList">训练数据集</MenuItem>
+                            <MenuItem name="2-2" to="/trainModel">模型训练</MenuItem>
+                            
+                        </Submenu>
+                        <MenuItem name="4-1" to="/usrmanage">
+                            <Icon type="ios-people" />
+                            <span>用户管理</span>
+                        </MenuItem>
                         
 					</Menu>
 				</Sider>

@@ -58,12 +58,36 @@ const router = new VueRouter({
             title: '设备添加',
             order:'2-2'
           }
+        },
+        {
+          path:'trainList',
+          component: () => import('@/views/train/trainList.vue'),
+          meta:{
+            title: '训练数据集',
+            order:'3-1'
+          }
+        },
+        {
+          path:'trainModel',
+          component: () => import('@/views/train/trainModel.vue'),
+          meta:{
+            title: '模型训练',
+            order:'3-2'
+          }
+        },
+        {
+          path:'usrmanage',
+          component: () => import('@/views/usr/usr.vue'),
+          meta:{
+            title: '用户管理',
+            order:'4-1'
+          }
         }
       ]
     },
     {
       path:'/data',
-      component: () => import('@/views/data.vue'),
+      component: () => import('@/views/dataview/data.vue'),
       meta:{
         title: '大屏数据'
       }
