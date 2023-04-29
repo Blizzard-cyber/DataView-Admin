@@ -157,15 +157,25 @@
                 })
 
             },
+            isExist(p){
+                return p.label==this.addData.dataname
+            },
             handlerAdd (data) {
                 this.$refs['addData'].validate((valid)=>{
                     if (valid){
-                        this.outtypeoption.push({
-                            value:data.dataname,
-                            label:data.dataname
-                        })
-                        this.isModal = false
-                        this.formValidate.outtype = data.dataname
+                        console.log(this.outtypeoption.findIndex(this.isExist));
+                        if(this.outtypeoption.findIndex(this.isExist)===-1){
+                            this.outtypeoption.push({
+                                value:data.dataname,
+                                label:data.dataname
+                            })
+                            this.isModal = false
+                            this.formValidate.outtype = data.dataname
+                            this.$refs['addData'].resetFields()
+                            console.log(this.formValidate.outtype);
+                        } else {
+                            this.$Message.error('已存在该数据类型');
+                        }
                     } else {
                         this.$Message.error('Fail!');
                     }
