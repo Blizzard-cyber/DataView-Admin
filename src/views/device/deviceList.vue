@@ -219,9 +219,11 @@ export default {
                 //时间选择器Date->str
                 let str = ""
                 if(this.value4!==''){
-                    const year = this.value4.getFullYear()
-                    const month = this.value4.getMonth()
-                    const day = this.value4.getDate()
+                    let year = this.value4.getFullYear()
+                    let month = this.value4.getMonth() + 1
+                    month = month<10?('0'+month):month
+                    let day = this.value4.getDate()
+                    day = day<10?('0'+day):day
                     str = year + "-" + month + "-" + day
                 }
                 return str
@@ -301,6 +303,7 @@ export default {
                 })
             },
             searchItem() {
+                console.log(this.searchDate);
                 this.$axios.get('/device/findSome',{
                     params:{
                         name:this.value1,

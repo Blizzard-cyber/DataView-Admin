@@ -34,6 +34,16 @@ Mock.mock(RegExp('/device/findSome' + '.*'), {
     }]
 })
 
+Mock.mock(RegExp('/model/findSome' + '.*'), {
+    'userList': [{
+        'id': 888,
+        "name": "@ctitle(2,3)",
+        'object': '@cname', //随机生成姓名
+        "function": "@csentence(2,3)",
+        "time": "@datetime(yyyy-MM-dd)"
+    }]
+})
+
 Mock.mock('/device/delete', 'delete', (req) => {
     return {
         flag: true
