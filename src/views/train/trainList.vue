@@ -6,26 +6,25 @@
             <BreadcrumbItem>模型训练</BreadcrumbItem>
             <BreadcrumbItem>训练数据集</BreadcrumbItem>
         </Breadcrumb>
-        <Row class="rowbox">
-            <Col span="4" >
-                <Input v-model="value1" placeholder="唯一标识" clearable style="width: 200px" />
+        <Row class="rowbox" :gutter="16">
+            <Col span="5" >
+                <Input v-model="value1" placeholder="设备名称" clearable/>
             </Col>
-            <Col span="4" >
-               <Select v-model="value2" clearable style="width:200px" placeholder="适用对象">
-                    <Option v-for="item in objectoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                </Select>
+            <Col span="5" >
+               <Input v-model="value2" placeholder="设备类型" clearable/>
             </Col>
-            <Col span="4">
-                <Select v-model="value3" clearable style="width:200px" placeholder="模型功能">
-                    <Option v-for="item in funcoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+            <Col span="5">
+                <Select v-model="value3" clearable placeholder="蓝牙类型">
+                    <Option v-for="item in blueteethoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
                 </Select>
             </col>
-            <Col span="4">
-                <Input v-model="value4" placeholder="更新日期" clearable style="width: 200px" />
+            <Col span="5">
+                <!-- <Input v-model="value4" placeholder="创建日期" clearable/> -->
+                <DatePicker v-model="value4" type="date" placeholder="创建日期" show-week-numbers/>
             </Col>
-            <Col span="6">
-                <Button  @click="searchItem" style="margin-right:15px">查询</Button>
-                <Button type="primary" to="/modelAdd">新增</Button>
+            <Col span="4" style="padding: 0%;">
+                <Button @click="searchItem" >查询</Button>
+                <Button type="primary" to="/deviceAdd" style="margin-left:10px">新增</Button>
             </Col>
         </Row>
         <Table border :columns="columns6" :data="showData"></Table>

@@ -6,24 +6,25 @@
             <BreadcrumbItem>模型管理</BreadcrumbItem>
             <BreadcrumbItem>模型列表</BreadcrumbItem>
         </Breadcrumb>
-        <Row class="rowbox">
-            <Col span="4" >
-                <Input v-model="value1" placeholder="唯一标识" clearable style="width: 200px" />
+        <Row class="rowbox" :gutter="16">
+            <Col span="5" >
+                <Input v-model="value1" placeholder="唯一标识" clearable/>
             </Col>
-            <Col span="4" >
-               <Select v-model="value2" clearable style="width:200px" placeholder="适用对象">
+            <Col span="5" >
+               <Select v-model="value2" clearable placeholder="适用对象">
                     <Option v-for="item in objectoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
                 </Select>
             </Col>
-            <Col span="4">
-                <Select v-model="value3" clearable style="width:200px" placeholder="模型功能">
+            <Col span="5">
+                <Select v-model="value3" clearable placeholder="模型功能">
                     <Option v-for="item in funcoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
                 </Select>
             </col>
-            <Col span="4">
-                <Input v-model="value4" placeholder="更新日期" clearable style="width: 200px" />
+            <Col span="5">
+                <!-- <Input v-model="value4" placeholder="更新日期" clearable style="width: 200px" /> -->
+                <DatePicker v-model="value4" type="date" placeholder="更新日期" show-week-numbers/>
             </Col>
-            <Col span="6">
+            <Col span="4" style="padding: 0%;">
                 <Button  @click="searchItem" style="margin-right:15px">查询</Button>
                 <Button type="primary" to="/modelAdd">新增</Button>
             </Col>
@@ -232,6 +233,19 @@ export default {
                 const endIndex = startIndex + this.currentPageSize;
                 return this.userList.slice(startIndex, endIndex);
             },
+            searchDate() {
+                //时间选择器Date->str
+                let str = ""
+                if(this.value4!==''){
+                    let year = this.value4.getFullYear()
+                    let month = this.value4.getMonth() + 1
+                    month = month<10?('0'+month):month
+                    let day = this.value4.getDate()
+                    day = day<10?('0'+day):day
+                    str = year + "-" + month + "-" + day
+                }
+                return str
+            },
         },
         created () {
             this.getUserList()
@@ -271,6 +285,27 @@ export default {
             remove (index) {
                 this.userList.splice(index, 1);
                 this.$Message.success('删除成功');
+            },
+            searchItem() {
+                this.$axios.get('/model/findSome',{
+                    params:{
+                        name:this.value1,
+                        object:this.value2,
+                        function:this.value3,
+                        time:this.searchDate
+                    }
+                })
+                .then(res => {
+                    if(res.data.userList.length===0){
+                        this.$Message.error('没有找到匹配的结果');
+                        // this.$Message.error(res.error.message);
+                    }
+                    else
+                        this.$Message.success('查找成功');
+                    this.userList = res.data.userList
+                }).catch(err => {
+                    this.$Message.error(err.message);
+                })
             }
         }
     }
