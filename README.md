@@ -17,7 +17,7 @@
 #拉取远端仓库代码
 git clone https://github.com/Blizzard-cyber/DataView-Admin.git
 
-#拉取到本地后查看main分支（主分支）内容为模板内容
+#拉取到本地后查看分支（主分支）内容为模板内容
 .....
 #编写代码
 .....
@@ -36,21 +36,21 @@ git commit -m "提交说明"
 #push
 git push origin <yourBranchName>
 
-#合并代码到master分支
-#切换到master分支
-git  checkout main
+#合并代码到dev分支
+#切换到dev分支
+git  checkout dev
 
 #pull master分支的状态
-git pull origin main
+git pull origin dev
 
-#合并自己分支到master
+#合并自己分支到dev
 git  merge <yourBranchName>
 
 #可检查状态
 git status
 
 #push到远端
-git push origin main
+git push origin dev
 ```
 
 ## 使用
