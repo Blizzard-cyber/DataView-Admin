@@ -47,33 +47,34 @@ export default {
 				username: userName,
 				password: password
 			};
-			this.$axios
-				.post("/login", data)
-				.then(res => {
-					if (res.data.success == true) {
-						this.$Notice.success({
-							title: "登录成功！"
-						});
-						this.setLoginUserName(userName)
-						this.setLoginUserpwd(password)
-						// util.storage.set(this.$config.KEY.CACHE_LOGIN_USER_NAME, userName);
-						// util.storage.set(this.$config.KEY.CACHE_LOGIN_PASS_PWD, password);
-						setTimeout(() => {
-							this.$router.push("/");
-						}, 300);
-					} else {
-						this.$Notice.error({
-							title: "登录失败！",
-							desc: "请输入正确的用户名和密码（用户名：admin，密码：admin） "
-						});
-					}
-				})
-				.catch(err => {
-					this.$Notice.error({
-						title: "登录失败！",
-						desc: "请输入正确的用户名和密码（用户名：admin，密码：admin） "
-					});
-				});
+			this.$router.push("/");
+			// this.$axios
+			// 	.post("/login", data)
+			// 	.then(res => {
+			// 		if (res.data.success == true) {
+			// 			this.$Notice.success({
+			// 				title: "登录成功！"
+			// 			});
+			// 			this.setLoginUserName(userName)
+			// 			this.setLoginUserpwd(password)
+			// 			// util.storage.set(this.$config.KEY.CACHE_LOGIN_USER_NAME, userName);
+			// 			// util.storage.set(this.$config.KEY.CACHE_LOGIN_PASS_PWD, password);
+			// 			setTimeout(() => {
+			// 				this.$router.push("/");
+			// 			}, 300);
+			// 		} else {
+			// 			this.$Notice.error({
+			// 				title: "登录失败！",
+			// 				desc: "请输入正确的用户名和密码（用户名：admin，密码：admin） "
+			// 			});
+			// 		}
+			// 	})
+			// 	.catch(err => {
+			// 		this.$Notice.error({
+			// 			title: "登录失败！",
+			// 			desc: "请输入正确的用户名和密码（用户名：admin，密码：admin） "
+			// 		});
+			// 	});
 		}
 	}
 };

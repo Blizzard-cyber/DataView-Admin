@@ -110,16 +110,16 @@ ViewUI.LoadingBar.config({
 })
 
 //路由前置首卫
-router.beforeEach((to, from, next) => {
-  if(to.path !== "/login") {
-    if(!util.storage.get(config.KEY.CACHE_LOGIN_USER_NAME) && !util.storage.get(config.KEY.CACHE_LOGIN_PASS_PWD)) {
-      return next("/login")
-    }
-  }
-  ViewUI.LoadingBar.start();
-  if(to.meta && to.meta.title) document.title = to.meta.title
-  next()
-})
+// router.beforeEach((to, from, next) => {
+//   if(to.path !== "/login") {
+//     if(!util.storage.get(config.KEY.CACHE_LOGIN_USER_NAME) && !util.storage.get(config.KEY.CACHE_LOGIN_PASS_PWD)) {
+//       return next("/login")
+//     }
+//   }
+//   ViewUI.LoadingBar.start();
+//   if(to.meta && to.meta.title) document.title = to.meta.title
+//   next()
+// })
 
 //路由后置首卫
 router.afterEach(route => {

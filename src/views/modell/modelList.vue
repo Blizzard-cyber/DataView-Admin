@@ -41,7 +41,7 @@
             @on-change="changePage"
             @on-page-size-change="changePageSize"
         />
-        <Modal 
+        <!-- <Modal 
             v-model="isModal"
             :styles="{top:'60px'}" >
             <p slot="header" style="font-size:16px">
@@ -65,7 +65,7 @@
                     <Button type="primary" size="large" @click="clickModalEvent">提交</Button>
                 </slot>
             </div>
-        </Modal>
+        </Modal> -->
     </div>
 </template>
 
@@ -74,7 +74,6 @@ import mockData from '@/mock/index.js'
 export default {
         data () {
             return {
-                isModal: false,
                 value1: '',
                 value2: '',
                 value3: '',
@@ -148,19 +147,19 @@ export default {
                     },
                     {
                         title: '适用对象',
-                        key: 'object',
+                        key: 'taskTid',
                         align: 'center'
                     },
                     {
                         title: '功能',
-                        key: 'function',
+                        key: 'uid',
                         width: 150,
                         align: 'center',
                         
                     },
                     {
                         title: '更新时间',
-                        key: 'time',
+                        key: 'updateDate',
                         align: 'center'
                     },
                     {
@@ -181,10 +180,10 @@ export default {
                                     on: {
                                         click: () => {
                                             const userData = params.row
-                                            this.showEditModal(userData)
+                                            this.downloadModal(userData.id)
                                         }
                                     }
-                                }, '修改'),
+                                }, '下载'),
                                 h('Button', {
                                     props: {
                                         type: 'error',
@@ -252,10 +251,17 @@ export default {
         },
         methods: {
             getUserList() {
-                this.$axios.get('/modelList')
+                this.$axios.get('/model/')
                 .then(res => {
-                    this.userList = res.data.userList
-                }) 
+                    if(res.status === 200){
+                       
+                        this.userList = res.data.data
+                    }
+                    else{
+                        this.$Message.error('获取用户列表失败');
+                    }
+                    
+                })
             },
             //切换页码
             changePage(num) {
@@ -265,15 +271,36 @@ export default {
             changePageSize(num) {
                 this.currentPageSize = num;
             },
-            showEditModal(userData) {
-                //将modal状态变为edit修改用户信息
-                this.modalStatus = 'edit'
-                this.isModal = true
-                //自动填入当前用户原有的信息
-                this.modalItem[0].value = userData.name
-                this.modalItem[1].value = userData.age || ''
-                this.modalItem[2].value = userData.gender ? "男" : "女" || ''
-                this.userData = userData     
+            downloadModal(id) {
+                this.$axios.get('/model/url/'+id)
+                .then( async res => {
+                    console.log(res.data)
+                    
+                    //promise 同步请求
+                    await this.$axios.get(""+ res.data.data)
+                    .then(res => {
+                        console.log(res)
+                        //下载二进制流
+                        
+
+
+                    }
+                    
+
+                    
+
+                    //this.download(res.data.data)
+                )
+                }
+                )
+            },
+            download(url){
+                console.log(url);
+                this.$axios.get(""+url)
+                .then(res => {
+                    this.$Message.success("获取成功")
+                })
+
             },
             cancel() {
                 this.isModal = false
