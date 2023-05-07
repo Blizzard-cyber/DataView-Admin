@@ -11,7 +11,9 @@
                 <Input v-model="value1" placeholder="设备名称" clearable/>
             </Col>
             <Col span="5" >
-               <Input v-model="value2" placeholder="设备类型" clearable/>
+               <Select v-model="value2" clearable placeholder="设备类型">
+                    <Option v-for="item in deviceoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                </Select>
             </Col>
             <Col span="5">
                 <Select v-model="value3" clearable placeholder="蓝牙类型">
@@ -19,8 +21,7 @@
                 </Select>
             </col>
             <Col span="5">
-                <!-- <Input v-model="value4" placeholder="创建日期" clearable/> -->
-                <DatePicker v-model="value4" type="date" placeholder="创建日期" show-week-numbers/>
+                <DatePicker v-model="value4" type="datetime" format="yyyy-MM-dd HH:mm:ss" placeholder="起始创建日期" show-week-numbers/>
             </Col>
             <Col span="4" style="padding: 0%;">
                 <Button @click="searchItem" >查询</Button>
@@ -43,22 +44,33 @@
             v-model="isModal"
             :styles="{top:'60px'}" >
             <p slot="header" style="font-size:16px">
-                <span>修改用户</span>
+                <span>修改设备</span>
             </p>
-            <Form label-position="left"  :label-width="100">
-                <template v-for="item of modalItem">
-                    <FormItem 
-                        :label="item.label"
-                        v-if="!item.hide"
-                        :key="item.label">
-                        <Input 
-                            :type="item.type || 'text'" 
-                            v-model="item.value" 
-                            style="width:300px" 
-                            :disabled="item.label==='序号'||item.label==='创建时间'"/>
-                    </FormItem>
-                </template>
-                    
+            <Form ref="modalItem" :model="modalItem" :rules="ruleValidate" :label-width="125">
+                <FormItem label="序号" prop="id">
+                    <Input v-model="modalItem.id" placeholder="" style="width:300px" disabled/>
+                </FormItem>
+                <FormItem label="设备名称" prop="name">
+                    <Input v-model="modalItem.name" placeholder="" style="width:300px"/>
+                </FormItem>
+                <FormItem label="设备类型" prop="dtype">
+                    <Select v-model="modalItem.devType" placeholder="请选择" style="width:300px">
+                        <Option v-for="item in deviceoption" :value="item.value" :key="item.value">{{ item.label }}</Option> 
+                    </Select>
+                </FormItem>
+                <FormItem label="蓝牙类型" prop="blueteeth">
+                    <Select v-model="modalItem.bluType" placeholder="请选择" style="width:300px">
+                        <Option v-for="item in blueteethoption" :value="item.value" :key="item.value">{{ item.label }}</Option> 
+                    </Select>
+                </FormItem>
+                <FormItem label="输出数据类型" prop="outtype">
+                    <Select v-model="modalItem.outtype" multiple placeholder="请选择" style="width:300px">
+                        <Option v-for="item in outtypeoption" :value="item.value" :key="item.value">{{ item.label }}</Option>  
+                    </Select> 
+                </FormItem>
+                <FormItem label="创建时间" prop="createDate">
+                    <Input v-model="modalItem.createDate" placeholder="" style="width:300px" disabled/>
+                </FormItem>
             </Form>
             <div slot="footer">
                 <slot name="footer">
@@ -71,7 +83,7 @@
 </template>
 
 <script>
-import mockData from '@/mock/index.js'
+import { getDeviceListApi, searchDeviceApi, deleteDeviceApi, modifyDeviceApi, getInputTypeApi, getOneInputTypeApi } from '../../network/api/deviceApi';
 export default {
         data () {
             return {
@@ -80,32 +92,30 @@ export default {
                 value2: '',
                 value3: '',
                 value4: '',
-
+                deviceoption:
+                [
+                    {
+                        value: '心电设备',
+                        label: '心电设备'
+                    },
+                    {
+                        value: '腕带设备',
+                        label: '腕带设备'
+                    }
+                ],
                 blueteethoption:
                 [
                     {
-                        value: 'New York',
-                        label: 'New York'
+                        value: 'vivalink',
+                        label: 'vivalink'
                     },
                     {
-                        value: 'London',
-                        label: 'London'
+                        value: 'classic',
+                        label: 'classic'
                     },
                     {
-                        value: 'Sydney',
-                        label: 'Sydney'
-                    },
-                    {
-                        value: 'Ottawa',
-                        label: 'Ottawa'
-                    },
-                    {
-                        value: 'Paris',
-                        label: 'Paris'
-                    },
-                    {
-                        value: 'Canberra',
-                        label: 'Canberra'
+                        value: 'ble',
+                        label: 'ble'
                     }
                 ],
                 columns6: [
@@ -122,19 +132,19 @@ export default {
                     },
                     {
                         title: '设备类型',
-                        key: 'dtype',
+                        key: 'devType',
                         align: 'center'
                     },
                     {
                         title: '蓝牙类型',
-                        key: 'btype',
+                        key: 'bluType',
                         width: 150,
                         align: 'center',
                         
                     },
                     {
                         title: '创建时间',
-                        key: 'time',
+                        key: 'createDate',
                         align: 'center'
                     },
                     {
@@ -170,7 +180,7 @@ export default {
                                                 title: '系统提示',
                                                 content: '删除后无法恢复，确定删除吗？',
                                                 onOk: () => {
-                                                    this.remove(params.row.id,params.index);
+                                                    this.remove(params.row.id);
                                                 }
                                             });
                                         }
@@ -181,29 +191,32 @@ export default {
                     }
                 ],
                 userList:[],
-                modalItem: [
-                    {
-                        label: '序号',
-                        value: '',
-                    },
-                    {
-                        label: '设备名称',
-                        value: '',
-                    },
-                    {
-                        label: '设备类型',
-                        value: ''
-                    },
-                    {
-                        label: '蓝牙类型',
-                        value: ''
-                    },
-                    {
-                        label: '创建时间',
-                        value: ''
-                    },
-                ],
-                modifyIndex: 0,
+                outtypeoption:[],
+                modalItem: {
+                    id: '',
+                    name: '',
+                    devType: '',
+                    bluType: '',
+                    outtype:[],
+                    createDate:''
+                },
+                ruleValidate: {
+                    devType : [
+                        {required: true, message: '不能为空', trigger: 'change'}
+                    ],
+                    bluType : [
+                        {required: true, message: '不能为空', trigger: 'change'}
+                    ],
+                    createDate : [
+                        {required: true, message: '不能为空', trigger: 'change'}
+                    ],
+                    name: [
+                        {required: true, message: '设备名称不能为空', trigger: 'change' },
+                    ],
+                    outtype : [
+                        {required: true, type:'array',min:1,message:'至少选择一个输出数据类型',trigger: 'change' }
+                    ]
+                },
                 currentPage: 0,
                 currentPageSize: 10,
             }
@@ -217,27 +230,50 @@ export default {
             },
             searchDate() {
                 //时间选择器Date->str
-                let str = ""
-                if(this.value4!==''){
-                    let year = this.value4.getFullYear()
-                    let month = this.value4.getMonth() + 1
-                    month = month<10?('0'+month):month
-                    let day = this.value4.getDate()
-                    day = day<10?('0'+day):day
-                    str = year + "-" + month + "-" + day
+                let str = ''
+                if (this.value4 !== "") {
+                    let date = new Date(this.value4);
+                    let year = date.getFullYear();
+                    let month = ("0" + (date.getMonth() + 1)).slice(-2);
+                    let day = ("0" + date.getDate()).slice(-2);
+                    let hours = ("0" + date.getHours()).slice(-2);
+                    let minutes = ("0" + date.getMinutes()).slice(-2);
+                    let seconds = ("0" + date.getSeconds()).slice(-2);
+                    // Format string as "yyyy-MM-dd HH:mm:ss"
+                    str = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
                 }
                 return str
             },
         },
         created () {
             this.getUserList()
+            this.getInputType()
         },
         methods: {
-            getUserList() {
-                this.$axios.get('/deviceList')
-                .then(res => {
-                    this.userList = res.data.userList
-                }) 
+            async getUserList() {
+                let res = await getDeviceListApi() //同步处理
+                    if(res.type === 'success'){
+                        this.userList = res.data
+                    }
+                    else{
+                        this.$Message.error('获取选项列表失败');
+                    }            
+            },
+            async getInputType(){
+                let res = await getInputTypeApi()
+                    if(res.type === 'success'){
+                        let inputType = res.data
+                        this.outtypeoption = []
+                        inputType.forEach(element => {
+                            this.outtypeoption.push({
+                                value:element.id,
+                                label:element.id
+                            })
+                        });
+                    }
+                    else{
+                        this.$Message.error('获取设备输出类型失败！');
+                    }
             },
             //切换页码
             changePage(num) {
@@ -247,82 +283,75 @@ export default {
             changePageSize(num) {
                 this.currentPageSize = num;
             },
-            showEditModal(userData,index) {
-                //将modal状态变为edit修改用户信息
-                this.modalStatus = 'edit'
+            async showEditModal(userData) {
                 this.isModal = true
+                //根据id请求其对应设备的模型输入类型（输出数据类型）
+                let res = await getOneInputTypeApi(userData.id)
+                console.log(res);
+                if(res.type==='success'){
+                    this.modalItem.outtype = res.data
+                }else {
+                    this.$Message.error('获取当前设备输出数据类型失败!')
+                }
                 //自动填入当前用户原有的信息
-                this.modalItem[0].value = userData.id
-                this.modalItem[1].value = userData.name
-                this.modalItem[2].value = userData.dtype
-                this.modalItem[3].value = userData.btype
-                this.modalItem[4].value = userData.time
-                this.modifyIndex = index     
-            },
+                this.modalItem.id = userData.id
+                this.modalItem.name = userData.name
+                this.modalItem.devType = userData.devType
+                this.modalItem.bluType = userData.bluType
+                this.modalItem.createDate = userData.createDate
+            },  
             cancel() {
                 this.isModal = false
             },
             clickModalEvent() {
-                let data = {
-                    id:this.modalItem[0].value,
-                    name:this.modalItem[1].value,
-                    dtype:this.modalItem[2].value,
-                    btype:this.modalItem[3].value,
-                }
-                this.$axios.post('/device/modify',data)
-                .then(res=>{
-                    if(res.data.success === true) {
-                        this.userList[this.modifyIndex].name = this.modalItem[1].value
-                        this.userList[this.modifyIndex].dtype = this.modalItem[2].value
-                        this.userList[this.modifyIndex].btype = this.modalItem[3].value
-                        this.$Message.success('修改成功');
-                    } else {
-                        this.$Message.error('修改失败')
+                this.$refs['modalItem'].validate(async (valid) => {
+                    if (valid) {
+                        let paramsdata = {
+                            id:this.modalItem.id,
+                            name:this.modalItem.name,
+                            devType:this.modalItem.devType,
+                            bluType:this.modalItem.bluType,
+                            inputTypeIdList:this.modalItem.outtype
+                        }
+                        let res = await modifyDeviceApi(paramsdata)
+                        if(res.type==='success'){
+                            this.$Message.success('修改成功');
+                            this.getUserList()
+                        }else {
+                            this.$Message.error('修改失败')
+                        }
+                        this.isModal = false
+                    }else {
+                        this.$Message.error('Fail!')
                     }
-                }).catch(err=>{
-                    this.$Message.error(err.message);
                 })
-                this.isModal = false
+                
             },
-            remove (deleteId,index) {
-                this.$axios.delete('/device/delete',{
-                    data:{
-                        id:deleteId
-                    }
-                }).then(res =>{
-                    if(res.data.flag)
-                    {
-                        this.userList.splice(index, 1)
+            async remove (deleteId) {
+                let res = await deleteDeviceApi(deleteId)
+                    if(res.type==="success"){
+                        this.getUserList()
                         this.$Message.success('删除成功')
                     }    
-                    else{
-                        this.$Message.error(err.message);
+                    else {
+                        this.$Message.error("删除失败");
                     }
-                }).catch(err => {
-                    this.$Message.error(err.message);
-                })
             },
-            searchItem() {
-                console.log(this.searchDate);
-                this.$axios.get('/device/findSome',{
-                    params:{
-                        name:this.value1,
-                        devType:this.value2,
-                        bType:this.value3,
-                        createDate:this.searchDate
-                    }
-                })
-                .then(res => {
-                    if(res.data.userList.length===0){
+            async searchItem() {
+                let paramsdata = {
+                    devName:this.value1,
+                    devType:this.value2,
+                    bluType:this.value3,
+                    createDate:this.searchDate
+                }
+                let res = await searchDeviceApi(paramsdata)
+                    if(res.data.length===0){
                         this.$Message.error('没有找到匹配的结果');
-                        // this.$Message.error(res.error.message);
                     }
-                    else
+                    else {
                         this.$Message.success('查找成功');
-                    this.userList = res.data.userList
-                }).catch(err => {
-                    this.$Message.error(err.message);
-                })
+                        this.userList = res.data   
+                    }
             }
         }
     }
