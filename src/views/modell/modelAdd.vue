@@ -34,12 +34,12 @@
             <Input v-model="formValidate.dsecond" placeholder="" style="width:250px"></Input>
         </FormItem>
         <FormItem
-                v-for="(item, index) in formDynamic.items"
-                v-if="item.status"
+                v-for="(item, index) in formValidate.dimlist"
                 :key="index"
-                :label="'输入数据维度 ' + item.index"
-                :prop="'items.' + index + '.value'"
-                :rules="{required: true, message: 'Item ' + item.index +' can not be empty', trigger: 'blur'}">
+                :label="'输入数据维度 ' + index"
+                :prop="'dimlist.' + index + '.value'"
+                :rules="[{required: true, message: '输入数据维度 ' + index +' 不能为空', trigger: 'blur'},
+                { type: 'number', min:1,max:100, message: '数据维度在1-100之间', trigger: 'blur', transform: (value) => Number(value) }]">
             <Row>
                 <Col span="6">
                     <Input type="text" v-model="item.value" placeholder="" style="width:250px" ></Input>
@@ -58,19 +58,7 @@
             </Row>
         </FormItem>
         <FormItem label="输入数据类型" prop="intype">
-         <!-- <Button type="primary" @click="isModal=true">点击选择</Button>
-            <Modal
-                v-model="isModal"
-                :styles="{top:'60px'}" >
-                <p slot="header" style="font-size:16px">
-                    <span>选择数据类型</span>
-                </p>
-                 <Table highlight-row ref="currentRowTable" :columns="columns3" :data="data1"></Table>
-                
-            
-            </Modal> -->
-            
-            <Select v-model="formValidate.intype" placeholder="请选择"  style="width:250px">
+            <Select v-model="formValidate.intype" multiple placeholder="请选择"  style="width:250px">
                 <Option v-for="item in intypeoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
                 
             </Select> 
@@ -134,7 +122,7 @@
 </template>
 
 <script>
-import{getModelListApi,getINModelApi,getOUTModelApi,addModelApi} from '../../network/api/modelApi'
+import{getModelListApi,getINModelApi,getOUTModelApi,addModelApi,addINModelApi,addOUTModelApi} from '../../network/api/modelApi'
     export default {
         data () {
             return {
@@ -166,25 +154,18 @@ import{getModelListApi,getINModelApi,getOUTModelApi,addModelApi} from '../../net
                         // { type: 'string', message: 'Incorrect email format', trigger: 'blur' }
                     ]
                 },
-                
-                
-                formDynamic: {
-                    items: [
-                        {
-                            value: '',
-                            index: 1,
-                            status: 1
-                        }
-                    ]
-                },
-               
+        
                 formValidate: {
                     file: '',
                     name: '',
                     mfunction: '',
                     mobject: '',
                     dsecond: '',
-                    dimlist: '',
+                    dimlist: [
+                        {
+                            value: '',
+                        }
+                    ],
                     intype:'',
                     outtype:''
                 },
@@ -194,25 +175,22 @@ import{getModelListApi,getINModelApi,getOUTModelApi,addModelApi} from '../../net
                         // { type: 'string', message: 'Incorrect email format', trigger: 'blur' }
                     ],
                     mfunction: [
-                        { required: false,  trigger: 'change' }
+                        { required: true, message:'请选择模型功能' ,trigger: 'change',type:'number' }
                     ],
                     mobject: [
-                        { required: false, trigger: 'change' }
+                        { required: true, message:'请选择适用对象', trigger: 'change' ,type:'number' }
                     ],
                     dsecond: [
-                        { required: true, type: 'number', message: '请输入正确的数据秒数', trigger: 'blur' },
-                        // { type: 'number', min:1,max: 10000, message: '请输入正确的数据秒数', trigger: 'blur' }
+                        { required: true,  message: '请输入数据秒数', trigger: 'blur' },
+                        { type: 'number', min:1,max: 10000, message: '请输入正确的数据秒数', trigger: 'blur', transform: (value) => Number(value) }
                     ],
                     intype: [
-                        { required: false,  trigger: 'change' }
+                        { required: true, message:'请选择输入数据类型', trigger: 'bulr',type:'array' }
                     ],
                     outtype: [
-                        { required: false, trigger: 'change' }
+                        { required: true, message:'请输入输出数据类型', trigger: 'bulr' }
                     ],
-                    // desc: [
-                    //     { required: true, message: 'Please enter a personal introduction', trigger: 'blur' },
-                    //     { type: 'string', min: 20, message: 'Introduce no less than 20 words', trigger: 'blur' }
-                    // ]
+                    
                 }
             }
         },
@@ -293,31 +271,51 @@ import{getModelListApi,getINModelApi,getOUTModelApi,addModelApi} from '../../net
                     //console.log(this.outtypeoption)
                 }
             },
-            handleOK(form){
-                
-                this.$refs[form].validate((valid) => {
-                    if (valid && this.addformValidate.addtype!=='') {
-                        
-                        this.$Message.success('Success!');
-                        //this.isModal=false;
+            //提交数据类型添加
+             handleOK(form){
+                let datatype = this.addformValidate.addtype
+                this.$refs[form].validate(async(valid) => {
+                    if (valid && datatype!=='') {
+                        let addtype={
+                               name:this.addformValidate.dataname,
+                               batchSize:this.addformValidate.datalength,
+                               desc:this.addformValidate.datadescription
+                        }
+                        console.log(datatype)
+                        if(datatype==="输入数据类型"){
+                            let addintype = await addINModelApi(addtype)
+                            if(addintype.type === 'success'){
+                                this.$Message.success('添加成功!');
+                                this.isModal=false;
+                                this.getUserList()//刷新选项
+                            }
+                            else{
+                                this.$Message.error('添加失败！');
+                            }
+                        }
+                        else if(datatype==="输出数据类型"){
+                            let addouttype = await addOUTModelApi(addtype)
+                            if(addouttype.type === 'success'){
+                                this.$Message.success('添加成功!');
+                                this.isModal=false;
+                                this.getUserList() //刷新选项
+                            }
+                            else{
+                                this.$Message.error('添加失败');
+                            }
+                                
+                        }
                     } 
-                    else if(this.addformValidate.addtype===''){
+                    else if(datatype===''){
                         this.$Message.error('请选择添加类型！');
                     }
                     else {
                         this.$Message.error('填写内容有误，请检查后重新提交！');
+                        
                     }
                 })
                 
-                // this.$refs[form].validate((valid) => {
-                //     console.log(valid);
-                //     if (valid) {
-                //         this.$Message.success('Success!');
-                //         this.isModal=false;
-                //     } else {
-                //         this.$Message.error('Fail!');
-                //     }
-                // })
+            
 
             },
             handleCancel(form){
@@ -332,53 +330,75 @@ import{getModelListApi,getINModelApi,getOUTModelApi,addModelApi} from '../../net
                 this.formValidate.file = file;
                 return false;
             },
-            async handleSubmit (name) { //提交表单
-             let adddata={
-                    modelFile:this.formValidate.file,
-                    name:this.formValidate.name,
-                    taskTid:this.formValidate.mfunction,
-                    uid:this.formValidate.mobject,
-                    second:this.formValidate.dsecond,
-                    dimShapeList:this.formValidate.dimlist,
-                    inputTypeIdList:this.formValidate.intype,
-                    outputTid:this.formValidate.outtype
-             }
-                let res = await addModelApi(adddata)
-                if(res.type === "success"){
-                    this.$Message.success('添加成功!');
+             handleSubmit (formname) { //提交表单
+             let isfile=this.formValidate.file
+             this.$refs[formname].validate(async(valid) => {
+               
+                if (valid && isfile!=='') {                   
+                    //输入数据类型拼接
+                    let str = ''
+                        for(let i=0;i<this.formValidate.intype.length;i++){
+                            str += this.formValidate.intype[i]
+                            if(i<this.formValidate.intype.length-1){
+                                str += ','
+                            }
+                        }
+                    //输入维度拼接
+                        let dimstr = ''
+                        for(let i=0;i<this.formValidate.dimlist.length;i++){
+                            if(this.formValidate.dimlist[i].value !== ''){
+                                dimstr +=this.formValidate.dimlist[i].value +','
+                            }
+                        }
+                        dimstr = dimstr.substring(0,dimstr.length-1)
+                    //上传数据
+                     let adddata={
+                            modelFile:this.formValidate.file,
+                            name:this.formValidate.name,
+                            taskTid:this.formValidate.mfunction,
+                            uid:this.formValidate.mobject,
+                            second:this.formValidate.dsecond,
+                            dimShapeList:dimstr,
+                            inputTypeIdList:str,
+                            outputTid:this.formValidate.outtype
+                    }
+                    console.log(adddata)
+                    let res = await addModelApi(adddata)
+                    console.log(res)
+                    if(res.type === "success"){
+                        this.$Message.success('添加成功!');
+                    }
+                    else{
+                        this.$Message.error(res.message);
+                    }
                 }
-                else{
-                    this.$Message.error(res.message);
+                else if(isfile===''){
+                    this.$Message.error('请选择上传文件！');
                 }
-
-                // this.$refs[name].validate((valid) => {
-                //     if (valid) {
-                //         this.$Message.success('Success!');
-                //     } else {
-                //         this.$Message.error('Fail!');
-                //     }
-                // })
+                else {
+                    this.$Message.error('填写内容有误，请检查后重新提交！');
+                    
+                }
+             })
             },
-            handleReset (name) {
-                this.$refs[name].resetFields();
+            handleReset (formname) {
+                this.$refs[formname].resetFields();
+                this.$Message.info('填写数据清除');
             },
            
             handleAdd () {
-                this.gindex++;
-                this.formDynamic.items.push({
+                this.formValidate.dimlist.push({
                     value: '',
-                    index: this.gindex,
-                    status: 1
-                });
+                })
             },
             handleRemove (index) {
-                if(this.gindex>1){
                 
-                this.formDynamic.items[index].status = 0;
-                this.gindex--;
+                if(this.formValidate.dimlist.length>1){
+               this.formValidate.dimlist.splice(index, 1)           
             }
             else{
-                this.$Message.error('至少保留一个输入数据类型');
+                
+                 this.$Message.error('至少保留一个输入数据类型');
             }
             }
         }

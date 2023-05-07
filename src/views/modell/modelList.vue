@@ -144,7 +144,7 @@ export default {
                                                 content: '删除后无法恢复，确定删除吗？',
                                                 onOk: () => {
                                                     
-                                                    this.remove(params.row.id);
+                                                    this.remove(params.row.id,params.index);
                                                 }
                                             });
                                         }
@@ -244,13 +244,9 @@ export default {
             changePageSize(num) {
                 this.currentPageSize = num;
             },
-            async downloadModal(id) {
-                let res = await getFileNameApi(id)
-                let fileName =res.data
-                let file = await downloadModelApi(fileName)
-                let blob = new Blob([file], {type: 'application/octet-stream'})
-
-
+            downloadModal(id) {
+                window.open("http://43.248.188.73:11234/model/download/"+id)
+                
                         // let blob = new Blob([res.data], {type: 'application/octet-stream'})
                         // let fileName= "test.png"
                         // //let fileName = res.headers['content-disposition'].split(';')[1].split('=')[1]
@@ -265,12 +261,14 @@ export default {
             },
             
             
-            async remove (index) {   
+            async remove (index,row) {   
+                //console.log(index)
+                
                 let res = await deleteModelApi(index)
                 
                     if(res.type === 'success'){
                         this.$Message.success('删除成功');
-                        this.userList.splice(index, 1);
+                        this.userList.splice(row, 1);
                     }
                     else{
                         this.$Message.error('删除失败');

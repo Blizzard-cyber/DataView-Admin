@@ -2,14 +2,14 @@
     <Form ref="formDynamic" :model="formDynamic" :label-width="80" style="width: 300px">
         <FormItem
                 v-for="(item, index) in formDynamic.items"
-                v-if="item.status"
+               
                 :key="index"
-                :label="'Item ' + item.index"
+                :label="'Item '+index"
                 :prop="'items.' + index + '.value'"
-                :rules="{required: true, message: 'Item ' + item.index +' can not be empty', trigger: 'blur'}">
+                :rules="{required: true, message: 'Item ' + index +' can not be empty', trigger: 'blur'}">
             <Row>
                 <Col span="18">
-                    <Input type="text" v-model="item.value" placeholder="Enter something..."></Input>
+                    <Input type="text" v-model="items.value" placeholder="Enter something..."></Input>
                 </Col>
                 <Col span="4" offset="1">
                     <Button @click="handleRemove(index)">Delete</Button>
@@ -41,27 +41,28 @@ import{getUserInfo,searchModel} from '../../network/api/modelApi'
                 index: 1,
                 formDynamic: {
                     items: [
-                        {
-                            value: '',
-                            index: 1,
-                            status: 1
-                        }
+                        ""
                     ]
                 }
             }
         },
         methods: {
 
-           async handleaxios(){
-            let data={
-                modelName:'test',
-                userId:'1',
-                taskTypeId:'3',
-                updateDate:''
-            }
+            handleaxios(){
+                //将formDynamic中的value值取出来，用逗号隔开拼接
+                let str = ''
+                for(let i = 0;i<this.formDynamic.items.length;i++){
+                    if(this.formDynamic.items[i] !== ''){
 
-            let restext = await searchmodel(data)
-            console.log(restext.data)
+                    
+                    str += this.formDynamic.items[i]+','
+                    }
+                }
+                //去掉最后一个逗号
+                str = str.substring(0,str.length-1)
+                //调用接口
+                console.log(str)
+                console.log(this.formDynamic.items)
             },
             handleSubmit (name) {
                 this.$refs[name].validate((valid) => {
@@ -76,15 +77,16 @@ import{getUserInfo,searchModel} from '../../network/api/modelApi'
                 this.$refs[name].resetFields();
             },
             handleAdd () {
-                this.index++;
-                this.formDynamic.items.push({
-                    value: '',
-                    index: this.index,
-                    status: 1
-                });
+                
+                this.formDynamic.items.push("");
+                console.log(this.formDynamic.items.length)
+                console.log(this.formDynamic.items)
             },
             handleRemove (index) {
-                this.formDynamic.items[index].status = 0;
+                
+                //将对应的对象移除
+                this.formDynamic.items.splice(index,1)
+               
             }
         }
     }

@@ -48,21 +48,21 @@ export const deleteModelApi = (modelId) => {
  * @param {String} fileName
  * @returns {Blob} file
  */
-export const getFileNameApi = (modelId) => {
-  return serviceAxios({
-    url: '/model/url/' + modelId,
-    method: "get",
-  })
-};
-export const downloadModelApi = (fileName) => {
-  return serviceAxios({
-    url: '/modelFile/' + fileName,
-    method: "get",
-    responseType: "blob",
+// export const getFileNameApi = (modelId) => {
+//   return serviceAxios({
+//     url: '/model/url/' + modelId,
+//     method: "get",
+//   })
+// };
+// export const downloadModelApi = (fileName) => {
+//   return serviceAxios({
+//     url: '/modelFile/' + fileName,
+//     method: "get",
+//     responseType: "blob",
 
-  }
-  )
-};
+//   }
+//   )
+// };
 
 /**
  * 获取输入/输出模型
@@ -92,6 +92,28 @@ export const getOUTModelApi = () => {
 export const addModelApi = (data) => {
   return serviceAxios({
     url: "/model/",
+    method: "post",
+    data,
+  });
+}
+
+
+/**
+ * 添加模型输入/输出模型
+ * POST
+ * @param {FormData} data
+ * @returns {Promise} res
+ */
+export const addINModelApi = (data) => { 
+  return serviceAxios({
+    url: "/inputType/",
+    method: "post",
+    data,
+  });
+}
+export const addOUTModelApi = (data) => {
+  return serviceAxios({
+    url: "/outputType/",
     method: "post",
     data,
   });

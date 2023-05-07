@@ -1,7 +1,7 @@
 import axios from "axios";
 import serverConfig from "./config";
 //import qs from "qs";
-
+import { Message } from "view-design";
 
 // 创建 axios 请求实例
 const serviceAxios = axios.create({
@@ -97,7 +97,7 @@ serviceAxios.interceptors.response.use(
           break;
       }
     }
-    this.$Message.error(message);
+    Message.error(message);
     return Promise.reject(message);
   }
 );
