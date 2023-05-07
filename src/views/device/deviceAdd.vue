@@ -35,6 +35,7 @@
                     show-sizer
                     show-elevator
                     show-total
+                    :page-size="currentPageSize"
                     :page-size-opts="[5,10,25,50,100]"
                     @on-change="changePage"
                     @on-page-size-change="changePageSize"
