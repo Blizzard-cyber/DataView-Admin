@@ -9,20 +9,39 @@
         <FormItem label="设备名称" prop="name">
             <Input v-model="formValidate.name" placeholder="" style="width:250px"></Input>
         </FormItem>
-        <FormItem label="设备类型" prop="dtype">
-            <Input v-model="formValidate.dtype" placeholder="" style="width:250px"></Input>
+        <FormItem label="设备类型" prop="devType">
+            <Select v-model="formValidate.devType" placeholder="请选择" style="width:250px">
+                <Option v-for="item in deviceoption" :value="item.value" :key="item.value">{{ item.label }}</Option> 
+            </Select>
         </FormItem>
-        <FormItem label="蓝牙类型" prop="blueteeth">
-            <Select v-model="formValidate.blueteeth" placeholder="请选择" style="width:250px">
+        <FormItem label="蓝牙类型" prop="bluType">
+            <Select v-model="formValidate.bluType" placeholder="请选择" style="width:250px">
                 <Option v-for="item in blueteethoption" :value="item.value" :key="item.value">{{ item.label }}</Option> 
             </Select>
         </FormItem>
         <FormItem label="输出数据类型" prop="outtype">
-            <Select v-model="formValidate.outtype" placeholder="请选择" filterable allow-create @on-create="handleCreate" style="width:250px">
+            <Select v-model="formValidate.outtype" multiple placeholder="请选择" style="width:250px">
                 <Option v-for="item in outtypeoption" :value="item.value" :key="item.value">{{ item.label }}</Option>  
             </Select> 
+            <Button type="warning" style="margin-left:10px"  @click="isModal2=true">输出数据类型详情</Button>
+            <Modal 
+                v-model="isModal2"
+                fullscreen>
+                <Table border :columns="columns6" :data="showData"></Table>
+                <Page
+                    class="flex j-center"
+                    style="marginTop:20px"
+                    :total="outtypeList.length"
+                    show-sizer
+                    show-elevator
+                    show-total
+                    :page-size-opts="[5,10,25,50,100]"
+                    @on-change="changePage"
+                    @on-page-size-change="changePageSize"
+                />
+            </Modal>
         </FormItem>
-        <FormItem label="缺少数据类型？">
+        <FormItem label="缺少输出数据类型？">
             <Button type="warning" @click="isModal=true">点我添加</Button>
             <Modal
                 v-model="isModal"
@@ -61,35 +80,98 @@
 </template>
 
 <script>
-    import mockData from '@/mock/index.js'
+    import { getInputTypeApi, addDeviceApi, addInputTypeApi, deleteInputTypeApi } from '../../network/api/deviceApi'
     export default {
         data () {
             return {
                 isModal:false,//弹出框打开状态
-                blueteethoption: [ //功能选项
+                isModal2:false,
+                currentPage: 0,
+                currentPageSize: 5,
+                deviceoption:
+                [
                     {
-                        value: 'op1',
-                        label: 'op1'
+                        value: '心电设备',
+                        label: '心电设备'
                     },
                     {
-                        value: 'op2',
-                        label: 'op2'
-                    },
-                    {
-                        value: 'op3',
-                        label: 'op3'
+                        value: '腕带设备',
+                        label: '腕带设备'
                     }
                 ],
-                outtypeoption: [
+                blueteethoption: 
+                [ 
                     {
-                        value: 'New York',
-                        label: 'New York'
+                        value: 'vivalink',
+                        label: 'vivalink'
                     },
                     {
-                        value: 'London',
-                        label: 'London'
+                        value: 'classic',
+                        label: 'classic'
+                    },
+                    {
+                        value: 'ble',
+                        label: 'ble'
                     }
-                    
+                ],
+                outtypeoption: [],
+                outtypeList: [],
+                columns6: [
+                    {
+                        title: '序号',
+                        width: 90,
+                        key: 'id',
+                        align: 'center'
+                    },
+                    {
+                        title: '输出类型',
+                        key: 'name',
+                        align: 'center'
+                    },
+                    {
+                        title: '数据长度',
+                        key: 'batchSize',
+                        align: 'center'
+                    },
+                    {
+                        title: '数据描述',
+                        key: 'desc',
+                        // width: 150,
+                        align: 'center',
+                    },
+                    {
+                        title: '创建时间',
+                        key: 'createDate',
+                        width: 200,
+                        align: 'center',
+                    },
+                    {
+                        title: '操作',
+                        key: 'action',
+                        width: 100,
+                        align: 'center',
+                        render: (h, params) => {
+                            return h('div', [
+                                h('Button', {
+                                    props: {
+                                        type: 'error',
+                                        size: 'small'
+                                    },
+                                    on: {
+                                        click:() => {
+                                            this.$Modal.confirm({
+                                                title: '系统提示',
+                                                content: '只能删除未使用的数据类型且删除后无法恢复，确定删除吗？',
+                                                onOk: () => {
+                                                    this.remove(params.row.id);
+                                                }
+                                            });
+                                        }
+                                    }
+                                }, '删除')
+                            ]);
+                        }
+                    }
                 ],
                 addData:{
                     dataname:'',
@@ -98,22 +180,22 @@
                 },
                 formValidate: {
                     name: '',
-                    dtype: '',
-                    blueteeth: '',
-                    outtype:''
+                    devtype: '',
+                    bluType: '',
+                    outtype:[]
                 },
                 ruleValidate: { 
                     name: [
                         { required: true, message: '设备名称不能为空', trigger: 'blur' },
                     ],
-                    dtype: [
-                        { required: false, trigger: 'blur' }
+                    devType: [
+                        { required: true, message: '设备类型不能为空', trigger: 'change' }
                     ],               
-                    blueteeth: [
-                        { required: false,  trigger: 'change' }
+                    bluType: [
+                        { required: true, message: '蓝牙类型不能为空', trigger: 'change' }
                     ],
                     outtype: [
-                        { required: false, trigger: 'change' }
+                        { required: true, type:'array', min:1, message: '至少选择一个输出数据类型', trigger: 'change' }
                     ]
                 },
                 addValidate: {
@@ -121,61 +203,103 @@
                         { required: true, message: '添加的数据名称不能为空', trigger: 'blur'}
                     ],
                     datalength: [
-                        { required: false, type: 'number', message: '数据长度为整数', trigger: 'blur' },
+                        { required: true, type: 'number', message: '数据长度必填且是整数', trigger: 'blur' },
                         { type: 'number', min:1,max: 1000, message: '数据长度范围为1-1000', trigger: 'blur' }
+                    ],  
+                    datadescription: [
+                        { required: true, message: '添加的数据描述不能为空', trigger: 'blur'}
                     ]
                 }
             }
         },
+        computed:{
+            showData() {
+                //再截取数据分页展示
+                const startIndex = this.currentPage * this.currentPageSize;
+                const endIndex = startIndex + this.currentPageSize;
+                return this.outtypeList.slice(startIndex, endIndex);
+            }
+        },
+        created () {
+            this.getInputType()
+        },
         methods: {
-             handleCreate (val) {
-                this.outtypeoption.push({
-                    value: val,
-                    label: val
-                });
+            changePage(num) {
+                this.currentPage = num -1;
+            },
+            //切换页数
+            changePageSize(num) {
+                this.currentPageSize = num;
+            },
+            async getInputType(){
+                let res = await getInputTypeApi()
+                    if(res.type === 'success'){
+                        let inputType = res.data
+                        this.outtypeList = inputType
+                        this.outtypeoption = []
+                        inputType.forEach(element => {
+                            this.outtypeoption.push({
+                                value:element.id,
+                                label:element.id
+                            })
+                        });
+                    }
+                    else{
+                        this.$Message.error('获取设备输出类型失败！');
+                    }
+            },
+            async remove(deleteId){
+                let res = await deleteInputTypeApi(deleteId)
+                if(res.type==="success"){
+                    this.getInputType()
+                    this.$Message.success('删除成功')
+                }    
+                else {
+                    this.$Message.error("删除失败");
+                }
             },
             handleSubmit (formData) {
-                this.$refs['formValidate'].validate((valid) => {
+                this.$refs['formValidate'].validate(async (valid) => {
                     if (valid) {
-                        let data = {
+                        let inputTypeIdList = formData.outtype.join(',')
+                        let paramsdata = {
                             name:formData.name,
-                            dtype:formData.dtype,
-                            blueteeth:formData.blueteeth,
-                            outtype:formData.outtype
+                            devType:formData.devType,
+                            bluType:formData.bluType,
+                            inputTypeIdList:inputTypeIdList
                         }
-                        console.log(data);
-                        this.$axios.post('/device/addDevice',data)
-                        .then(res=>{
-                            if(res.data.success === true){
-                                this.$Message.success("添加设备成功")
-                            }
-                        })
-                        this.$Message.success('Success!');
+                        console.log(paramsdata);
+                        let res = await addDeviceApi(paramsdata)
+                        console.log(res);
+                        if (res.type==='success'){
+                            this.$Message.success("添加设备成功")
+                            this.handleReset('formValidate')
+                        }else {
+                            this.$Message.error(res.data.message);
+                        }
+                        
                     } else {
-                        this.$Message.error('Fail!');
+                        this.$Message.error('添加失败！');
                     }
                 })
-
-            },
-            isExist(p){
-                return p.label==this.addData.dataname
             },
             handlerAdd (data) {
-                this.$refs['addData'].validate((valid)=>{
+                this.$refs['addData'].validate(async (valid)=>{
                     if (valid){
-                        console.log(this.outtypeoption.findIndex(this.isExist));
-                        if(this.outtypeoption.findIndex(this.isExist)===-1){
-                            this.outtypeoption.push({
-                                value:data.dataname,
-                                label:data.dataname
-                            })
-                            this.isModal = false
-                            this.formValidate.outtype = data.dataname
-                            this.$refs['addData'].resetFields()
-                            console.log(this.formValidate.outtype);
-                        } else {
-                            this.$Message.error('已存在该数据类型');
+                        let paramsdata = {
+                            name:data.dataname,
+                            batchSize:data.datalength,
+                            desc:data.datadescription,
                         }
+                        let res = await addInputTypeApi(paramsdata)
+                            if(res.type === "success"){
+                                this.$Message.success("添加输出类型成功")
+                                this.handleReset('addData')
+                                this.getInputType()
+                                this.isModal = false
+                            }else {
+                                this.$Message.error(res.message);
+                            }
                     } else {
                         this.$Message.error('Fail!');
                     }
@@ -184,8 +308,6 @@
             handleReset (name) {
                 this.$refs[name].resetFields();
             }
-           
-            
         }
     }
 </script>
