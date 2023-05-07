@@ -22,7 +22,7 @@
             </col>
             <Col span="5">
                 <!-- <Input v-model="value4" placeholder="更新日期" clearable style="width: 200px" /> -->
-                <DatePicker v-model="value4" type="date" placeholder="更新日期" show-week-numbers/>
+                <DatePicker v-model="value4" type="datetime" format="yyyy-MM-dd HH:mm:ss" placeholder="更新日期" show-week-numbers/>
             </Col>
             <Col span="4" style="padding: 0%;">
                 <Button  @click="searchItem" style="margin-right:15px">查询</Button>
@@ -70,7 +70,7 @@
 </template>
 
 <script>
-import mockData from '@/mock/index.js'
+import { getModelListApi,searchModelApi,deleteModelApi,getFileNameApi,downloadModelApi} from "../../network/api/modelApi";
 export default {
         data () {
             return {
@@ -79,60 +79,8 @@ export default {
                 value3: '',
                 value4: '',
 
-                objectoption:
-                [
-                    {
-                        value: 'New York',
-                        label: 'New York'
-                    },
-                    {
-                        value: 'London',
-                        label: 'London'
-                    },
-                    {
-                        value: 'Sydney',
-                        label: 'Sydney'
-                    },
-                    {
-                        value: 'Ottawa',
-                        label: 'Ottawa'
-                    },
-                    {
-                        value: 'Paris',
-                        label: 'Paris'
-                    },
-                    {
-                        value: 'Canberra',
-                        label: 'Canberra'
-                    }
-                ],
-                funcoption:
-                [
-                    {
-                        value: 'New York',
-                        label: 'New York'
-                    },
-                    {
-                        value: 'London',
-                        label: 'London'
-                    },
-                    {
-                        value: 'Sydney',
-                        label: 'Sydney'
-                    },
-                    {
-                        value: 'Ottawa',
-                        label: 'Ottawa'
-                    },
-                    {
-                        value: 'Paris',
-                        label: 'Paris'
-                    },
-                    {
-                        value: 'Canberra',
-                        label: 'Canberra'
-                    }
-                ],
+                objectoption: [],
+                funcoption:[],
                 columns6: [
                     {
                         title: '序号',
@@ -147,12 +95,12 @@ export default {
                     },
                     {
                         title: '适用对象',
-                        key: 'taskTid',
+                        key: 'uid',
                         align: 'center'
                     },
                     {
                         title: '功能',
-                        key: 'uid',
+                        key: 'taskTid',
                         width: 150,
                         align: 'center',
                         
@@ -179,8 +127,8 @@ export default {
                                     },
                                     on: {
                                         click: () => {
-                                            const userData = params.row
-                                            this.downloadModal(userData.id)
+                                            
+                                            this.downloadModal(params.row.id)
                                         }
                                     }
                                 }, '下载'),
@@ -195,7 +143,8 @@ export default {
                                                 title: '系统提示',
                                                 content: '删除后无法恢复，确定删除吗？',
                                                 onOk: () => {
-                                                    this.remove(params.index);
+                                                    
+                                                    this.remove(params.row.id);
                                                 }
                                             });
                                         }
@@ -206,20 +155,7 @@ export default {
                     }
                 ],
                 userList:[],
-                modalItem: [
-                    {
-                        label: '姓名',
-                        value: '',
-                    },
-                    {
-                        label: '年龄',
-                        value: '',
-                    },
-                    {
-                        label: '性别',
-                        value: ''
-                    }
-                ],
+               
                 // userData: {}
                 currentPage: 0,
                 currentPageSize: 10,
@@ -233,35 +169,72 @@ export default {
                 return this.userList.slice(startIndex, endIndex);
             },
             searchDate() {
-                //时间选择器Date->str
-                let str = ""
-                if(this.value4!==''){
-                    let year = this.value4.getFullYear()
-                    let month = this.value4.getMonth() + 1
-                    month = month<10?('0'+month):month
-                    let day = this.value4.getDate()
-                    day = day<10?('0'+day):day
-                    str = year + "-" + month + "-" + day
+                let str = "";
+                if (this.value4 !== "") {
+                    // Convert time string to Date object
+                    let date = new Date(this.value4);
+                    // Extract year, month, and day
+                    let year = date.getFullYear();
+                    let month = ("0" + (date.getMonth() + 1)).slice(-2);
+                    let day = ("0" + date.getDate()).slice(-2);
+                    // Extract hours, minutes, and seconds
+                    let hours = ("0" + date.getHours()).slice(-2);
+                    let minutes = ("0" + date.getMinutes()).slice(-2);
+                    let seconds = ("0" + date.getSeconds()).slice(-2);
+                    // Format string as "yyyy-MM-dd HH:mm:ss"
+                    str = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
                 }
-                return str
-            },
+                return str;
+            }
         },
         created () {
             this.getUserList()
         },
         methods: {
-            getUserList() {
-                this.$axios.get('/model/')
-                .then(res => {
-                    if(res.status === 200){
-                       
-                        this.userList = res.data.data
-                    }
-                    else{
-                        this.$Message.error('获取用户列表失败');
-                    }
+            async getUserList() {
+                let res = await getModelListApi() //同步处理
+                if(res.type === 'success'){
+                    this.userList = res.data
+                    //onsole.log(this.userList)
+                    let op1="uid"
+                    let op2="taskTid"
+                    this.getOptionList(op1);
+                    this.getOptionList(op2);
+                }
+                else{
+                    this.$Message.error('获取选项列表失败');
+                }
+                
+            },
+            //将表中数据选项转换为数组
+            getOptionList(op) {
+                //将userList中的uid项的值提取出来放入数组
+                let arr = []
+                for(let i=0;i<this.userList.length;i++){
                     
-                })
+                    arr.push(this.userList[i][op])
+                }
+                //去重
+                
+                let set = new Set(arr)
+                let arr2 = Array.from(set)
+                //将数组转换为对象数组
+                let arr3 = []
+                for(let i=0;i<arr2.length;i++){
+                    arr3.push({value:arr2[i],label:arr2[i]})
+                }
+                //将对象数组赋值给过去
+                if(op === "uid"){
+                    this.objectoption = arr3
+                    //console.log(this.objectoption)
+                }
+                else if(op === "taskTid"){
+                    this.funcoption = arr3
+                    //console.log(this.funcoption)
+                }
+
+                
+
             },
             //切换页码
             changePage(num) {
@@ -271,69 +244,61 @@ export default {
             changePageSize(num) {
                 this.currentPageSize = num;
             },
-            downloadModal(id) {
-                this.$axios.get('/model/url/'+id)
-                .then( async res => {
-                    console.log(res.data)
-                    
-                    //promise 同步请求
-                    await this.$axios.get(""+ res.data.data)
-                    .then(res => {
-                        console.log(res)
-                        //下载二进制流
-                        
+            async downloadModal(id) {
+                let res = await getFileNameApi(id)
+                let fileName =res.data
+                let file = await downloadModelApi(fileName)
+                let blob = new Blob([file], {type: 'application/octet-stream'})
 
 
+                        // let blob = new Blob([res.data], {type: 'application/octet-stream'})
+                        // let fileName= "test.png"
+                        // //let fileName = res.headers['content-disposition'].split(';')[1].split('=')[1]
+                        // fileName = decodeURI(fileName)
+                        // let url = window.URL.createObjectURL(blob)
+                        // let link = document.createElement('a')
+                        // link.style.display = 'none'
+                        // link.href = url
+                        // link.setAttribute('download', fileName)
+                        // document.body.appendChild(link)
+                        // link.click()              
+            },
+            
+            
+            async remove (index) {   
+                let res = await deleteModelApi(index)
+                
+                    if(res.type === 'success'){
+                        this.$Message.success('删除成功');
+                        this.userList.splice(index, 1);
                     }
-                    
-
-                    
-
-                    //this.download(res.data.data)
-                )
+                    else{
+                        this.$Message.error('删除失败');
+                    }
+                
+                
+            },
+           async searchItem() {
+             if(this.value1){
+                let data = {
+                    modelName: this.value1,
+                    userId: this.value2,
+                    taskTypeId: this.value3,
+                    updateDate: this.searchDate
                 }
-                )
-            },
-            download(url){
-                console.log(url);
-                this.$axios.get(""+url)
-                .then(res => {
-                    this.$Message.success("获取成功")
-                })
-
-            },
-            cancel() {
-                this.isModal = false
-            },
-            clickModalEvent() {
-                this.$Message.success('修改成功');
-                this.isModal = false
-            },
-            remove (index) {
-                this.userList.splice(index, 1);
-                this.$Message.success('删除成功');
-            },
-            searchItem() {
-                this.$axios.get('/model/findSome',{
-                    params:{
-                        name:this.value1,
-                        object:this.value2,
-                        function:this.value3,
-                        time:this.searchDate
-                    }
-                })
-                .then(res => {
-                    if(res.data.userList.length===0){
-                        this.$Message.error('没有找到匹配的结果');
-                        // this.$Message.error(res.error.message);
+                let res= await searchModelApi(data)
+                    if(res.data.length===0){
+                        this.$Message.error(res.error.message);
                     }
                     else
                         this.$Message.success('查找成功');
-                    this.userList = res.data.userList
-                }).catch(err => {
-                    this.$Message.error(err.message);
-                })
+                    this.userList = res.data   
             }
+             else{
+                this.$Message.error("请传入模型唯一标识！")
+            }
+            }
+            
         }
     }
 </script>

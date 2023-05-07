@@ -15,6 +15,13 @@ const router = new VueRouter({
       }
     },
     {
+      path: '/test',
+      component: () => import('@/views/test/index.vue'),
+      meta: {
+        title: '测试'
+      }
+    },
+    {
       path:'/',
       component: () => import('@/views/main.vue'),
       children:[

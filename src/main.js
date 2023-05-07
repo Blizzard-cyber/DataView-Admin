@@ -7,9 +7,10 @@ import ViewUI from 'view-design';
 import 'view-design/dist/styles/iview.css';//全局引入View UI组件库样式
 
 import axios from 'axios'
-axios.defaults.withCredentials = true;
+
+//axios.defaults.baseURL = 'http://43.248.188.73:11234' // 配置axios请求的地址
 Vue.prototype.$axios = axios  // 挂载在vue实例化对象上
-axios.defaults.baseURL = 'http://43.248.188.73:11234' // 配置axios请求的地址
+
 
 import VueMask from 'v-mask'
 Vue.use(VueMask); //掩码输入

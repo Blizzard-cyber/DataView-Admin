@@ -2,7 +2,7 @@
 	<div class="home">
 		<bg></bg>
 		<div class="head">
-			<h1 style="letter-spacing:15px">农产品批发市场大数据可视化展板</h1>
+			<h1 style="letter-spacing:15px">飞行员状态监测平台</h1>
 			<div class="weather">
 				<span>{{nowTime}}</span>
                 <router-link to="/"><a>管理平台</a></router-link>
@@ -10,10 +10,10 @@
 			<div class="mainbox">
 				<ul class="clearfix">
 					<li>
-						<box title="农产品支付宝交易排行">
+						<box title="飞行员基本生命体征异常情况统计">
 							<bar ref="e1" class="allnav" :data="provinceList" color="#2f89cf"></bar>
 						</box>
-						<box title="农产品微信交易排行">
+						<box title="飞行员基本生命体征异常情况走势">
 							<bar ref="e2" class="allnav" :data="cityList"  color="#27d08a"></bar>
 						</box>
 						<box>
@@ -32,8 +32,8 @@
 						</div>
 						<div class="barbox2">
 						<ul class="clearfix">
-							<li class="pulll_left">累计交易量(单)</li>
-							<li class="pulll_left">累计交易金额(元)</li>
+							<li class="pulll_left">监测飞行员人数</li>
+							<li class="pulll_left">异常状态飞行员人数</li>
 						</ul>
 						</div>
 					</div>
