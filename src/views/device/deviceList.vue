@@ -165,7 +165,7 @@ export default {
                                     on: {
                                         click: () => {
                                             const userData = params.row
-                                            this.showEditModal(userData,params.index)
+                                            this.showEditModal(userData.params.index)
                                         }
                                     }
                                 }, '详情'),

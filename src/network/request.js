@@ -97,7 +97,7 @@ serviceAxios.interceptors.response.use(
                     break;
             }
         }
-        this.$Message.error(message);
+        Message.error(message);
         return Promise.reject(message);
     }
 );
