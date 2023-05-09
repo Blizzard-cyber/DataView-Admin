@@ -58,15 +58,25 @@
             </Row>
         </FormItem>
         <FormItem label="输入数据类型" prop="intype">
-            <Select v-model="formValidate.intype" multiple placeholder="请选择"  style="width:250px">
-                <Option v-for="item in intypeoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+            <Select v-model="formValidate.intype" multiple filterable placeholder="请选择"  style="width:250px">
+                <Option v-for="(item,index) in intypeoption" :value="item.id" :key="index">
+                    <!-- {{ item.label }} -->
+                    <span>{{item.name}}</span>
+                    <span style="float:right;color:#ccc">{{item.batchSize}}</span>
+                </Option>
                 
             </Select> 
         </FormItem>
         
         <FormItem label="输出数据类型" prop="outtype">
-            <Select v-model="formValidate.outtype" placeholder="请选择" style="width:250px" >
-                <Option v-for="item in outtypeoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+            <Select v-model="formValidate.outtype"  placeholder="请选择"  style="width:250px" >
+                <Option v-for="item in outtypeoption" :value="item.id" :key="item.id">  
+                    {{ item.name }}
+              
+                    <!-- <span>{{item.name}}</span> -->
+                    <!-- <span style="float:right;color:#ccc">{{item.batchSize}}</span>            -->
+                    
+                </Option>
             </Select>
         </FormItem>
         <FormItem label="缺少数据类型？">
@@ -188,7 +198,7 @@ import{getModelListApi,getINModelApi,getOUTModelApi,addModelApi,addINModelApi,ad
                         { required: true, message:'请选择输入数据类型', trigger: 'bulr',type:'array' }
                     ],
                     outtype: [
-                        { required: true, message:'请输入输出数据类型', trigger: 'bulr' }
+                        //{ required: true, message:'请输入输出数据类型', trigger: 'change',type:'number' }
                     ],
                     
                 }
@@ -201,8 +211,7 @@ import{getModelListApi,getINModelApi,getOUTModelApi,addModelApi,addINModelApi,ad
            async getUserList() {
             let modellist = await getModelListApi()
                 if(modellist.type === 'success'){
-                    this.userList = modellist.data
-                    
+                    this.userList = modellist.data 
                     let op1="uid"
                     let op2="taskTid"
                     this.getOptionList(op1);
@@ -214,11 +223,8 @@ import{getModelListApi,getINModelApi,getOUTModelApi,addModelApi,addINModelApi,ad
                
             let inlist = await getINModelApi()
                 if(inlist.type === 'success'){
-                    this.userList = inlist.data
-                    //console.log(inlist.data)
-                    let op="name"
-                    let type="input"
-                    this.getOptionList(op,type);
+                    this.intypeoption = inlist.data
+                    
                 }
                 else{
                     this.$Message.error('获取输入数据类型列表失败');
@@ -226,18 +232,14 @@ import{getModelListApi,getINModelApi,getOUTModelApi,addModelApi,addINModelApi,ad
 
             let outlist = await getOUTModelApi()
                 if(outlist.type === 'success'){
-                    this.userList = outlist.data
-                    //console.log(outlist.data)
-                    let op="name"
-                    let type="output"
-                    this.getOptionList(op,type);
+                    this.outtypeoption = outlist.data          
                 }
                 else{
                     this.$Message.error('获取输出数据类型列表失败');
                 }  
             },
             //将表中数据选项转换为数组
-            getOptionList(op,type) {
+            getOptionList(op) {
                 //将userList中的uid项的值提取出来放入数组
                 let arr = []
                 for(let i=0;i<this.userList.length;i++){
@@ -262,14 +264,7 @@ import{getModelListApi,getINModelApi,getOUTModelApi,addModelApi,addINModelApi,ad
                     this.funcoption = arr3
                     //console.log(this.funcoption)
                 }
-                else if(type === "input"){
-                    this.intypeoption = arr3
-                    //console.log(this.intypeoption)
-                }
-                else if(type === "output"){
-                    this.outtypeoption = arr3
-                    //console.log(this.outtypeoption)
-                }
+                
             },
             //提交数据类型添加
              handleOK(form){
@@ -332,6 +327,7 @@ import{getModelListApi,getINModelApi,getOUTModelApi,addModelApi,addINModelApi,ad
             },
              handleSubmit (formname) { //提交表单
              let isfile=this.formValidate.file
+             
              this.$refs[formname].validate(async(valid) => {
                
                 if (valid && isfile!=='') {                   
@@ -400,6 +396,23 @@ import{getModelListApi,getINModelApi,getOUTModelApi,addModelApi,addINModelApi,ad
                 
                  this.$Message.error('至少保留一个输入数据类型');
             }
+            },
+            //输出类型选择框触发处理函数
+            onchange(){
+                if(this.formValidate.outtype.length<1){
+                    return false
+                }
+                const data = this.formValidate.outtype  //当前选择数组
+                this.$nextTick(()=>{    
+                    //下一次选择时检查选择后的长度是否大于当前长度                            
+                    if(this.formValidate.outtype.length<data.length){        
+                        return true
+                    }
+                    this.$Message.error("只能选择一个输出类型！")
+                    this.formValidate.outtype=data
+                }
+                )
+               console.log(this.formValidate.outtype)
             }
         }
     }
