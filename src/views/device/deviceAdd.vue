@@ -81,7 +81,7 @@
 </template>
 
 <script>
-    import { getInputTypeApi, addDeviceApi, addInputTypeApi, deleteInputTypeApi } from '../../network/api/deviceApi'
+    import { getInputTypeApi, addDeviceApi, addInputTypeApi, deleteInputTypeApi, getDeviceListApi } from '../../network/api/deviceApi'
     export default {
         data () {
             return {
@@ -89,32 +89,9 @@
                 isModal2:false,
                 currentPage: 0,
                 currentPageSize: 5,
-                deviceoption:
-                [
-                    {
-                        value: '心电设备',
-                        label: '心电设备'
-                    },
-                    {
-                        value: '腕带设备',
-                        label: '腕带设备'
-                    }
-                ],
-                blueteethoption: 
-                [ 
-                    {
-                        value: 'vivalink',
-                        label: 'vivalink'
-                    },
-                    {
-                        value: 'classic',
-                        label: 'classic'
-                    },
-                    {
-                        value: 'ble',
-                        label: 'ble'
-                    }
-                ],
+                userList:[],
+                deviceoption:[],
+                blueteethoption:[],
                 outtypeoption: [],
                 outtypeList: [],
                 columns6: [
@@ -222,6 +199,7 @@
             }
         },
         created () {
+            this.getUserList()
             this.getInputType()
         },
         methods: {
@@ -231,6 +209,42 @@
             //切换页数
             changePageSize(num) {
                 this.currentPageSize = num;
+            },
+            async getUserList() {
+                let res = await getDeviceListApi() //同步处理
+                    if(res.type === 'success'){
+                        this.userList = res.data
+                        let op1 = "devType"
+                        let op2 = "bluType"
+                        this.getOptionList(op1);
+                        this.getOptionList(op2);
+                    }
+                    else{
+                        this.$Message.error('获取选项列表失败');
+                    }            
+            },
+            //将表中数据选项转换为数组
+            getOptionList(op) {
+                //将userList中的devType/bluType的值提取出来放入数组
+                let arr = []
+                for(let i=0;i<this.userList.length;i++){
+                    arr.push(this.userList[i][op])
+                }
+                //去重
+                let set = new Set(arr)
+                let arr2 = Array.from(set)
+                //将数组转换为对象数组
+                let arr3 = []
+                for(let i=0;i<arr2.length;i++){
+                    arr3.push({value:arr2[i],label:arr2[i]})
+                }
+                //将对象数组赋值给过去
+                if(op === "devType"){
+                    this.deviceoption = arr3
+                }
+                else if(op === "bluType"){
+                    this.blueteethoption = arr3
+                }
             },
             async getInputType(){
                 let res = await getInputTypeApi()

@@ -92,32 +92,8 @@ export default {
                 value2: '',
                 value3: '',
                 value4: '',
-                deviceoption:
-                [
-                    {
-                        value: '心电设备',
-                        label: '心电设备'
-                    },
-                    {
-                        value: '腕带设备',
-                        label: '腕带设备'
-                    }
-                ],
-                blueteethoption:
-                [
-                    {
-                        value: 'vivalink',
-                        label: 'vivalink'
-                    },
-                    {
-                        value: 'classic',
-                        label: 'classic'
-                    },
-                    {
-                        value: 'ble',
-                        label: 'ble'
-                    }
-                ],
+                deviceoption:[],
+                blueteethoption:[],
                 columns6: [
                     {
                         title: '序号',
@@ -165,7 +141,7 @@ export default {
                                     on: {
                                         click: () => {
                                             const userData = params.row
-                                            this.showEditModal(userData,params.index)
+                                            this.showEditModal(userData)
                                         }
                                     }
                                 }, '详情'),
@@ -205,9 +181,6 @@ export default {
                         {required: true, message: '不能为空', trigger: 'change'}
                     ],
                     bluType : [
-                        {required: true, message: '不能为空', trigger: 'change'}
-                    ],
-                    createDate : [
                         {required: true, message: '不能为空', trigger: 'change'}
                     ],
                     name: [
@@ -254,10 +227,37 @@ export default {
                 let res = await getDeviceListApi() //同步处理
                     if(res.type === 'success'){
                         this.userList = res.data
+                        let op1 = "devType"
+                        let op2 = "bluType"
+                        this.getOptionList(op1);
+                        this.getOptionList(op2);
                     }
                     else{
                         this.$Message.error('获取选项列表失败');
                     }            
+            },
+            //将表中数据选项转换为数组
+            getOptionList(op) {
+                //将userList中的devType/bluType的值提取出来放入数组
+                let arr = []
+                for(let i=0;i<this.userList.length;i++){
+                    arr.push(this.userList[i][op])
+                }
+                //去重
+                let set = new Set(arr)
+                let arr2 = Array.from(set)
+                //将数组转换为对象数组
+                let arr3 = []
+                for(let i=0;i<arr2.length;i++){
+                    arr3.push({value:arr2[i],label:arr2[i]})
+                }
+                //将对象数组赋值给过去
+                if(op === "devType"){
+                    this.deviceoption = arr3
+                }
+                else if(op === "bluType"){
+                    this.blueteethoption = arr3
+                }
             },
             async getInputType(){
                 let res = await getInputTypeApi()
