@@ -8,10 +8,24 @@ import serviceAxios from "../request";
  * @returns {Promise} res.data
  */
 export const getModelListApi = () => {
-  return serviceAxios({
-    url: "/model/", 
-    method: "get",
-  });
+    return serviceAxios({
+        url: "/model/",
+        method: "get",
+    });
+};
+
+/**
+ * 获取指定用户的模型列表，针对user级别用户
+ * GET
+ * 传入的参数通过字符串拼接
+ * @param null
+ * @returns {Promise} res.data
+ */
+export const getModelListForUserApi = (uid) => {
+    return serviceAxios({
+        url: "/model/byUid/" + uid,
+        method: "get",
+    });
 };
 
 /**
@@ -21,11 +35,11 @@ export const getModelListApi = () => {
  * @returns {Promise} res.data
  */
 export const searchModelApi = (data) => {
-  return serviceAxios({
-    url: "/model/search/",
-    method: "post",
-    data,
-  })
+    return serviceAxios({
+        url: "/model/search/",
+        method: "post",
+        data,
+    })
 };
 
 /**
@@ -35,10 +49,10 @@ export const searchModelApi = (data) => {
  * @returns {Promise} res.data
  */
 export const deleteModelApi = (modelId) => {
-  return serviceAxios({
-    url: '/model/' + modelId,
-    method: "delete",
-  })
+    return serviceAxios({
+        url: '/model/' + modelId,
+        method: "delete",
+    })
 };
 
 /**
@@ -71,16 +85,16 @@ export const deleteModelApi = (modelId) => {
  * @returns {Promise} res.data
  */
 export const getINModelApi = () => {
-  return serviceAxios({
-    url: "/inputType/",
-    method: "get",
-  });
+    return serviceAxios({
+        url: "/inputType/",
+        method: "get",
+    });
 }
 export const getOUTModelApi = () => {
-  return serviceAxios({
-    url: "/outputType/",
-    method: "get",
-  });
+    return serviceAxios({
+        url: "/outputType/",
+        method: "get",
+    });
 }
 
 /**
@@ -90,11 +104,11 @@ export const getOUTModelApi = () => {
  * @returns {Promise} res.data
  */
 export const addModelApi = (data) => {
-  return serviceAxios({
-    url: "/model/",
-    method: "post",
-    data,
-  });
+    return serviceAxios({
+        url: "/model/",
+        method: "post",
+        data,
+    });
 }
 
 
@@ -104,17 +118,17 @@ export const addModelApi = (data) => {
  * @param {FormData} data
  * @returns {Promise} res
  */
-export const addINModelApi = (data) => { 
-  return serviceAxios({
-    url: "/inputType/",
-    method: "post",
-    data,
-  });
+export const addINModelApi = (data) => {
+    return serviceAxios({
+        url: "/inputType/",
+        method: "post",
+        data,
+    });
 }
 export const addOUTModelApi = (data) => {
-  return serviceAxios({
-    url: "/outputType/",
-    method: "post",
-    data,
-  });
+    return serviceAxios({
+        url: "/outputType/",
+        method: "post",
+        data,
+    });
 }

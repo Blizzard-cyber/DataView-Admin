@@ -115,7 +115,7 @@
                                 <span>模型管理</span>
                             </template>
                             <MenuItem name="1-1" to="/modelList">模型列表</MenuItem>
-                            <MenuItem name="1-2" to="/modelAdd">模型添加</MenuItem>
+                            <MenuItem v-if="this.auth == 1" name="1-2" to="/modelAdd">模型添加</MenuItem>
                         </Submenu>
                         <Submenu name="2">
                             <template slot="title">
@@ -123,7 +123,7 @@
                                 <span>设备管理</span>
                             </template>
                             <MenuItem name="2-1" to="/deviceList">设备列表</MenuItem>
-                            <MenuItem name="2-2" to="/deviceAdd">设备添加</MenuItem>
+                            <MenuItem v-if="this.auth == 1" name="2-2" to="/deviceAdd">设备添加</MenuItem>
                             
                         </Submenu>
                         <Submenu name="3">
@@ -135,7 +135,7 @@
                             <MenuItem name="2-2" to="/trainModel">模型训练</MenuItem>
                             
                         </Submenu>
-                        <MenuItem name="4-1" to="/usrmanage">
+                        <MenuItem v-if="this.auth == 1" name="4-1" to="/usrmanage">
                             <Icon type="ios-people" />
                             <span>用户管理</span>
                         </MenuItem>
@@ -150,8 +150,8 @@
     </div>
 </template>
 <script>
-// import util from '@/util';
-import { mapMutations, mapGetters } from 'vuex';
+import util from '@/util';
+import { mapMutations, mapGetters, mapState } from 'vuex';
     export default {
         data () {
             return {
@@ -182,7 +182,8 @@ import { mapMutations, mapGetters } from 'vuex';
           }
         },
         computed: {
-            ...mapGetters(["UserName"]),
+            ...mapState(["auth"]),
+            ...mapGetters(["LoginToken","UserName"]),
             rotateIcon () {
                 return [
                     'menu-icon',
@@ -197,7 +198,7 @@ import { mapMutations, mapGetters } from 'vuex';
             }
         },
         methods: {
-            ...mapMutations(["removeLoginUserName","removeLoginUserpwd"]),
+            ...mapMutations(["removeLoginToken","removeLoginUserName","removeLoginUserpwd"]),
             collapsedSider () {
                 this.$refs.side1.toggleCollapse();
             },
@@ -211,10 +212,14 @@ import { mapMutations, mapGetters } from 'vuex';
                 }
             },
             logout() {
+                this.removeLoginToken()
+                util.storage.remove('token')
+                this.removeLoginToken()
+                util.storage.remove('token')
                 this.removeLoginUserName()
                 this.removeLoginUserpwd()
-                // util.storage.remove(this.$config.KEY.CACHE_LOGIN_USER_NAME)
-                // util.storage.remove(this.$config.KEY.CACHE_LOGIN_PASS_PWD)
+                util.storage.remove(this.$config.KEY.CACHE_LOGIN_USER_NAME)
+                util.storage.remove(this.$config.KEY.CACHE_LOGIN_PASS_PWD)
                 this.$router.push("/login")
             },
             dataMap() {

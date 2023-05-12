@@ -283,9 +283,7 @@
                             bluType:formData.bluType,
                             inputTypeIdList:inputTypeIdList
                         }
-                        console.log(paramsdata);
                         let res = await addDeviceApi(paramsdata)
-                        console.log(res);
                         if (res.type==='success'){
                             this.$Message.success("添加设备成功")
                             this.handleReset('formValidate')

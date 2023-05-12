@@ -2,6 +2,7 @@ import axios from "axios";
 import serverConfig from "./config";
 //import qs from "qs";
 import { Message } from "view-design";
+import util from '@/util';
 
 // 创建 axios 请求实例
 const serviceAxios = axios.create({
@@ -16,7 +17,10 @@ serviceAxios.interceptors.request.use(
     (config) => {
         // 如果开启 token 认证
         if (serverConfig.useTokenAuthorization) {
-            config.headers["Authorization"] = localStorage.getItem("token"); // 请求头携带 token
+            let reg = /^\/user\/(login|register)/
+            if (!reg.test(config.url)) {
+                config.headers["Auth"] = util.storage.get("token"); // 请求头携带 token
+            }
         }
         // 设置请求头
         //if(!config.headers["content-type"]) { // 如果没有设置请求头
@@ -31,8 +35,6 @@ serviceAxios.interceptors.request.use(
         } else {
             config.headers["content-type"] = "application/json"; // 默认类型
         }
-
-        //console.log("请求配置", config);
         return config;
     },
     (error) => {

@@ -26,7 +26,7 @@
             </Col>
             <Col span="4" style="padding: 0%;">
                 <Button  @click="searchItem" style="margin-right:15px">查询</Button>
-                <Button type="primary" to="/modelAdd">新增</Button>
+                <Button v-if="this.auth==1" type="primary" to="/modelAdd">新增</Button>
             </Col>
         </Row>
         <Table border :columns="columns6" :data="showData"></Table>
@@ -70,7 +70,8 @@
 </template>
 
 <script>
-import { getModelListApi,searchModelApi,deleteModelApi,getFileNameApi,downloadModelApi} from "../../network/api/modelApi";
+import { mapState } from 'vuex';
+import { getModelListApi,searchModelApi,deleteModelApi,getFileNameApi,downloadModelApi,getModelListForUserApi} from "../../network/api/modelApi";
 export default {
         data () {
             return {
@@ -162,6 +163,7 @@ export default {
             }
         },
         computed: {
+            ...mapState(["uid","auth"]),
             showData() {
                 //再截取数据分页展示
                 const startIndex = this.currentPage * this.currentPageSize;
@@ -192,10 +194,13 @@ export default {
         },
         methods: {
             async getUserList() {
-                let res = await getModelListApi() //同步处理
+                let res1 = await getModelListForUserApi(this.uid)
+                let res2 = await getModelListApi()
+                let res
+                if (this.auth == 1) res = res2
+                else res = res1
                 if(res.type === 'success'){
                     this.userList = res.data
-                    //onsole.log(this.userList)
                     let op1="uid"
                     let op2="taskTid"
                     this.getOptionList(op1);
@@ -263,9 +268,8 @@ export default {
             
             async remove (index,row) {   
                 //console.log(index)
-                
-                let res = await deleteModelApi(index)
-                
+                if(this.auth == 1){
+                    let res = await deleteModelApi(index)
                     if(res.type === 'success'){
                         this.$Message.success('删除成功');
                         this.userList.splice(row, 1);
@@ -273,6 +277,10 @@ export default {
                     else{
                         this.$Message.error('删除失败');
                     }
+                } else {
+                    this.$Message.error('没有权限');
+                }
+                
                 
                 
             },

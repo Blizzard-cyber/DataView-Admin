@@ -15,8 +15,13 @@
       </Input>
     </FormItem>
     <FormItem>
-      <Button @click="handleSubmit" type="primary" long>登录</Button>
+      <Button @click="handleSubmit" type="primary" long>{{ func }}</Button>
+      
     </FormItem>
+    <p style="text-align:right;">
+      <a @click="changeInfo">点我{{ tip }}</a>
+    </p>
+    
   </Form>
 </template>
 <script>
@@ -45,7 +50,9 @@ export default {
       form: {
         userName: '',
         password: ''
-      }
+      },
+      func:"登录",
+      tip:"注册",
     }
   },
   computed: {
@@ -57,12 +64,22 @@ export default {
     }
   },
   methods: {
+    changeInfo () {
+      if(this.tip==="注册") {
+        this.func = "注册"
+        this.tip = "登录"
+      } else {
+        this.func = "登录"
+        this.tip = "注册"
+      }
+    },
     handleSubmit () {
       this.$refs.loginForm.validate((valid) => {
         if (valid) {
           this.$emit('on-success-valid', {
             userName: this.form.userName,
-            password: this.form.password
+            password: this.form.password,
+            func: this.func
           })
         }
       })

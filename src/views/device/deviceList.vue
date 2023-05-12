@@ -25,7 +25,7 @@
             </Col>
             <Col span="4" style="padding: 0%;">
                 <Button @click="searchItem" >查询</Button>
-                <Button type="primary" to="/deviceAdd" style="margin-left:10px">新增</Button>
+                <Button v-if="this.auth==1" type="primary" to="/deviceAdd" style="margin-left:10px">新增</Button>
             </Col>
         </Row>
         <Table border :columns="columns6" :data="showData"></Table>
@@ -83,6 +83,7 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
 import { getDeviceListApi, searchDeviceApi, deleteDeviceApi, modifyDeviceApi, getInputTypeApi, getOneInputTypeApi } from '../../network/api/deviceApi';
 export default {
         data () {
@@ -195,6 +196,7 @@ export default {
             }
         },
         computed: {
+            ...mapState(["token","auth"]),
             showData() {
                 //再截取数据分页展示
                 const startIndex = this.currentPage * this.currentPageSize;
@@ -287,7 +289,6 @@ export default {
                 this.isModal = true
                 //根据id请求其对应设备的模型输入类型（输出数据类型）
                 let res = await getOneInputTypeApi(userData.id)
-                console.log(res);
                 if(res.type==='success'){
                     this.modalItem.outtype = res.data
                 }else {
@@ -304,31 +305,35 @@ export default {
                 this.isModal = false
             },
             clickModalEvent() {
-                this.$refs['modalItem'].validate(async (valid) => {
-                    if (valid) {
-                        let paramsdata = {
-                            id:this.modalItem.id,
-                            name:this.modalItem.name,
-                            devType:this.modalItem.devType,
-                            bluType:this.modalItem.bluType,
-                            inputTypeIdList:this.modalItem.outtype
-                        }
-                        let res = await modifyDeviceApi(paramsdata)
-                        if(res.type==='success'){
-                            this.$Message.success('修改成功');
-                            this.getUserList()
-                        }else {
-                            this.$Message.error('修改失败')
-                        }
-                        this.isModal = false
-                    }else {
-                        this.$Message.error('Fail!')
-                    }
-                })
-                
+                if(this.auth==1){
+                    this.$refs['modalItem'].validate(async (valid) => {
+                        if (valid) {
+                            let paramsdata = {
+                                id:this.modalItem.id,
+                                name:this.modalItem.name,
+                                devType:this.modalItem.devType,
+                                bluType:this.modalItem.bluType,
+                                inputTypeIdList:this.modalItem.outtype
+                            }
+                            let res = await modifyDeviceApi(paramsdata)
+                            if(res.type==='success'){
+                                this.$Message.success('修改成功');
+                                this.getUserList()
+                            }else {
+                                this.$Message.error('修改失败')
+                            }
+                            this.isModal = false
+                            } else {
+                                this.$Message.error('Fail!')
+                            }
+                    })
+                } else {
+                    this.$Message.error('没有权限');
+                }             
             },
             async remove (deleteId) {
-                let res = await deleteDeviceApi(deleteId)
+                if (this.auth==1){
+                    let res = await deleteDeviceApi(deleteId)
                     if(res.type==="success"){
                         this.getUserList()
                         this.$Message.success('删除成功')
@@ -336,6 +341,9 @@ export default {
                     else {
                         this.$Message.error("删除失败");
                     }
+                } else {
+                    this.$Message.error('没有权限');
+                }
             },
             async searchItem() {
                 let paramsdata = {
