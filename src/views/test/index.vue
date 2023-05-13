@@ -1,93 +1,133 @@
 <template>
-    <Form ref="formDynamic" :model="formDynamic" :label-width="80" style="width: 300px">
-        <FormItem
-                v-for="(item, index) in formDynamic.items"
-               
-                :key="index"
-                :label="'Item '+index"
-                :prop="'items.' + index + '.value'"
-                :rules="{required: true, message: 'Item ' + index +' can not be empty', trigger: 'blur'}">
-            <Row>
-                <Col span="18">
-                    <Input type="text" v-model="items.value" placeholder="Enter something..."></Input>
-                </Col>
-                <Col span="4" offset="1">
-                    <Button @click="handleRemove(index)">Delete</Button>
-                </Col>
-            </Row>
-        </FormItem>
-        <FormItem>
-            <Row>
-                <Col span="12">
-                    <Button type="dashed" long @click="handleAdd" icon="md-add">Add item</Button>
-                </Col>
-            </Row>
-        </FormItem>
-        <FormItem>
-            <Button type="primary" @click="handleSubmit('formDynamic')">Submit</Button>
-            <Button @click="handleReset('formDynamic')" style="margin-left: 8px">Reset</Button>
-            <Button @click="handleaxios" >点击</Button>
-        </FormItem>
-        
-    </Form>
-    
+<div>
+    <Breadcrumb style="margin-bottom:20px">
+            <BreadcrumbItem>首页</BreadcrumbItem>
+            <BreadcrumbItem>展示班组</BreadcrumbItem>     
+    </Breadcrumb>
+    <Table 
+        border
+        max-height="200" 
+        width="1200"
+        style=" margin-left:auto; margin-right:auto"
+        :columns="columns10" 
+        :data="data9"
+        ></Table>
+    <Row style="margin-top:30px">
+          <Col span="5" offset="8">
+            <DatePicker  v-model="pickData" type="date" placeholder="请选择日期" style="width: 200px"></DatePicker>
+          </Col>
+          <Col span="5" >
+            <Button type="primary" @click="handleclick">大屏展示</Button>
+          </Col>
+    </Row>
+</div>
 </template>
 <script>
-import{getUserInfo,searchModel} from '../../network/api/modelApi'
+    //import {getClassApi} from "../../network/api/dataApi"
+    import expandRow from './sub.vue';
     export default {
+        //components: { expandRow },
         data () {
             return {
-                restext:'',
-                index: 1,
-                formDynamic: {
-                    items: [
-                        ""
-                    ]
-                }
+                pickData:'',
+                columns10: [
+                    {
+                        type: 'expand',
+                        width: 50,
+                        render: (h, params) => {
+                            return h(expandRow, {
+                                props: {
+                                    row: params.row
+                                }
+                            })
+                        }
+                    },
+                    {
+                        title: '班组编号',
+                        key: 'name',
+                        align:"center"
+                    },
+                    {
+                        title: '组长',
+                        key: 'age',
+                        align:'center'
+                    },
+                     {
+                        type: 'selection',
+                        width: 60,
+                        align: 'center'
+                    }
+                ],
+                data9: [
+                    {
+                        name: 'John Brown',
+                        age: 18,
+                        address: 'New York No. 1 Lake Park',
+                        job: 'Data engineer',
+                        interest: 'badminton',
+                        birthday: '1991-05-14',
+                        book: 'Steve Jobs',
+                        movie: 'The Prestige',
+                        music: 'I Cry'
+                    },
+                    {
+                        name: 'Jim Green',
+                        age: 25,
+                        address: 'London No. 1 Lake Park',
+                        job: 'Data Scientist',
+                        interest: 'volleyball',
+                        birthday: '1989-03-18',
+                        book: 'My Struggle',
+                        movie: 'Roman Holiday',
+                        music: 'My Heart Will Go On'
+                    },
+                    {
+                        name: 'Joe Black',
+                        age: 30,
+                        address: 'Sydney No. 1 Lake Park',
+                        job: 'Data Product Manager',
+                        interest: 'tennis',
+                        birthday: '1992-01-31',
+                        book: 'Win',
+                        movie: 'Jobs',
+                        music: 'Don’t Cry'
+                    },
+                    {
+                        name: 'Jon Snow',
+                        age: 26,
+                        address: 'Ottawa No. 2 Lake Park',
+                        job: 'Data Analyst',
+                        interest: 'snooker',
+                        birthday: '1988-7-25',
+                        book: 'A Dream in Red Mansions',
+                        movie: 'A Chinese Ghost Story',
+                        music: 'actor'
+                    }
+                ]
             }
+            
         },
-        methods: {
-
-            handleaxios(){
-                //将formDynamic中的value值取出来，用逗号隔开拼接
-                let str = ''
-                for(let i = 0;i<this.formDynamic.items.length;i++){
-                    if(this.formDynamic.items[i] !== ''){
-
-                    
-                    str += this.formDynamic.items[i]+','
-                    }
-                }
-                //去掉最后一个逗号
-                str = str.substring(0,str.length-1)
-                //调用接口
-                console.log(str)
-                console.log(this.formDynamic.items)
+        created(){
+                this.getList();
             },
-            handleSubmit (name) {
-                this.$refs[name].validate((valid) => {
-                    if (valid) {
-                        this.$Message.success('Success!');
-                    } else {
-                        this.$Message.error('Fail!');
-                    }
-                })
-            },
-            handleReset (name) {
-                this.$refs[name].resetFields();
-            },
-            handleAdd () {
-                
-                this.formDynamic.items.push("");
-                console.log(this.formDynamic.items.length)
-                console.log(this.formDynamic.items)
-            },
-            handleRemove (index) {
-                
-                //将对应的对象移除
-                this.formDynamic.items.splice(index,1)
-               
+        methods:{
+            getList(){
+                console.log(test)
             }
         }
     }
 </script>
+<style>
+    .ivu-table-overflowX{ overflow-x: hidden;} 
+    .showimg {
+        width: 50px;
+        height: 70px;
+    }
+    
+    .right-area {
+        flex-direction: column;
+    }
+    .right-area p {
+        margin-top: 25px;
+    }
+</style>

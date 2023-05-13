@@ -84,7 +84,7 @@
                         </div>
                     </div>
                     <div>
-                        <a @click="dataMap">
+                        <a @click="dataMap" v-if="this.auth == 1">
                             <Icon type="md-desktop" />
                             大屏数据
                         </a>
@@ -131,11 +131,15 @@
                                 <Icon type="ios-bulb"></Icon>
                                 <span>模型训练</span>
                             </template>
-                            <MenuItem name="2-1" to="/trainList">训练数据集</MenuItem>
-                            <MenuItem name="2-2" to="/trainModel">模型训练</MenuItem>
+                            <MenuItem name="3-1" to="/trainList">训练数据集</MenuItem>
+                            <MenuItem name="3-2" to="/trainModel">模型训练</MenuItem>
                             
                         </Submenu>
-                        <MenuItem v-if="this.auth == 1" name="4-1" to="/usrmanage">
+                        <MenuItem  v-if="this.auth == 1" name="4-1" to="/display">
+                            <Icon type="ios-jet" />
+                            <span>展示班组</span>
+                        </MenuItem>
+                        <MenuItem v-if="this.auth == 1" name="5-1" to="/usrmanage">
                             <Icon type="ios-people" />
                             <span>用户管理</span>
                         </MenuItem>

@@ -5,7 +5,7 @@ import VueRouter from 'vue-router'
 Vue.use(VueRouter)
 
 const router = new VueRouter({
-    // base:"/saber/",
+   
     routes: [{
             path: '/login',
             component: () =>
@@ -91,12 +91,21 @@ const router = new VueRouter({
                     }
                 },
                 {
+                    path: 'display',
+                    component: () =>
+                        import ('@/views/dataview/display.vue'),
+                    meta: {
+                        title: '展示班组',
+                        order: '4-1'
+                    }
+                },
+                {
                     path: 'usrmanage',
                     component: () =>
                         import ('@/views/usr/usr.vue'),
                     meta: {
                         title: '用户管理',
-                        order: '4-1'
+                        order: '5-1'
                     }
                 }
             ]
