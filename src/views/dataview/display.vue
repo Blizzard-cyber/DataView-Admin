@@ -6,11 +6,13 @@
     </Breadcrumb>
     <Table 
         border
+        ref="selection"
         max-height="700" 
         width="1200"
         style=" margin-left:auto; margin-right:auto"
         :columns="columns" 
         :data="classdata"
+        @on-selection-change="handleSelectionChange"
         ></Table>
     <Row style="margin-top:30px">
           <Col span="5" offset="8">
@@ -23,13 +25,14 @@
 </div>
 </template>
 <script>
-    import {getClassApi} from "../../network/api/dataApi"
+    import {getClassApi,getClassByDateApi} from "../../network/api/dataApi"
     import expandRow from './subtable.vue';
     export default {
         //components: { expandRow },
         data () {
             return {
                 pickData:'',
+                paramGroup:'',
                 columns: [
                     {
                         type: 'expand',
@@ -58,30 +61,7 @@
                         align: 'center'
                     }
                 ],
-                classdata: [
-                    {
-                        groupId:'2',
-                        leaderName:'test1',
-                        groupInfo:[
-                            {
-                                name:"test1",
-                                attr:"组长"
-                            },
-                            {
-                                name:"队员1",
-                                attr:"组员"
-                            },
-                            {
-                                name:"队员2",
-                                attr:"组员"
-                            },
-                            {
-                                name:"队员3",
-                                attr:"组员"
-                            },
-                        ]
-                    }
-                ]
+                classdata: []
             }
             
         },
@@ -91,7 +71,58 @@
         methods:{
            async getList(){
                 let res = await getClassApi();
-                console.log(res.data)
+                //console.log(res.data.length)
+                for(let i=0;i<res.data.length;i++){
+                    let classmates=[];
+                    classmates.push({
+                        name:res.data[i].leader.name,
+                        attr:"组长"
+                    })
+                    for(let j=0;j<res.data[i].member.length;j++){
+                        classmates.push({
+                            name:res.data[i].member[j].name,
+                            attr:"组员"
+                        })
+                    }
+                    this.classdata.push({
+                        groupId:res.data[i].groupId,
+                        leaderName:res.data[i].leader.name,
+                        groupInfo:classmates
+                    })
+                }
+                
+            },
+            handleSelectionChange(val) {
+                this.paramGroup='';
+                for(let i=0;i<val.length;i++){
+                    this.paramGroup+=val[i].groupId+','
+                }
+                //去除最后的逗号
+                this.paramGroup=this.paramGroup.substring(0,this.paramGroup.length-1);
+                //console.log(this.paramGroup)
+                
+            },
+            formatDate(date) {
+                var y = date.getFullYear();
+                var m = date.getMonth() + 1;
+                m = m < 10 ? '0' + m : m;
+                var d = date.getDate();
+                d = d < 10 ? ('0' + d) : d;
+                return y + '-' + m + '-' + d + ' '+'00:00:00';
+            },
+            async handleclick(){
+             if(this.paramGroup==''){
+                 this.$Message.error('请选择班组');
+                 return;
+             }
+            if(this.pickData==''){
+                    this.$Message.error('请选择日期');
+                    return;
+            }
+            let res=await getClassByDateApi(this.paramGroup,this.formatDate(this.pickData));
+            //console.log(res.data)
+
+                //this.$router.push({path:'/dataview/display',query:{date:this.pickData}})
             }
         }
     }

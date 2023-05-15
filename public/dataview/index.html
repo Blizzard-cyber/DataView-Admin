@@ -1,0 +1,98 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>飞行员状态监测平台</title>
+    <link rel="stylesheet" href="css/index.css" />
+</head>
+
+<body>
+    <header>
+        <h1>飞行员生理心理状态监测中心</h1>
+        <div class="showTime">当前时间：2023年4月<span></span></div>
+    </header>
+    <section class="mainbox">
+        <div class="column">
+            <div class="panel bar">
+                <h2>
+                    飞行员基本生命体征异常情况统计
+                </h2>
+                <div class="chart"></div>
+                <div class="panel-footer"></div>
+            </div>
+            <div class="panel line">
+                <h2>飞行员基本生命体征异常情况趋势</h2>
+                <div class="chart"></div>
+                <div class="panel-footer"></div>
+            </div>
+            <div class="panel pie">
+                <h2>飞行员综合状态分布</h2>
+                <div class="chart"></div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+        <div class="column">
+            <div class="no">
+                <div class="no-hd">
+                    <ul>
+                        <li class="total">125</li>
+                        <li class="total-abnormal">55</li>
+                    </ul>
+                </div>
+                <div class="no-bd">
+                    <ul>
+                        <li>飞行员监测总人数</li>
+                        <li>异常状态飞行员人数</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="map">
+                <div class="chart"></div>
+                <div class="map1"></div>
+                <div class="map2"></div>
+                <div class="map3"></div>
+            </div>
+        </div>
+        <div class="column">
+            <div class="panel bar1">
+                <h2>飞行员心理状态异常情况统计</h2>
+                <div class="chart"></div>
+                <div class="panel-footer"></div>
+            </div>
+            <div class="panel line1">
+                <h2>飞行员心理状态异常情况趋势</h2>
+                <div class="chart"></div>
+                <div class="panel-footer"></div>
+            </div>
+            <div class="panel pie1">
+                <h2>飞行员异常状态情况分布</h2>
+                <div class="chart"></div>
+                <div class="panel-footer"></div>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/flexible.js" ></script>
+    <script src="js/echarts.min.js" ></script>
+    <script src="js/index.js" ></script>
+    <script src="js/china.js" ></script>
+    <script src="js/myMap.js" ></script>
+
+    <script>
+        (function (fn) {
+            fn();
+            setInterval(fn, 1000);
+        })(function () {
+            var dt = new Date();
+            document.querySelector(".showTime span").innerHTML =
+              dt.getDate() + "日-" +
+              dt.getHours() + "时" +
+              dt.getMinutes() + "分" +
+              dt.getSeconds() + "秒";
+        });
+    </script>
+</body>
+
+</html>

@@ -1,133 +1,26 @@
 <template>
-<div>
-    <Breadcrumb style="margin-bottom:20px">
-            <BreadcrumbItem>首页</BreadcrumbItem>
-            <BreadcrumbItem>展示班组</BreadcrumbItem>     
-    </Breadcrumb>
-    <Table 
-        border
-        max-height="200" 
-        width="1200"
-        style=" margin-left:auto; margin-right:auto"
-        :columns="columns10" 
-        :data="data9"
-        ></Table>
-    <Row style="margin-top:30px">
-          <Col span="5" offset="8">
-            <DatePicker  v-model="pickData" type="date" placeholder="请选择日期" style="width: 200px"></DatePicker>
-          </Col>
-          <Col span="5" >
-            <Button type="primary" @click="handleclick">大屏展示</Button>
-          </Col>
-    </Row>
-</div>
+  <div class="iframe_box">
+    <!-- <div
+      class="load"
+      v-loading.fullscreen.lock="loading"
+      element-loading-text="拼命加载中"
+    ></div> -->
+    <iframe
+      :src="`dataview/index.html`" 
+      frameborder="0"
+      scrolling="no"
+      width="100%"
+      height="100%"
+      ref="iframeDom"
+    ></iframe>
+  </div>
 </template>
-<script>
-    //import {getClassApi} from "../../network/api/dataApi"
-    import expandRow from './sub.vue';
-    export default {
-        //components: { expandRow },
-        data () {
-            return {
-                pickData:'',
-                columns10: [
-                    {
-                        type: 'expand',
-                        width: 50,
-                        render: (h, params) => {
-                            return h(expandRow, {
-                                props: {
-                                    row: params.row
-                                }
-                            })
-                        }
-                    },
-                    {
-                        title: '班组编号',
-                        key: 'name',
-                        align:"center"
-                    },
-                    {
-                        title: '组长',
-                        key: 'age',
-                        align:'center'
-                    },
-                     {
-                        type: 'selection',
-                        width: 60,
-                        align: 'center'
-                    }
-                ],
-                data9: [
-                    {
-                        name: 'John Brown',
-                        age: 18,
-                        address: 'New York No. 1 Lake Park',
-                        job: 'Data engineer',
-                        interest: 'badminton',
-                        birthday: '1991-05-14',
-                        book: 'Steve Jobs',
-                        movie: 'The Prestige',
-                        music: 'I Cry'
-                    },
-                    {
-                        name: 'Jim Green',
-                        age: 25,
-                        address: 'London No. 1 Lake Park',
-                        job: 'Data Scientist',
-                        interest: 'volleyball',
-                        birthday: '1989-03-18',
-                        book: 'My Struggle',
-                        movie: 'Roman Holiday',
-                        music: 'My Heart Will Go On'
-                    },
-                    {
-                        name: 'Joe Black',
-                        age: 30,
-                        address: 'Sydney No. 1 Lake Park',
-                        job: 'Data Product Manager',
-                        interest: 'tennis',
-                        birthday: '1992-01-31',
-                        book: 'Win',
-                        movie: 'Jobs',
-                        music: 'Don’t Cry'
-                    },
-                    {
-                        name: 'Jon Snow',
-                        age: 26,
-                        address: 'Ottawa No. 2 Lake Park',
-                        job: 'Data Analyst',
-                        interest: 'snooker',
-                        birthday: '1988-7-25',
-                        book: 'A Dream in Red Mansions',
-                        movie: 'A Chinese Ghost Story',
-                        music: 'actor'
-                    }
-                ]
-            }
-            
-        },
-        created(){
-                this.getList();
-            },
-        methods:{
-            getList(){
-                console.log(test)
-            }
-        }
-    }
-</script>
+
 <style>
-    .ivu-table-overflowX{ overflow-x: hidden;} 
-    .showimg {
-        width: 50px;
-        height: 70px;
-    }
-    
-    .right-area {
-        flex-direction: column;
-    }
-    .right-area p {
-        margin-top: 25px;
-    }
+.iframe_box {
+  transform: scale(1);
+  width: 100%;
+  height: 858px;
+  position: relative;
+}
 </style>

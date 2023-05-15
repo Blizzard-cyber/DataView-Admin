@@ -12,3 +12,22 @@ export const getClassApi = () => {
         method: "get",
     });
 };
+
+/**
+ * 获取指定时间班组信息
+ * POST
+ * @param {Date} date
+ * @param {String} GroupId
+ * @returns {Promise} res.data
+*/
+export const getClassByDateApi = (GroupId, date) => { 
+    console.log(GroupId)
+    return serviceAxios({
+        url: "/member/details",
+        method: "post",
+        data: {
+            date: date,
+            groupIds: GroupId
+        }
+    });
+}
