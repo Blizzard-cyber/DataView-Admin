@@ -91,6 +91,15 @@ const router = new VueRouter({
                     }
                 },
                 {
+                    path: 'training',
+                    component: () =>
+                        import ('@/views/train/training.vue'),
+                    meta: {
+                        title: '训练任务',
+                        order: '3-3'
+                    }
+                },
+                {
                     path: 'display',
                     component: () =>
                         import ('@/views/dataview/display.vue'),

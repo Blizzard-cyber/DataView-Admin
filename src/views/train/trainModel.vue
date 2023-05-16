@@ -6,24 +6,44 @@
             <BreadcrumbItem>模型训练</BreadcrumbItem>
     </Breadcrumb>
     <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="150">
-        <FormItem label="训练对象" prop="tobject">
+        <FormItem label="训练名称name" prop="tobject">
             <Select v-model="formValidate.tobject" placeholder="请选择" style="width:250px">
                 <Option v-for="item in objectoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
             </Select>
         </FormItem>
-        <FormItem label="模型选择" prop="modelopt">
+        <FormItem label="选择数据集sigFileIdList" prop="batchsize">
+            <Input v-model="formValidate.batchsize" number placeholder="" style="width:250px"></Input>
+        </FormItem>
+        <FormItem label="训练对象uid" prop="tobject">
+            <Select v-model="formValidate.tobject" placeholder="请选择" style="width:250px">
+                <Option v-for="item in objectoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+            </Select>
+        </FormItem>
+        <FormItem label="模型选择method" prop="modelopt">
             <Select v-model="formValidate.modelopt" placeholder="请选择" style="width:250px">
                 <Option v-for="item in modeloption" :value="item.value" :key="item.value">{{ item.label }}</Option> 
             </Select>
         </FormItem>
-        <FormItem label="训练轮数" prop="trounds">
+        <FormItem label="训练轮数epoch" prop="trounds">
             <Input v-model="formValidate.trounds" number placeholder="" style="width:250px"></Input>
         </FormItem>
         
-        <FormItem label="学习率" prop="rate">
+        <FormItem label="学习率learningRate" prop="rate">
             <Input v-model="formValidate.rate" number placeholder="" style="width:250px"></Input>
         </FormItem>
-        <FormItem label="batchsize" prop="batchsize">
+        <FormItem label="批大小batchSize" prop="batchsize">
+            <Input v-model="formValidate.batchsize" number placeholder="" style="width:250px"></Input>
+        </FormItem>
+        <FormItem label="切片大小second" prop="batchsize">
+            <Input v-model="formValidate.batchsize" number placeholder="" style="width:250px"></Input>
+        </FormItem>
+         <FormItem label="是否监督isSupervised" prop="batchsize">
+            <Input v-model="formValidate.batchsize" number placeholder="" style="width:250px"></Input>
+        </FormItem>
+         <FormItem label="任务类型taskTid" prop="batchsize">
+            <Input v-model="formValidate.batchsize" number placeholder="" style="width:250px"></Input>
+        </FormItem>
+         <FormItem label="输出类型outputTid" prop="batchsize">
             <Input v-model="formValidate.batchsize" number placeholder="" style="width:250px"></Input>
         </FormItem>
         <FormItem>

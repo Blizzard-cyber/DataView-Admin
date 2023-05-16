@@ -1,5 +1,13 @@
 var ta = 25;
-
+window.addEventListener("message", function(event) {
+  // 访问传递的数据
+  var data = event.data;
+  console.log(data);
+  for(var p in data){
+   console.log(p)
+  }
+ 
+}); 
 // 柱状图1模块
 (function () {
   // 实例化对象

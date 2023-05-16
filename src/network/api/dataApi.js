@@ -21,7 +21,7 @@ export const getClassApi = () => {
  * @returns {Promise} res.data
 */
 export const getClassByDateApi = (GroupId, date) => { 
-    console.log(GroupId)
+    
     return serviceAxios({
         url: "/member/details",
         method: "post",

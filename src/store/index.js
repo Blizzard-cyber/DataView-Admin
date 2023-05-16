@@ -9,7 +9,9 @@ const store = new Vuex.Store({
         auth: util.storage.get("auth"),
         uid: util.storage.get("uid"),
         loginUserName: "",
-        loginUserpwd: ""
+        loginUserpwd: "",
+        paramGroup: '', //班组传参
+        pickDate: '',
     },
     getters: {
         UserName(state) {
@@ -17,6 +19,20 @@ const store = new Vuex.Store({
                 state.loginUserName = util.storage.get(config.KEY.CACHE_LOGIN_USER_NAME)
             }
             return state.loginUserName
+        },
+        getparamGroup(state) { 
+            if (!state.paramGroup) {
+                state.paramGroup = util.storage.get('paramGroup')
+                
+            }
+            return state.paramGroup
+        },
+        getpickDate(state) { 
+            if (!state.pickDate) {
+                state.pickDate = util.storage.get('pickDate')
+                
+            }
+            return state.pickDate
         }
     },
     mutations: {
@@ -54,7 +70,16 @@ const store = new Vuex.Store({
         removeLoginUserpwd(state) {
             state.loginUserpwd = ""
             util.storage.remove(config.KEY.CACHE_LOGIN_PASS_PWD)
+        },
+        setParamGroup(state, paramGroup) {
+            state.paramGroup = paramGroup;
+            util.storage.set('paramGroup', paramGroup);
+          },
+        setPickDate(state, pickDate) {
+            state.pickDate = pickDate;
+            util.storage.set('pickDate', pickDate);
         }
+        
     },
     actions: {
 

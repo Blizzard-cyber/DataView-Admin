@@ -8,13 +8,13 @@
         </Breadcrumb>
         <Row class="rowbox" :gutter="16">
             <Col span="5" >
-                <Input v-model="value1" placeholder="用户" clearable/>
+                <Input v-model="value1" placeholder="设备名称" clearable/>
             </Col>
             <Col span="5" >
-               <Input v-model="value2" placeholder="名称" clearable/>
+               <Input v-model="value2" placeholder="设备类型" clearable/>
             </Col>
             <Col span="5">
-                <Select v-model="value3" clearable placeholder="任务类型">
+                <Select v-model="value3" clearable placeholder="蓝牙类型">
                     <Option v-for="item in blueteethoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
                 </Select>
             </col>
@@ -24,8 +24,6 @@
             </Col>
             <Col span="4" style="padding: 0%;">
                 <Button @click="searchItem" >查询</Button>
-                <Button type="primary"  style="margin-left:10px">新增</Button>
-                 <Button type="primary" to="/trainModel" style="margin-left:10px">训练</Button>
             </Col>
         </Row>
         <Table border :columns="columns6" :data="showData"></Table>
@@ -135,50 +133,79 @@ export default {
                 ],
                 columns6: [
                     {
-                        type: 'expand',
-                        width: 50,
-                        render: (h, params) => {
-                            return h(expandRow, {
-                                props: {
-                                    row: params.row.groupInfo
-                                }
-                            })
-                        }
-                    },
-                    {
-                        title: '序号',
+                        title: '唯一标识',
                         width: 90,
                         align: 'center',
                         key: 'id'
                     },
                     {
-                        title: '名称',
+                        title: '训练名称',
                         key: 'name',
                         align: 'center'
                     },
                     {
+                        title: '模型选择',
+                        key: 'object',
+                        align: 'center'
+                    },
+                    {
+                        title: '轮数',
+                        key: 'function',
+                        width: 150,
+                        align: 'center',
+                        
+                    },
+                    {
+                        title: '学习率',
+                        key: 'function',
+                        width: 150,
+                        align: 'center',
+                        
+                    },
+                    {
+                        title: '批大小',
+                        key: 'function',
+                        width: 150,
+                        align: 'center',
+                        
+                    },
+                    {
+                        title: '切片大小',
+                        key: 'function',
+                        width: 150,
+                        align: 'center',
+                        
+                    },
+                    {
+                        title: '是否监督',
+                        key: 'function',
+                        width: 150,
+                        align: 'center',
+                        
+                    },
+                    {
                         title: '用户',
-                        key: 'object',
-                        align: 'center'
+                        key: 'function',
+                        width: 150,
+                        align: 'center',
+                        
                     },
-                     {
+                    {
                         title: '任务类型',
-                        key: 'object',
-                        align: 'center'
+                        key: 'function',
+                        width: 150,
+                        align: 'center',
+                        
                     },
                     {
-                        title: '输入',
-                        key: 'object',
-                        align: 'center'
+                        title: '输出类型',
+                        key: 'function',
+                        width: 150,
+                        align: 'center',
+                        
                     },
                     {
-                        title: '标签',
-                        key: 'object',
-                        align: 'center'
-                    },
-                   
-                    {
-                        title: '更新时间',
+                        title: '创建时间',
                         key: 'time',
                         align: 'center'
                     },
@@ -203,24 +230,24 @@ export default {
                                             this.showEditModal(userData)
                                         }
                                     }
-                                }, '下载'),
-                                h('Button', {
-                                    props: {
-                                        type: 'error',
-                                        size: 'small'
-                                    },
-                                    on: {
-                                        click:() => {
-                                            this.$Modal.confirm({
-                                                title: '系统提示',
-                                                content: '删除后无法恢复，确定删除吗？',
-                                                onOk: () => {
-                                                    this.remove(params.index);
-                                                }
-                                            });
-                                        }
-                                    }
-                                }, '删除')
+                                }, '查看详情'),
+                                // h('Button', {
+                                //     props: {
+                                //         type: 'error',
+                                //         size: 'small'
+                                //     },
+                                //     on: {
+                                //         click:() => {
+                                //             this.$Modal.confirm({
+                                //                 title: '系统提示',
+                                //                 content: '删除后无法恢复，确定删除吗？',
+                                //                 onOk: () => {
+                                //                     this.remove(params.index);
+                                //                 }
+                                //             });
+                                //         }
+                                //     }
+                                // }, '删除')
                             ]);
                         }
                     }

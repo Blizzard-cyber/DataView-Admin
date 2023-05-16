@@ -16,7 +16,7 @@
         ></Table>
     <Row style="margin-top:30px">
           <Col span="5" offset="8">
-            <DatePicker  v-model="pickData" type="date" placeholder="请选择日期" style="width: 200px"></DatePicker>
+            <DatePicker  v-model="pickDate" type="date" placeholder="请选择日期" style="width: 200px"></DatePicker>
           </Col>
           <Col span="5" >
             <Button type="primary" @click="handleclick">大屏展示</Button>
@@ -27,11 +27,12 @@
 <script>
     import {getClassApi,getClassByDateApi} from "../../network/api/dataApi"
     import expandRow from './subtable.vue';
+    import { mapMutations } from 'vuex';
     export default {
         //components: { expandRow },
         data () {
             return {
-                pickData:'',
+                pickDate:'',
                 paramGroup:'',
                 columns: [
                     {
@@ -65,10 +66,15 @@
             }
             
         },
+        computed:{
+            
+        },
         created(){
                 this.getList();
             },
         methods:{
+            ...mapMutations(['setParamGroup','setPickDate']),
+
            async getList(){
                 let res = await getClassApi();
                 //console.log(res.data.length)
@@ -110,19 +116,20 @@
                 d = d < 10 ? ('0' + d) : d;
                 return y + '-' + m + '-' + d + ' '+'00:00:00';
             },
-            async handleclick(){
+            handleclick(){
              if(this.paramGroup==''){
                  this.$Message.error('请选择班组');
                  return;
              }
-            if(this.pickData==''){
+            if(this.pickDate==''){
                     this.$Message.error('请选择日期');
                     return;
             }
-            let res=await getClassByDateApi(this.paramGroup,this.formatDate(this.pickData));
-            //console.log(res.data)
-
-                //this.$router.push({path:'/dataview/display',query:{date:this.pickData}})
+            this.setParamGroup(this.paramGroup);
+            this.setPickDate(this.formatDate(this.pickDate));
+            
+           
+            this.$router.push('./data')
             }
         }
     }

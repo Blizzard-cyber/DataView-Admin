@@ -133,6 +133,7 @@
                             </template>
                             <MenuItem name="3-1" to="/trainList">训练数据集</MenuItem>
                             <MenuItem name="3-2" to="/trainModel">模型训练</MenuItem>
+                            <MenuItem name="3-3" to="/training">训练任务</MenuItem>
                             
                         </Submenu>
                         <MenuItem  v-if="this.auth == 1" name="4-1" to="/display">
