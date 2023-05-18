@@ -26,18 +26,24 @@
                 <mycard icon="md-add-circle" title="新增页面" bgcolor="#9a66e4" count="14"></mycard>
             </Col> -->
         </Row>
-        <Row type="flex" justify="space-between" style="margin-top:20px">
-            <Col span="8">
-                 <Card :padding="0">
-                    <charts-pie id="pie"></charts-pie>
+        <!-- <Row type="flex" justify="space-between" style="margin-top:20px">
+            <Col span="7">
+                  <Card :padding="0">
+                    <charts-line id="line"></charts-line>
                 </Card>
             </Col>
-           <Col span="15">
-                <Card :padding="0">
-                    <charts-column id="column"></charts-column>
+            <Col span="7">
+                  <Card :padding="0">
+                    <charts-line id="line"></charts-line>
                 </Card>
             </Col>
-        </Row>
+            <Col span="7">
+                  <Card :padding="0">
+                    <charts-line id="line"></charts-line>
+                </Card>
+            </Col>
+           
+        </Row> -->
         <Row style="margin-top:20px">
            <Col span="24">
                 <Card :padding="0">
@@ -53,14 +59,13 @@ import mycard from '@/components/mycard'
 import column from '@/components/charts/column'
 import line from '@/components/charts/line'
 import pie from '@/components/charts/pie'
-import test from '@/components/test'
  
 export default {
     components: {
         mycard,
-        "charts-column":column,
+      
         "charts-line":line,
-        "charts-pie":pie,
+       
     },
     data() {
         return {  

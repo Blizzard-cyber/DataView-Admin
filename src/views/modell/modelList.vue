@@ -96,12 +96,12 @@ export default {
                     },
                     {
                         title: '适用对象',
-                        key: 'uid',
+                        key: 'username',
                         align: 'center'
                     },
                     {
                         title: '功能',
-                        key: 'taskTid',
+                        key: 'taskTypeName',
                         width: 150,
                         align: 'center',
                         

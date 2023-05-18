@@ -228,7 +228,7 @@ import { mapMutations, mapGetters, mapState } from 'vuex';
                 this.$router.push("/login")
             },
             dataMap() {
-                this.$router.push("/data")
+                //this.$router.push("/data")
             }
         }
     }

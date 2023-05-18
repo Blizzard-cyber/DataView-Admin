@@ -31,13 +31,13 @@ export default {
 	// 	...mapState(["loginUserName"])
 	// },
 	mounted () {
-        lottie.loadAnimation({
-            container: document.querySelector('.sign_canvas'),
-            enderer: 'svg',
-            loop: true,
-            autoplay: true,
-            path: 'data7.json',
-		});
+        // lottie.loadAnimation({
+        //     container: document.querySelector('.sign_canvas'),
+        //     enderer: 'svg',
+        //     loop: true,
+        //     autoplay: true,
+        //     path: 'data7.json',
+		// });
     },
 	methods: {
 
