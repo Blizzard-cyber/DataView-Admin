@@ -1,13 +1,28 @@
 var ta = 25;
+var wholedata = [];
+var total = []; //飞行员总人数
+var abnormal = []; //飞行员异常人数
+var data1 = []; //飞行员基本生命体征异常情况统计(1*5)
+var data2 = []; //飞行员基本生命体征异常情况趋势(4*n)
+var data3 = []; //飞行员综合状态分布(1*4)
+var data4 = []; //飞行员心理状态异常情况统计(1*5)
+var data5 = []; //飞行员心理状态异常情况趋势(4*n)
+var data6 = []; //飞行员异常状态情况分布(1*4)
 window.addEventListener("message", function(event) {
   // 访问传递的数据
-  var data = event.data;
-  console.log(data);
-  for(var p in data){
-   console.log(p)
-  }
+  wholedata = event.data;
+  total = wholedata[0][0];
+  abnormal = wholedata[0][1];
+  data1 = wholedata[1];
+  data2 = wholedata[2];
+  data3 = wholedata[3];
+  data4 = wholedata[4];
+  data5 = wholedata[5];
+  data6 = wholedata[6];
+  //console.log(total)
  
 }); 
+
 // 柱状图1模块
 (function () {
   // 实例化对象
@@ -81,7 +96,7 @@ window.addEventListener("message", function(event) {
         name: "飞行员人数",
         type: "bar",
         barWidth: "35%",
-        data: [20, 8,12, 5, 7],
+        data: [0,0,0,0,0],
         itemStyle: {
           normal: {
             barBorderRadius: 5,
@@ -112,23 +127,15 @@ window.addEventListener("message", function(event) {
   //   option.series[0].data = dataAll[i].data;
   //   myChart.setOption(option);
   // });
+  var index1 = 0;
   setInterval(() => {
-    option.series[0].data[0] =  ta - Math.floor(Math.random() * 5);
-    
-    for(var i=1;i<5;i++) {
-      option.series[0].data[i] += (Math.floor(Math.random() *3)-1)*Math.floor(Math.random() * 3);
-      if(option.series[0].data[i] < 0){
-        option.series[0].data[i] = 0;
-      }
-      if (option.series[0].data[i] > option.series[0].data[0]){
-        option.series[0].data[i] = option.series[0].data[0] - Math.floor(Math.random() * 3);
-      }
-    }
-    if(option.series[0].data[0] > option.series[0].data[1] + option.series[0].data[2] + option.series[0].data[3] +option.series[0].data[4]){
-      option.series[0].data[0] = option.series[0].data[1] + option.series[0].data[2] + option.series[0].data[3] +option.series[0].data[4]
+    if (data1.length !== 0) {
+      option.series[0].data = data1[index1 % data1.length];
+      index1++;
+      
     }
     myChart.setOption(option);
-  }, 200);
+  }, 1000);
 
 })();
 
@@ -140,10 +147,18 @@ window.addEventListener("message", function(event) {
   // (1)准备数据
   var data = {
     month: [
-      [13, 18, 4, 16, 21, 19, 16, 12, 5, 17, 1, 15, 9, 18],
-      [19, 4, 16, 10, 24, 8, 6, 16, 12, 21, 12, 19, 5, 2],
-      [18, 14, 24, 23, 14, 15, 18, 15, 2, 5, 13, 19, 11, 10],
-      [6, 10, 0, 18, 14, 18, 8, 6, 18, 19, 19, 24, 16, 15],
+      [],
+      [],
+      [],
+      []
+      // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+      // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      // [13, 18, 4, 16, 21, 19, 16, 12, 5, 17, 1, 15, 9, 18,13],
+      // [19, 4, 16, 10, 24, 8, 6, 16, 12, 21, 12, 19, 5, 2,15 ],
+      // [18, 14, 24, 23, 14, 15, 18, 15, 2, 5, 13, 19, 11, 10,26],
+      // [6, 10, 0, 18, 14, 18, 8, 6, 18, 19, 19, 24, 16, 15,25 ],
     ]
   };
 
@@ -178,6 +193,7 @@ window.addEventListener("message", function(event) {
       type: "category",
       boundaryGap: false,
       data: [
+        "0:00",
         "1:00",
         "2:00",
         "3:00",
@@ -191,7 +207,7 @@ window.addEventListener("message", function(event) {
         "11:00",
         "12:00",
         "13:00",
-        "14:00"
+        "14:00",
       ],
       // 去除刻度
       axisTick: {
@@ -265,14 +281,30 @@ window.addEventListener("message", function(event) {
   });
   // 折线刷新
   var xaxi = 15;
+  var isinit=false;
   setInterval(() => {
-    option.xAxis.data.push(String(xaxi%24)+":00");
-    option.xAxis.data.shift();
-    xaxi += 1 ;
-    data.month.forEach(element => {
-      element.push(Math.floor(Math.random() *30));
-      element.shift();
-    });
+    if (data2.length !== 0) { 
+      //初始化前15个数据
+      if (!isinit) {
+        data.month.forEach((element, index) => {
+          for (var i = 0; i < 15; i++) {
+            element.push(data2[index][i])
+          }
+        });
+        isinit=true;
+      }
+      
+      option.xAxis.data.push(String(xaxi%24)+":00");
+      option.xAxis.data.shift();
+   
+      data.month.forEach((element,index) => {
+        element.push(data2[index][xaxi % 24]);
+        element.shift();
+      });
+      xaxi++;
+      //console.log(data.month);
+    }
+   
     myChart.setOption(option);
   }, 1000);
 })();
@@ -316,10 +348,10 @@ window.addEventListener("message", function(event) {
         label: { show: false },
         labelLine: { show: false },
         data: [
-          { value: 55, name: "优秀" },
-          { value: 21, name: "良好" },
-          { value: 24, name: "较差" },
-          { value: 25, name: "极差" },
+          { value: 0, name: "优秀" },
+          { value: 0, name: "良好" },
+          { value: 0, name: "较差" },
+          { value: 0, name: "极差" },
         ]
       }
     ]
@@ -330,13 +362,16 @@ window.addEventListener("message", function(event) {
   window.addEventListener("resize", function () {
     myChart.resize();
   });
+  var index3 = 0;
   setInterval(() => {
-    option1.series[0].data.forEach(element => {
-      element.value += ((Math.floor(Math.random() *3)-1)*Math.floor(Math.random() * element.value*0.5)%30);
-    });
+    if (data3.length > 0) { 
+      //option1.series[0].data = data3[5];
+      option1.series[0].data = data3[index3 % data3.length];
+      index3 += 1;
+    }
     myChart.setOption(option1);
     // console.log(option1);
-  }, 300);
+  }, 1000);
 })();
 
 
@@ -429,27 +464,35 @@ window.addEventListener("message", function(event) {
     myChart.resize();
   });
 
+  var index4 = 0;
   setInterval(() => {
-    data[0] =  ta - Math.floor(Math.random() * 5);
-    valdata[0] = String(data[0]) + "人";
-
-    for(var i=1;i<5;i++) {
-      data[i] += (Math.floor(Math.random() *3)-1)*Math.floor(Math.random() * 3);
-      if(data[i] < 0){
-        data[i] = 0;
+    if (data4.length > 0) { 
+      data = data4[index4 % data4.length];
+      for (var i = 0; i < 5; i++) { 
+        valdata[i] = String(data[i]) + "人";
       }
-      if (data[i] > data[0]){
-        data[i] = data[0] - Math.floor(Math.random() * 3);
-      }
-      valdata[i] = String(data[i]) + "人";
+      index4 += 1;
     }
+    // data[0] =  ta - Math.floor(Math.random() * 5);
+    // valdata[0] = String(data[0]) + "人";
+
+    // for(var i=1;i<5;i++) {
+    //   data[i] += (Math.floor(Math.random() *3)-1)*Math.floor(Math.random() * 3);
+    //   if(data[i] < 0){
+    //     data[i] = 0;
+    //   }
+    //   if (data[i] > data[0]){
+    //     data[i] = data[0] - Math.floor(Math.random() * 3);
+    //   }
+    //   valdata[i] = String(data[i]) + "人";
+    // }
     if(data[0] > data[1] + data[2] + data[3] +data[4]){
       data[0] = data[1] + data[2] + data[3] +data[4]
     }
     option.data = valdata;
     option.series[0].data = data;
     myChart.setOption(option);
-  }, 200);
+  }, 1000);
     
 })();
 
@@ -459,6 +502,15 @@ window.addEventListener("message", function(event) {
   // 基于准备好的dom，初始化echarts实例
   var myChart = echarts.init(document.querySelector(".line1 .chart"));
 
+  // (1)准备数据
+  var data = {
+    month: [
+      [],
+      [],
+      [],
+      []
+    ]
+  };
   var option = {
     tooltip: {
       trigger: "axis",
@@ -500,6 +552,7 @@ window.addEventListener("message", function(event) {
         },
 
         data: [
+          "0:00",
           "1:00",
           "2:00",
           "3:00",
@@ -509,6 +562,7 @@ window.addEventListener("message", function(event) {
           "7:00",
           "8:00",
           "9:00",
+          "10:00",
           "11:00",
           "12:00",
           "13:00",
@@ -589,9 +643,7 @@ window.addEventListener("message", function(event) {
             borderWidth: 12
           }
         },
-        data: [
-          3, 13, 5, 24, 22, 20, 11, 2, 20, 0, 9, 14, 18, 20
-        ]
+        data: data.month[0]
       },
       {
         name: "压力异常",
@@ -635,9 +687,7 @@ window.addEventListener("message", function(event) {
             borderWidth: 12
           }
         },
-        data: [
-          18, 10, 9, 16, 16, 4, 24, 12, 10, 0, 18, 12, 14, 24
-        ]
+        data: data.month[1]
       },
       {
         name: "极度疲劳",
@@ -681,9 +731,7 @@ window.addEventListener("message", function(event) {
             borderWidth: 12
           }
         },
-        data: [
-          19, 16, 20, 16, 11, 14, 0, 0, 9, 1, 23, 0, 13, 21
-        ]
+        data: data.month[2]
       },
       {
         name: "心脏状态异常",
@@ -727,9 +775,7 @@ window.addEventListener("message", function(event) {
             borderWidth: 12
           }
         },
-        data: [
-          22, 15, 2, 18, 21, 1, 15, 8, 10, 1, 17, 10, 8, 2
-        ]
+        data: data.month[3]
       }
     ]
   };
@@ -741,16 +787,30 @@ window.addEventListener("message", function(event) {
   });
 
   var xaxi = 15;
+  var isinit = false;
   setInterval(() => {
     // console.log(option);
-    option.xAxis[0].data.push(String(xaxi%24)+":00");
-    option.xAxis[0].data.shift();
-    xaxi += 1 ;
-    option.series.forEach(element => {
-      // console.log(element);
-      element.data.push(Math.floor(Math.random() * 30));
-      element.data.shift();
-    });
+    if (data5.length !== 0) { 
+      //初始化前15个数据
+      if (!isinit) {
+        data.month.forEach((element, index) => {
+          for (var i = 0; i < 15; i++) {
+            element.push(data5[index][i])
+          }
+        });
+        isinit=true;
+      }
+      //console.log(option.xAxis[0].data);
+      option.xAxis[0].data.push(String(xaxi%24)+":00");
+      option.xAxis[0].data.shift();
+   
+      data.month.forEach((element,index) => {
+        element.push(data5[index][xaxi % 24]);
+        element.shift();
+      });
+      xaxi++;
+      //console.log(data.month);
+    }
     
     myChart.setOption(option);
   }, 1000);
@@ -791,10 +851,10 @@ window.addEventListener("message", function(event) {
         center: ["50%", "42%"],
         roseType: "radius",
         data: [
-          { value: 55, name: "无异常状态" },
-          { value: 25, name: "生理状态异常" },
-          { value: 28, name: "心理状态异常" },
-          { value: 17, name: "生理、心理状态异常" },
+          { value: 0, name: "无异常状态" },
+          { value: 0, name: "生理状态异常" },
+          { value: 0, name: "心理状态异常" },
+          { value: 0, name: "生理、心理状态异常" },
         ],
         // 修饰饼形图文字相关的样式 label对象
         label: {
@@ -820,31 +880,43 @@ window.addEventListener("message", function(event) {
   });
 
   
-
+  var index6 = 0;
   setInterval(() => {
-    option.series[0].data.forEach(element => {
-      element.value = (25 + (Math.floor(Math.random() *3)-1)*Math.floor(Math.random() * 10));
-    });
-    option.series[0].data[0].value += 10;
-    // console.log(option.series[0].data);
+    if (data6.length > 0) { 
+      //option1.series[0].data = data3[5];
+      option.series[0].data = data6[index6 % data6.length];
+      index6 += 1;
+    }
     myChart.setOption(option);
     // console.log(option1);
-  }, 300);
+  }, 1000);
 })();
 
 
+//监测飞行员总人数
+(function () {
+  var index = 0;
+  var ab = document.getElementsByClassName("total");
+  setInterval(() => {
+    if (total.length !== 0) {
+      ab[0].innerHTML = total[index % total.length];
+      index += 1;
+      //console.log(ab[0].innerHTML);
+    }
+  }, 1000);
 
-(function() {
+})();
+
+//异常飞行员总人数
+(function () {
+  var index = 0;
   var ab = document.getElementsByClassName("total-abnormal");
   setInterval(() => {
-    ab[0].innerHTML = ta;
-    ta += (Math.floor(Math.random() * 6-2.5));
-    if(ta<=0) {
-      ta = 30;
+    if (abnormal.length !== 0) {
+      ab[0].innerHTML = abnormal[index % abnormal.length];
+      index += 1;
+      //console.log(ab[0].innerHTML);
     }
-    if(ta>125){
-      ta -= 60;
-    }
-  }, 200);
+  }, 1000);
 
 })();

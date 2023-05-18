@@ -9,7 +9,7 @@ import serviceAxios from "../request";
  */
 export const getModelListApi = () => {
     return serviceAxios({
-        url: "/model/",
+        url: "/model/detail",
         method: "get",
     });
 };
@@ -130,5 +130,18 @@ export const addOUTModelApi = (data) => {
         url: "/outputType/",
         method: "post",
         data,
+    });
+}
+
+/**
+ * 获取任务类型
+ * GET
+ * @param null
+ * @returns {Promise} res.data
+ */
+export const getTaskTypeApi = () => { 
+    return serviceAxios({
+        url: "/taskType/",
+        method: "get",
     });
 }

@@ -22,12 +22,12 @@
         </FormItem>
         <FormItem label="模型功能" prop="mfunction">
             <Select v-model="formValidate.mfunction" placeholder="请选择" style="width:250px">
-                <Option v-for="item in funcoption" :value="item.value" :key="item.value">{{ item.label }}</Option> 
+                <Option v-for="(item,index) in funcoption" :value="item.id" :key="index">{{ item.func }}</Option> 
             </Select>
         </FormItem>
        <FormItem label="适用对象" prop="mobject">
             <Select v-model="formValidate.mobject" placeholder="请选择" style="width:250px">
-                <Option v-for="item in objectoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                <Option v-for="(item,index) in objectoption" :value="item.id" :key="index">{{ item.username }}</Option>
             </Select>
         </FormItem>
         <FormItem label="输入数据秒数" prop="dsecond">
@@ -132,7 +132,8 @@
 </template>
 
 <script>
-import{getModelListApi,getINModelApi,getOUTModelApi,addModelApi,addINModelApi,addOUTModelApi} from '../../network/api/modelApi'
+import{getTaskTypeApi,getINModelApi,getOUTModelApi,addModelApi,addINModelApi,addOUTModelApi} from '../../network/api/modelApi'
+import{getUsersApi} from '../../network/api/userApi'
     export default {
         data () {
             return {
@@ -209,27 +210,38 @@ import{getModelListApi,getINModelApi,getOUTModelApi,addModelApi,addINModelApi,ad
         },
         methods: {
            async getUserList() {
-            let modellist = await getModelListApi()
-                if(modellist.type === 'success'){
-                    this.userList = modellist.data 
-                    let op1="uid"
-                    let op2="taskTid"
-                    this.getOptionList(op1);
-                    this.getOptionList(op2);
+            //let modellist = await getModelListApi()
+            //模型功能选项
+            let taskList = await getTaskTypeApi()
+                if(taskList.type === 'success'){
+                    this.funcoption = taskList.data  
                 }
                 else{
-                    this.$Message.error('获取选项列表失败');
+                    this.$Message.error('获取功能列表失败');
                 }
+            
+            //适用对象选项
+            let userlist = await getUsersApi()
+                if(userlist.type === 'success'){
+                    this.objectoption = userlist.data
+                    //console.log(this.objectoption)
+                }
+                else{
+                    this.$Message.error('获取适用对象列表失败');
+                } 
                
+               //输入数据类型选项
             let inlist = await getINModelApi()
                 if(inlist.type === 'success'){
                     this.intypeoption = inlist.data
+                    //console.log(this.intypeoption)
                     
                 }
                 else{
                     this.$Message.error('获取输入数据类型列表失败');
                 }
 
+            //输出数据类型选项
             let outlist = await getOUTModelApi()
                 if(outlist.type === 'success'){
                     this.outtypeoption = outlist.data          
@@ -239,33 +251,33 @@ import{getModelListApi,getINModelApi,getOUTModelApi,addModelApi,addINModelApi,ad
                 }  
             },
             //将表中数据选项转换为数组
-            getOptionList(op) {
-                //将userList中的uid项的值提取出来放入数组
-                let arr = []
-                for(let i=0;i<this.userList.length;i++){
+            // getOptionList(op) {
+            //     //将userList中的uid项的值提取出来放入数组
+            //     let arr = []
+            //     for(let i=0;i<this.userList.length;i++){
                     
-                    arr.push(this.userList[i][op])
-                }
-                //去重
+            //         arr.push(this.userList[i][op])
+            //     }
+            //     //去重
                 
-                let set = new Set(arr)
-                let arr2 = Array.from(set)
-                //将数组转换为对象数组
-                let arr3 = []
-                for(let i=0;i<arr2.length;i++){
-                    arr3.push({value:arr2[i],label:arr2[i]})
-                }
-                //将对象数组赋值给过去
-                if(op === "uid"){
-                    this.objectoption = arr3
-                    //console.log(this.objectoption)
-                }
-                else if(op === "taskTid"){
-                    this.funcoption = arr3
-                    //console.log(this.funcoption)
-                }
+            //     let set = new Set(arr)
+            //     let arr2 = Array.from(set)
+            //     //将数组转换为对象数组
+            //     let arr3 = []
+            //     for(let i=0;i<arr2.length;i++){
+            //         arr3.push({value:arr2[i],label:arr2[i]})
+            //     }
+            //     //将对象数组赋值给过去
+            //     if(op === "uid"){
+            //         this.objectoption = arr3
+            //         //console.log(this.objectoption)
+            //     }
+            //     else if(op === "taskTid"){
+            //         this.funcoption = arr3
+            //         //console.log(this.funcoption)
+            //     }
                 
-            },
+            // },
             //提交数据类型添加
              handleOK(form){
                 let datatype = this.addformValidate.addtype
