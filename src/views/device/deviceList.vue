@@ -8,20 +8,20 @@
         </Breadcrumb>
         <Row class="rowbox" :gutter="16">
             <Col span="5" >
-                <Input v-model="value1" placeholder="设备名称" clearable/>
+                <Input v-model="searchOption.value1" placeholder="设备名称" clearable/>
             </Col>
             <Col span="5" >
-               <Select v-model="value2" clearable placeholder="设备类型">
+               <Select v-model="searchOption.value2" clearable placeholder="设备类型" @on-change="selectClear('value2')">
                     <Option v-for="item in deviceoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
                 </Select>
             </Col>
             <Col span="5">
-                <Select v-model="value3" clearable placeholder="蓝牙类型">
+                <Select v-model="searchOption.value3" clearable placeholder="蓝牙类型" @on-change="selectClear('value3')">
                     <Option v-for="item in blueteethoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
                 </Select>
             </col>
             <Col span="5">
-                <DatePicker v-model="value4" type="datetime" format="yyyy-MM-dd HH:mm:ss" placeholder="起始创建日期" show-week-numbers/>
+                <DatePicker v-model="searchOption.value4" type="datetime" format="yyyy-MM-dd HH:mm:ss" placeholder="起始创建日期" show-week-numbers/>
             </Col>
             <Col span="4" style="padding: 0%;">
                 <Button @click="searchItem" >查询</Button>
@@ -89,10 +89,12 @@ export default {
         data () {
             return {
                 isModal: false,
-                value1: '',
-                value2: '',
-                value3: '',
-                value4: '',
+                searchOption: {
+                    value1: '',
+                    value2: '',
+                    value3: '',
+                    value4: '',
+                },
                 deviceoption:[],
                 blueteethoption:[],
                 columns6: [
@@ -206,8 +208,8 @@ export default {
             searchDate() {
                 //时间选择器Date->str
                 let str = ''
-                if (this.value4 !== "") {
-                    let date = new Date(this.value4);
+                if (this.searchOption.value4 !== "") {
+                    let date = new Date(this.searchOption.value4);
                     let year = date.getFullYear();
                     let month = ("0" + (date.getMonth() + 1)).slice(-2);
                     let day = ("0" + date.getDate()).slice(-2);
@@ -259,6 +261,12 @@ export default {
                 }
                 else if(op === "bluType"){
                     this.blueteethoption = arr3
+                }
+            },
+            //解决select组件清空后参数值变成undefined的问题，避免搜索参数出错
+            selectClear(key) {
+                if(this.searchOption[key] == undefined){
+                    this.searchOption[key] = ''
                 }
             },
             async getInputType(){
@@ -347,9 +355,9 @@ export default {
             },
             async searchItem() {
                 let paramsdata = {
-                    devName:this.value1,
-                    devType:this.value2,
-                    bluType:this.value3,
+                    devName:this.searchOption.value1,
+                    devType:this.searchOption.value2,
+                    bluType:this.searchOption.value3,
                     createDate:this.searchDate
                 }
                 let res = await searchDeviceApi(paramsdata)

@@ -8,184 +8,174 @@
         </Breadcrumb>
         <Row class="rowbox" :gutter="16">
             <Col span="5" >
-                <Input v-model="value1" placeholder="用户" clearable/>
+               <Input v-model="searchOption.value1" placeholder="文件名称" clearable/>
             </Col>
-            <Col span="5" >
-               <Input v-model="value2" placeholder="名称" clearable/>
+            <Col span="3" >
+                <Select v-model="searchOption.value2" clearable placeholder="训练对象" @on-change="selectClear('value2')">
+                    <Option v-for="item in userOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                </Select>
             </Col>
-            <Col span="5">
-                <Select v-model="value3" clearable placeholder="任务类型">
-                    <Option v-for="item in blueteethoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+            <Col span="3">
+                <Select v-model="searchOption.value3" clearable placeholder="任务类型" @on-change="selectClear('value3')">
+                    <Option v-for="item in taskOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                </Select>
+            </col>
+            <Col span="3">
+                <Select v-model="searchOption.value4" clearable placeholder="输入类型" @on-change="selectClear('value4')"> 
+                    <Option v-for="item in inputOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
                 </Select>
             </col>
             <Col span="5">
-                <!-- <Input v-model="value4" placeholder="创建日期" clearable/> -->
-                <DatePicker v-model="value4" type="date" placeholder="创建日期" show-week-numbers/>
+                <DatePicker v-model="searchOption.value5" type="datetime" format="yyyy-MM-dd HH:mm:ss" placeholder="创建日期" show-week-numbers/>
             </Col>
-            <Col span="4" style="padding: 0%;">
+            <Col span="5">
                 <Button @click="searchItem" >查询</Button>
-                <Button type="primary"  style="margin-left:10px">新增</Button>
-                 <Button type="primary" to="/trainModel" style="margin-left:10px">训练</Button>
+                <Button type="primary" style="margin-left:10px;" @click="isModal=true">新增</Button>
+                <Button type="primary" to="/trainModel" style="margin-left:10px;">训练</Button>
             </Col>
         </Row>
-        <Table border :columns="columns6" :data="showData"></Table>
-        <Page
-            class="flex j-center"
-            style="marginTop:20px"
-            :total="userList.length"
-            show-sizer
-            show-elevator
-            show-total
-            :page-size-opts="[5,10,25,50,100]"
-            @on-change="changePage"
-            @on-page-size-change="changePageSize"
-        />
-        <Modal 
-            v-model="isModal"
-            :styles="{top:'60px'}" >
-            <p slot="header" style="font-size:16px">
-                <span>修改用户</span>
-            </p>
-            <Form label-position="left"  :label-width="100">
-                <FormItem 
-                    :label="item.label"
-                    v-for="item of modalItem" 
-                    v-if="!item.hide"
-                    :key="item.label">
-                    <Input 
-                        :type="item.type || 'text'" 
-                        v-model="item.value" 
-                        style="width:300px" />
+        <Modal v-model="isModal" title="新增数据集">
+            <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="150">
+                <FormItem label="训练对象" prop="uid">
+                    <Select v-model="formValidate.uid" placeholder="请选择" style="width:250px">
+                        <Option v-for="item in userOption" :value="item.value" :key="item.value">{{ item.label }}</Option> 
+                    </Select>
+                </FormItem>
+                <FormItem label="任务类型" prop="taskTid">
+                    <Select v-model="formValidate.taskTid" placeholder="请选择" style="width:250px">
+                        <Option v-for="item in taskOption" :value="item.value" :key="item.value">{{ item.label }}</Option> 
+                    </Select>
+                </FormItem>
+                <FormItem label="输入类型" prop="inputTid">
+                    <Select v-model="formValidate.inputTid" placeholder="请选择" style="width:250px">
+                        <Option v-for="item in inputOption" :value="item.value" :key="item.value">{{ item.label }}</Option> 
+                    </Select>
+                </FormItem>
+                <FormItem label="标签类型" prop="label">
+                    <Select v-model="formValidate.label" placeholder="请选择" style="width:250px">
+                        <Option v-for="item in labelOption" :value="item.value" :key="item.value">{{ item.label }}</Option>  
+                    </Select> 
+                </FormItem>
+                <FormItem label="信号文件" prop="sigFile">
+                    <Upload 
+                        ref="upload"
+                        action=""
+                        :before-upload="handleBeforeUpload"
+                        :format="['csv']"
+                        :on-format-error="handleFormatError"
+                        >
+                        <Button icon="ios-cloud-upload-outline">读取文件</Button>
+                    </Upload>
+                    <div v-if="formValidate.sigFile!== null">
+                        {{ formValidate.sigFile.name }} 
+                    </div>
                 </FormItem>
             </Form>
             <div slot="footer">
                 <slot name="footer">
-                    <Button type="text" size="large" @click="cancel">取消</Button>
-                    <Button type="primary" size="large" @click="clickModalEvent">提交</Button>
+                    <Button type="text" @click="handleCancel('formValidate')">取消</Button>
+                    <Button type="primary" @click="handleSubmit('formValidate')">提交</Button>
                 </slot>
             </div>
         </Modal>
+        <Table height="400" border :columns="columns" :data="userList"></Table>
     </div>
 </template>
 
 <script>
-import mockData from '@/mock/index.js'
+import { mapState } from 'vuex';
+import { getFileListApi, searchFileApi, addFileApi, deleteFileApi } from "../../network/api/trainApi"
 export default {
         data () {
             return {
                 isModal: false,
-                value1: '',
-                value2: '',
-                value3: '',
-                value4: '',
-
-                objectoption:
-                [
+                formValidate: {
+                    uid: '',
+                    taskTid: '',
+                    inputTid: '',
+                    label: '',
+                    sigFile: '',
+                },
+                searchOption: {
+                    value1: '',
+                    value2: '',
+                    value3: '',
+                    value4: '',
+                    value5: '',
+                },
+                userOption:[],
+                taskOption:[],
+                inputOption:[],
+                labelOption:[
                     {
-                        value: 'New York',
-                        label: 'New York'
+                        value:0,
+                        label:0,
                     },
                     {
-                        value: 'London',
-                        label: 'London'
+                        value:1,
+                        label:1,
                     },
                     {
-                        value: 'Sydney',
-                        label: 'Sydney'
+                        value:2,
+                        label:2,
                     },
                     {
-                        value: 'Ottawa',
-                        label: 'Ottawa'
+                        value:3,
+                        label:3,
                     },
-                    {
-                        value: 'Paris',
-                        label: 'Paris'
-                    },
-                    {
-                        value: 'Canberra',
-                        label: 'Canberra'
-                    }
+                    
                 ],
-                funcoption:
-                [
+                columns: [
                     {
-                        value: 'New York',
-                        label: 'New York'
-                    },
-                    {
-                        value: 'London',
-                        label: 'London'
-                    },
-                    {
-                        value: 'Sydney',
-                        label: 'Sydney'
-                    },
-                    {
-                        value: 'Ottawa',
-                        label: 'Ottawa'
-                    },
-                    {
-                        value: 'Paris',
-                        label: 'Paris'
-                    },
-                    {
-                        value: 'Canberra',
-                        label: 'Canberra'
-                    }
-                ],
-                columns6: [
-                    {
-                        type: 'expand',
-                        width: 50,
-                        render: (h, params) => {
-                            return h(expandRow, {
-                                props: {
-                                    row: params.row.groupInfo
-                                }
-                            })
-                        }
+                        type: 'selection',
+                        width: 60,
+                        align: 'center'
                     },
                     {
                         title: '序号',
-                        width: 90,
+                        width: 70,
                         align: 'center',
                         key: 'id'
                     },
                     {
                         title: '名称',
-                        key: 'name',
+                        key: 'fname',
                         align: 'center'
                     },
                     {
-                        title: '用户',
-                        key: 'object',
+                        title: '训练对象',
+                        width: 100,
+                        key: 'uid',
                         align: 'center'
                     },
                      {
                         title: '任务类型',
-                        key: 'object',
+                        width: 100,
+                        key: 'taskTid',
                         align: 'center'
                     },
                     {
-                        title: '输入',
-                        key: 'object',
+                        title: '输入类型',
+                        width: 100,
+                        key: 'inputTid',
                         align: 'center'
                     },
                     {
                         title: '标签',
-                        key: 'object',
+                        width: 100,
+                        key: 'label',
                         align: 'center'
                     },
                    
                     {
                         title: '更新时间',
-                        key: 'time',
+                        key: 'uploadDate',
                         align: 'center'
                     },
                     {
                         title: '操作',
                         key: 'action',
-                        width: 150,
+                        width: 130,
                         align: 'center',
                         render: (h, params) => {
                             return h('div', [
@@ -195,12 +185,12 @@ export default {
                                         size: 'small'
                                     },
                                     style: {
-                                        marginRight:"10px"
+                                        marginRight:"5px"
                                     },
                                     on: {
                                         click: () => {
                                             const userData = params.row
-                                            this.showEditModal(userData)
+                                            this.downloadFile(userData)
                                         }
                                     }
                                 }, '下载'),
@@ -215,7 +205,7 @@ export default {
                                                 title: '系统提示',
                                                 content: '删除后无法恢复，确定删除吗？',
                                                 onOk: () => {
-                                                    this.remove(params.index);
+                                                    this.remove(params.row.id);
                                                 }
                                             });
                                         }
@@ -226,6 +216,20 @@ export default {
                     }
                 ],
                 userList:[],
+                ruleValidate: { //数据集添加表单校验规则
+                    uid: [
+                        { required: true, message:'请选择训练对象', trigger: 'change', type: 'number'}
+                    ],
+                    taskTid: [
+                        { required: true, message:'请选择任务类型', trigger: 'change', type: 'number'}
+                    ],
+                    inputTid: [
+                        { required: true, message:'请选择输入类型', trigger: 'change', type: 'number'}
+                    ],
+                    label: [
+                        { required: true, message:'请选择标签类型', trigger: 'change', type: 'number'}
+                    ]
+                },
                 modalItem: [
                     {
                         label: '姓名',
@@ -240,58 +244,157 @@ export default {
                         value: ''
                     }
                 ],
-                // userData: {}
-                currentPage: 0,
-                currentPageSize: 10,
             }
         },
         computed: {
-            showData() {
-                //再截取数据分页展示
-                const startIndex = this.currentPage * this.currentPageSize;
-                const endIndex = startIndex + this.currentPageSize;
-                return this.userList.slice(startIndex, endIndex);
+            ...mapState(["uid","auth"]),
+            searchDate() {
+                //时间选择器Date->str
+                let str = ''
+                if (this.searchOption.value5 !== "") {
+                    let date = new Date(this.searchOption.value5);
+                    let year = date.getFullYear();
+                    let month = ("0" + (date.getMonth() + 1)).slice(-2);
+                    let day = ("0" + date.getDate()).slice(-2);
+                    let hours = ("0" + date.getHours()).slice(-2);
+                    let minutes = ("0" + date.getMinutes()).slice(-2);
+                    let seconds = ("0" + date.getSeconds()).slice(-2);
+                    // Format string as "yyyy-MM-dd HH:mm:ss"
+                    str = year + "-" + month + "-" + day + " " + hours + ":" + minutes + ":" + seconds;
+                }
+                return str
             },
         },
         created () {
             this.getUserList()
         },
         methods: {
-            getUserList() {
-                this.$axios.get('/modelList')
-                .then(res => {
-                    this.userList = res.data.userList
-                }) 
+            async getUserList() {
+                let res = await getFileListApi()
+                if(res.type === 'success'){
+                    this.userList = res.data
+                    this.getOptionList('uid');
+                    this.getOptionList('taskTid');
+                    this.getOptionList('inputTid');
+                }
+                else{
+                    this.$Message.error('获取数据集失败');
+                }
             },
-            //切换页码
-            changePage(num) {
-                this.currentPage = num -1;
+            //将表中数据选项转换为数组
+            getOptionList(op) {
+                //将userList中的的值提取出来放入数组
+                let arr = []
+                for(let i=0;i<this.userList.length;i++){
+                    arr.push(this.userList[i][op])
+                }
+                //去重
+                let set = new Set(arr)
+                let arr2 = Array.from(set)
+                //将数组转换为对象数组
+                let arr3 = []
+                for(let i=0;i<arr2.length;i++){
+                    arr3.push({value:arr2[i],label:arr2[i]})
+                }
+                //将对象数组赋值给过去
+                if(op === "uid"){
+                    this.userOption = arr3
+                }
+                else if(op === "taskTid"){
+                    this.taskOption = arr3
+                } 
+                else if(op === "inputTid"){
+                    this.inputOption = arr3
+                }
             },
-            //切换页数
-            changePageSize(num) {
-                this.currentPageSize = num;
-            },
-            showEditModal(userData) {
-                //将modal状态变为edit修改用户信息
-                this.modalStatus = 'edit'
-                this.isModal = true
-                //自动填入当前用户原有的信息
-                this.modalItem[0].value = userData.name
-                this.modalItem[1].value = userData.age || ''
-                this.modalItem[2].value = userData.gender ? "男" : "女" || ''
-                this.userData = userData     
+            //解决select组件清空后参数值变成undefined的问题，避免搜索参数出错
+            selectClear(key) {
+                if(this.searchOption[key] == undefined){
+                    this.searchOption[key] = ''
+                }
             },
             cancel() {
                 this.isModal = false
             },
-            clickModalEvent() {
-                this.$Message.success('修改成功');
-                this.isModal = false
+            handleBeforeUpload(file){
+                this.formValidate.sigFile = file;
+                return false;
             },
-            remove (index) {
-                this.userList.splice(index, 1);
-                this.$Message.success('删除成功');
+            handleFormatError (file) {
+                this.$Notice.warning({
+                    title: '文件格式不正确',
+                    desc: '请上传csv文件'
+                });
+            },
+            handleCancel(form) {
+                this.$Message.info('取消添加');
+                this.$refs[form].resetFields();
+                this.isModal=false;
+            },
+            handleSubmit (formname) { //提交表单
+                let isfile = this.formValidate.sigFile
+                this.$refs[formname].validate(async(valid) => {
+                    if (valid && isfile!=='') {                     
+                        //上传数据
+                        let addData={
+                            uid:this.formValidate.uid,
+                            taskTid:this.formValidate.taskTid,
+                            inputTid:this.formValidate.inputTid,
+                            label:this.formValidate.label,
+                            sigFile:this.formValidate.sigFile
+                        }
+                        let res = await addFileApi(addData)
+                        if(res.type === "success"){
+                            this.$Message.success('添加成功!');
+                            this.getUserList()
+                        }
+                        else{
+                            this.$Message.error(res.message);
+                        }
+                        this.isModal = false
+                        
+                    }
+                    else if(isfile===''){
+                        this.$Message.error('请选择上传文件！');
+                    }
+                    else {
+                        this.$Message.error('填写内容有误，请检查后重新提交！');
+                        
+                    }
+                })
+            },
+            async remove (deleteId) {
+                if (this.auth==1){
+                    let res = await deleteFileApi(deleteId)
+                    if(res.type==="success"){
+                        this.getUserList()
+                        this.$Message.success('删除成功')
+                    }    
+                    else {
+                        this.$Message.error("删除失败");
+                    }
+                } else {
+                    this.$Message.error('没有权限');
+                }
+            },
+            async searchItem() {
+                let paramsdata = {
+                    fname:this.searchOption.value1,
+                    userId:this.searchOption.value2,
+                    taskTypeId:this.searchOption.value3,
+                    inputTid:this.searchOption.value4,
+                    createDate:this.searchDate
+                }
+                let res = await searchFileApi(paramsdata)
+                    if(res.data.length===0){
+                        this.$Message.error('没有找到匹配的结果');
+                    }
+                    else {
+                        this.$Message.success('查找成功');
+                        this.userList = res.data   
+                    }
             }
+
         }
     }
 </script>

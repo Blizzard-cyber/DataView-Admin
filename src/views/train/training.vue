@@ -4,29 +4,9 @@
         <Breadcrumb style="margin-bottom:20px">
             <BreadcrumbItem>首页</BreadcrumbItem>
             <BreadcrumbItem>模型训练</BreadcrumbItem>
-            <BreadcrumbItem>训练数据集</BreadcrumbItem>
+            <BreadcrumbItem>训练任务</BreadcrumbItem>
         </Breadcrumb>
-        <Row class="rowbox" :gutter="16">
-            <Col span="5" >
-                <Input v-model="value1" placeholder="设备名称" clearable/>
-            </Col>
-            <Col span="5" >
-               <Input v-model="value2" placeholder="设备类型" clearable/>
-            </Col>
-            <Col span="5">
-                <Select v-model="value3" clearable placeholder="蓝牙类型">
-                    <Option v-for="item in blueteethoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
-                </Select>
-            </col>
-            <Col span="5">
-                <!-- <Input v-model="value4" placeholder="创建日期" clearable/> -->
-                <DatePicker v-model="value4" type="date" placeholder="创建日期" show-week-numbers/>
-            </Col>
-            <Col span="4" style="padding: 0%;">
-                <Button @click="searchItem" >查询</Button>
-            </Col>
-        </Row>
-        <Table border :columns="columns6" :data="showData"></Table>
+        <Table border :columns="columns" :data="showData"></Table>
         <Page
             class="flex j-center"
             style="marginTop:20px"
@@ -38,182 +18,102 @@
             @on-change="changePage"
             @on-page-size-change="changePageSize"
         />
-        <Modal 
-            v-model="isModal"
-            :styles="{top:'60px'}" >
-            <p slot="header" style="font-size:16px">
-                <span>修改用户</span>
-            </p>
-            <Form label-position="left"  :label-width="100">
-                <FormItem 
-                    :label="item.label"
-                    v-for="item of modalItem" 
-                    v-if="!item.hide"
-                    :key="item.label">
-                    <Input 
-                        :type="item.type || 'text'" 
-                        v-model="item.value" 
-                        style="width:300px" />
-                </FormItem>
-            </Form>
-            <div slot="footer">
-                <slot name="footer">
-                    <Button type="text" size="large" @click="cancel">取消</Button>
-                    <Button type="primary" size="large" @click="clickModalEvent">提交</Button>
-                </slot>
-            </div>
-        </Modal>
     </div>
 </template>
 
 <script>
-import mockData from '@/mock/index.js'
+import { getTrainListApi } from "../../network/api/trainApi"
 export default {
         data () {
             return {
-                isModal: false,
-                value1: '',
-                value2: '',
-                value3: '',
-                value4: '',
-
-                objectoption:
-                [
-                    {
-                        value: 'New York',
-                        label: 'New York'
-                    },
-                    {
-                        value: 'London',
-                        label: 'London'
-                    },
-                    {
-                        value: 'Sydney',
-                        label: 'Sydney'
-                    },
-                    {
-                        value: 'Ottawa',
-                        label: 'Ottawa'
-                    },
-                    {
-                        value: 'Paris',
-                        label: 'Paris'
-                    },
-                    {
-                        value: 'Canberra',
-                        label: 'Canberra'
-                    }
-                ],
-                funcoption:
-                [
-                    {
-                        value: 'New York',
-                        label: 'New York'
-                    },
-                    {
-                        value: 'London',
-                        label: 'London'
-                    },
-                    {
-                        value: 'Sydney',
-                        label: 'Sydney'
-                    },
-                    {
-                        value: 'Ottawa',
-                        label: 'Ottawa'
-                    },
-                    {
-                        value: 'Paris',
-                        label: 'Paris'
-                    },
-                    {
-                        value: 'Canberra',
-                        label: 'Canberra'
-                    }
-                ],
-                columns6: [
+                columns: [
                     {
                         title: '唯一标识',
-                        width: 90,
+                        width: 180,
                         align: 'center',
-                        key: 'id'
+                        key: 'id',
+                        fixed: 'left'
                     },
                     {
                         title: '训练名称',
                         key: 'name',
+                        width: 100,
                         align: 'center'
                     },
                     {
                         title: '模型选择',
-                        key: 'object',
+                        key: 'method',
+                        width: 100,
                         align: 'center'
                     },
                     {
                         title: '轮数',
-                        key: 'function',
-                        width: 150,
+                        key: 'epoch',
+                        width: 100,
                         align: 'center',
                         
                     },
                     {
                         title: '学习率',
-                        key: 'function',
-                        width: 150,
+                        key: 'learningRate',
+                        width: 100,
                         align: 'center',
                         
                     },
                     {
                         title: '批大小',
-                        key: 'function',
-                        width: 150,
+                        key: 'batchSize',
+                        width: 100,
                         align: 'center',
                         
                     },
                     {
                         title: '切片大小',
-                        key: 'function',
-                        width: 150,
+                        key: 'second',
+                        width: 100,
                         align: 'center',
                         
                     },
                     {
                         title: '是否监督',
-                        key: 'function',
-                        width: 150,
+                        key: 'isSupervised',
+                        width: 100,
                         align: 'center',
                         
                     },
                     {
                         title: '用户',
-                        key: 'function',
-                        width: 150,
+                        key: 'uid',
+                        width: 100,
                         align: 'center',
                         
                     },
                     {
                         title: '任务类型',
-                        key: 'function',
-                        width: 150,
+                        key: 'taskTid',
+                        width: 100,
                         align: 'center',
                         
                     },
                     {
                         title: '输出类型',
-                        key: 'function',
-                        width: 150,
+                        key: 'outputTid',
+                        width: 100,
                         align: 'center',
                         
                     },
                     {
                         title: '创建时间',
-                        key: 'time',
+                        key: 'createDate',
+                        width: 180,
                         align: 'center'
                     },
                     {
                         title: '操作',
                         key: 'action',
-                        width: 150,
+                        width: 100,
                         align: 'center',
+                        fixed: 'right',
                         render: (h, params) => {
                             return h('div', [
                                 h('Button', {
@@ -231,43 +131,11 @@ export default {
                                         }
                                     }
                                 }, '查看详情'),
-                                // h('Button', {
-                                //     props: {
-                                //         type: 'error',
-                                //         size: 'small'
-                                //     },
-                                //     on: {
-                                //         click:() => {
-                                //             this.$Modal.confirm({
-                                //                 title: '系统提示',
-                                //                 content: '删除后无法恢复，确定删除吗？',
-                                //                 onOk: () => {
-                                //                     this.remove(params.index);
-                                //                 }
-                                //             });
-                                //         }
-                                //     }
-                                // }, '删除')
                             ]);
                         }
                     }
                 ],
                 userList:[],
-                modalItem: [
-                    {
-                        label: '姓名',
-                        value: '',
-                    },
-                    {
-                        label: '年龄',
-                        value: '',
-                    },
-                    {
-                        label: '性别',
-                        value: ''
-                    }
-                ],
-                // userData: {}
                 currentPage: 0,
                 currentPageSize: 10,
             }
@@ -284,11 +152,14 @@ export default {
             this.getUserList()
         },
         methods: {
-            getUserList() {
-                this.$axios.get('/modelList')
-                .then(res => {
-                    this.userList = res.data.userList
-                }) 
+            async getUserList() {
+                let res = await getTrainListApi()
+                if(res.type === 'success'){
+                    this.userList = res.data
+                }
+                else{
+                    this.$Message.error('获取训练任务失败');
+                }
             },
             //切换页码
             changePage(num) {
@@ -298,32 +169,11 @@ export default {
             changePageSize(num) {
                 this.currentPageSize = num;
             },
-            showEditModal(userData) {
-                //将modal状态变为edit修改用户信息
-                this.modalStatus = 'edit'
-                this.isModal = true
-                //自动填入当前用户原有的信息
-                this.modalItem[0].value = userData.name
-                this.modalItem[1].value = userData.age || ''
-                this.modalItem[2].value = userData.gender ? "男" : "女" || ''
-                this.userData = userData     
-            },
-            cancel() {
-                this.isModal = false
-            },
-            clickModalEvent() {
-                this.$Message.success('修改成功');
-                this.isModal = false
-            },
-            remove (index) {
-                this.userList.splice(index, 1);
-                this.$Message.success('删除成功');
-            }
         }
     }
 </script>
 <style>
-    .ivu-table-overflowX{ overflow-x: hidden;}
+    .ivu-table-overflowX{ overflow-x: auto;}
     
     .rowbox{
         margin-bottom: 25px;

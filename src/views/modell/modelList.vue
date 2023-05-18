@@ -163,7 +163,7 @@ export default {
             }
         },
         computed: {
-            ...mapState(["uid","auth"]),
+            ...mapState(["token","uid","auth"]),
             showData() {
                 //再截取数据分页展示
                 const startIndex = this.currentPage * this.currentPageSize;

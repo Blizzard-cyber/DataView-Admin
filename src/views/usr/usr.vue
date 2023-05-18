@@ -290,19 +290,25 @@ export default {
       }
     },
     async searchItem() {
-      let res = await searchUserApi(this.searchName)
-          if(res.data.length===0){
-              this.$Message.error('没有找到匹配的结果');
-              this.getUserList()
-          }
-          else {
-              this.$Message.success('查找成功');
-              this.userList = res.data   
-              this.userList.forEach(element => {
-                if (element.authority===1) element.role = "admin"
-                else element.role = "user"
-              });
-          }
+      if(this.searchName === ""){
+          this.getUserList()
+      }
+      else {
+          let res = await searchUserApi(this.searchName)
+            if(res.data.length===0){
+                this.$Message.error('没有找到匹配的结果');
+                this.getUserList()
+            }
+            else {
+                this.$Message.success('查找成功');
+                this.userList = res.data   
+                this.userList.forEach(element => {
+                  if (element.authority===1) element.role = "admin"
+                  else element.role = "user"
+                });
+            }
+      }
+      
     }
   }
 }
