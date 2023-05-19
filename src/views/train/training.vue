@@ -22,7 +22,7 @@
 </template>
 
 <script>
-import { getTrainListApi } from "../../network/api/trainApi"
+import { getTrainListApi, getTrainListDetailApi } from "../../network/api/trainApi"
 export default {
         data () {
             return {
@@ -83,21 +83,21 @@ export default {
                     },
                     {
                         title: '用户',
-                        key: 'uid',
+                        key: 'username',
                         width: 100,
                         align: 'center',
                         
                     },
                     {
                         title: '任务类型',
-                        key: 'taskTid',
+                        key: 'taskTypeName',
                         width: 100,
                         align: 'center',
                         
                     },
                     {
                         title: '输出类型',
-                        key: 'outputTid',
+                        key: 'outputTypeName',
                         width: 100,
                         align: 'center',
                         
@@ -127,7 +127,7 @@ export default {
                                     on: {
                                         click: () => {
                                             const userData = params.row
-                                            this.showEditModal(userData)
+                                            this.handleclick(userData)
                                         }
                                     }
                                 }, '查看详情'),
@@ -152,10 +152,25 @@ export default {
             this.getUserList()
         },
         methods: {
+            transformTimestamp(timestamp){
+                let a = new Date(timestamp).getTime();
+                const date = new Date(a);
+                const Y = date.getFullYear() + '-';
+                const M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+                const D = (date.getDate() < 10 ? '0'+date.getDate() : date.getDate()) + '  ';
+                const h = (date.getHours() < 10 ? '0'+date.getHours() : date.getHours()) + ':';
+                const m = (date.getMinutes() <10 ? '0'+date.getMinutes() : date.getMinutes()) + ':';
+                const s = date.getSeconds() <10 ? '0'+date.getSeconds() : date.getSeconds(); 
+                const dateString = Y + M + D + h + m + s;
+                return dateString;
+            },
             async getUserList() {
-                let res = await getTrainListApi()
+                let res = await getTrainListDetailApi()
                 if(res.type === 'success'){
                     this.userList = res.data
+                    this.userList.forEach(element => {
+                        element.createDate = this.transformTimestamp(element.createDate)
+                    })
                 }
                 else{
                     this.$Message.error('获取训练任务失败');
@@ -169,6 +184,14 @@ export default {
             changePageSize(num) {
                 this.currentPageSize = num;
             },
+            handleclick(){
+                if(this.trainInfo.length==0){
+                    this.$Message.error('请选择要训练的数据集');
+                    return;
+                }
+                this.setTrainInfo(this.trainInfo);
+                this.$router.push('./trainModel')
+            }
         }
     }
 </script>

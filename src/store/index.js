@@ -10,6 +10,7 @@ const store = new Vuex.Store({
         uid: util.storage.get("uid"),
         loginUserName: "",
         loginUserpwd: "",
+        trainInfo: [], //训练传参
         paramGroup: '', //班组传参
         pickDate: '',
     },
@@ -20,19 +21,26 @@ const store = new Vuex.Store({
             }
             return state.loginUserName
         },
-        getparamGroup(state) { 
+        getparamGroup(state) {
             if (!state.paramGroup) {
                 state.paramGroup = util.storage.get('paramGroup')
-                
+
             }
             return state.paramGroup
         },
-        getpickDate(state) { 
+        getpickDate(state) {
             if (!state.pickDate) {
                 state.pickDate = util.storage.get('pickDate')
-                
+
             }
             return state.pickDate
+        },
+        gettrainInfo(state) {
+            if (!state.trainInfo) {
+                state.trainInfo = util.storage.get('trainInfo')
+
+            }
+            return state.trainInfo
         }
     },
     mutations: {
@@ -74,12 +82,16 @@ const store = new Vuex.Store({
         setParamGroup(state, paramGroup) {
             state.paramGroup = paramGroup;
             util.storage.set('paramGroup', paramGroup);
-          },
+        },
         setPickDate(state, pickDate) {
             state.pickDate = pickDate;
             util.storage.set('pickDate', pickDate);
+        },
+        setTrainInfo(state, trainInfo) {
+            state.trainInfo = trainInfo;
+            util.storage.set('trainInfo', trainInfo);
         }
-        
+
     },
     actions: {
 

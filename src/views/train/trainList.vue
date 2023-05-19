@@ -12,17 +12,19 @@
             </Col>
             <Col span="3" >
                 <Select v-model="searchOption.value2" clearable placeholder="训练对象" @on-change="selectClear('value2')">
-                    <Option v-for="item in userOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                    <Option v-for="(item,index) in userOption" :value="item.id" :key="index">{{ item.username }}</Option>
                 </Select>
             </Col>
             <Col span="3">
                 <Select v-model="searchOption.value3" clearable placeholder="任务类型" @on-change="selectClear('value3')">
-                    <Option v-for="item in taskOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                    <Option v-for="(item,index) in taskOption" :value="item.id" :key="index">{{ item.func }}</Option>
                 </Select>
             </col>
             <Col span="3">
                 <Select v-model="searchOption.value4" clearable placeholder="输入类型" @on-change="selectClear('value4')"> 
-                    <Option v-for="item in inputOption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                    <Option v-for="(item,index) in inputOption" :value="item.id" :key="index">
+                        {{ item.name + item.batchSize}}
+                    </Option>
                 </Select>
             </col>
             <Col span="5">
@@ -31,24 +33,26 @@
             <Col span="5">
                 <Button @click="searchItem" >查询</Button>
                 <Button type="primary" style="margin-left:10px;" @click="isModal=true">新增</Button>
-                <Button type="primary" to="/trainModel" style="margin-left:10px;">训练</Button>
+                <Button type="primary" @click="handleclick" style="margin-left:10px;">训练</Button>
             </Col>
         </Row>
         <Modal v-model="isModal" title="新增数据集">
             <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="150">
                 <FormItem label="训练对象" prop="uid">
                     <Select v-model="formValidate.uid" placeholder="请选择" style="width:250px">
-                        <Option v-for="item in userOption" :value="item.value" :key="item.value">{{ item.label }}</Option> 
+                        <Option v-for="(item,index) in userOption" :value="item.id" :key="index">{{ item.username }}</Option>
                     </Select>
                 </FormItem>
                 <FormItem label="任务类型" prop="taskTid">
                     <Select v-model="formValidate.taskTid" placeholder="请选择" style="width:250px">
-                        <Option v-for="item in taskOption" :value="item.value" :key="item.value">{{ item.label }}</Option> 
+                        <Option v-for="(item,index) in taskOption" :value="item.id" :key="index">{{ item.func }}</Option>
                     </Select>
                 </FormItem>
                 <FormItem label="输入类型" prop="inputTid">
                     <Select v-model="formValidate.inputTid" placeholder="请选择" style="width:250px">
-                        <Option v-for="item in inputOption" :value="item.value" :key="item.value">{{ item.label }}</Option> 
+                        <Option v-for="(item,index) in inputOption" :value="item.id" :key="index">
+                            {{ item.name + item.batchSize}}
+                        </Option>
                     </Select>
                 </FormItem>
                 <FormItem label="标签类型" prop="label">
@@ -78,13 +82,15 @@
                 </slot>
             </div>
         </Modal>
-        <Table height="400" border :columns="columns" :data="userList"></Table>
+        <Table height="400" border :columns="columns" :data="userList" @on-selection-change="handleSelectionChange"></Table>
     </div>
 </template>
 
 <script>
-import { mapState } from 'vuex';
-import { getFileListApi, searchFileApi, addFileApi, deleteFileApi } from "../../network/api/trainApi"
+import { mapState, mapMutations } from 'vuex';
+import { getTaskTypeApi,getINModelApi } from '../../network/api/modelApi'
+import { getUsersApi } from '../../network/api/userApi'
+import { getFileListApi, getFileListDetailApi, searchFileApi, addFileApi, deleteFileApi, downLoadSigFileApi } from "../../network/api/trainApi"
 export default {
         data () {
             return {
@@ -145,24 +151,24 @@ export default {
                     {
                         title: '训练对象',
                         width: 100,
-                        key: 'uid',
+                        key: 'username',
                         align: 'center'
                     },
                      {
                         title: '任务类型',
                         width: 100,
-                        key: 'taskTid',
+                        key: 'taskTypeName',
                         align: 'center'
                     },
                     {
                         title: '输入类型',
                         width: 100,
-                        key: 'inputTid',
+                        key: 'inputTypeName',
                         align: 'center'
                     },
                     {
                         title: '标签',
-                        width: 100,
+                        width: 70,
                         key: 'label',
                         align: 'center'
                     },
@@ -189,8 +195,7 @@ export default {
                                     },
                                     on: {
                                         click: () => {
-                                            const userData = params.row
-                                            this.downloadFile(userData)
+                                            this.downloadFile(params.row.id)
                                         }
                                     }
                                 }, '下载'),
@@ -230,20 +235,7 @@ export default {
                         { required: true, message:'请选择标签类型', trigger: 'change', type: 'number'}
                     ]
                 },
-                modalItem: [
-                    {
-                        label: '姓名',
-                        value: '',
-                    },
-                    {
-                        label: '年龄',
-                        value: '',
-                    },
-                    {
-                        label: '性别',
-                        value: ''
-                    }
-                ],
+                trainInfo:[],
             }
         },
         computed: {
@@ -269,44 +261,85 @@ export default {
             this.getUserList()
         },
         methods: {
+            ...mapMutations(['setTrainInfo']),
+            transformTimestamp(timestamp){
+                let a = new Date(timestamp).getTime();
+                const date = new Date(a);
+                const Y = date.getFullYear() + '-';
+                const M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+                const D = (date.getDate() < 10 ? '0'+date.getDate() : date.getDate()) + '  ';
+                const h = (date.getHours() < 10 ? '0'+date.getHours() : date.getHours()) + ':';
+                const m = (date.getMinutes() <10 ? '0'+date.getMinutes() : date.getMinutes()) + ':';
+                const s = date.getSeconds() <10 ? '0'+date.getSeconds() : date.getSeconds(); 
+                const dateString = Y + M + D + h + m + s;
+                return dateString;
+            },
             async getUserList() {
-                let res = await getFileListApi()
-                if(res.type === 'success'){
-                    this.userList = res.data
-                    this.getOptionList('uid');
-                    this.getOptionList('taskTid');
-                    this.getOptionList('inputTid');
-                }
-                else{
-                    this.$Message.error('获取数据集失败');
-                }
+                let res = await getFileListDetailApi()
+                    if(res.type === 'success'){
+                        this.userList = res.data
+                        this.userList.forEach(element => {
+                            element.uploadDate = this.transformTimestamp(element.uploadDate)
+                        })
+                    }
+                    else{
+                        this.$Message.error('获取数据集失败');
+                    }
+                //任务类型选项
+                let taskList = await getTaskTypeApi()
+                    if(taskList.type === 'success'){
+                        this.taskOption = taskList.data  
+                    }
+                    else{
+                        this.$Message.error('获取任务类型失败');
+                    }
+
+                //适用对象选项
+                let userlist = await getUsersApi()
+                    if(userlist.type === 'success'){
+                        this.userOption = userlist.data
+                    }
+                    else{
+                        this.$Message.error('获取适用对象列表失败');
+                    } 
+                
+                //输入数据类型选项
+                let inlist = await getINModelApi()
+                    if(inlist.type === 'success'){
+                        this.inputOption = inlist.data
+                    }
+                    else{
+                        this.$Message.error('获取输入数据类型列表失败');
+                    }
             },
-            //将表中数据选项转换为数组
-            getOptionList(op) {
-                //将userList中的的值提取出来放入数组
-                let arr = []
-                for(let i=0;i<this.userList.length;i++){
-                    arr.push(this.userList[i][op])
-                }
-                //去重
-                let set = new Set(arr)
-                let arr2 = Array.from(set)
-                //将数组转换为对象数组
-                let arr3 = []
-                for(let i=0;i<arr2.length;i++){
-                    arr3.push({value:arr2[i],label:arr2[i]})
-                }
-                //将对象数组赋值给过去
-                if(op === "uid"){
-                    this.userOption = arr3
-                }
-                else if(op === "taskTid"){
-                    this.taskOption = arr3
-                } 
-                else if(op === "inputTid"){
-                    this.inputOption = arr3
-                }
-            },
+
+            // //将表中数据选项转换为数组
+            // getOptionList(op) {
+            //     //将userList中的的值提取出来放入数组
+            //     let arr = []
+            //     for(let i=0;i<this.userList.length;i++){
+            //         arr.push(this.userList[i][op])
+            //     }
+            //     //去重
+            //     let set = new Set(arr)
+            //     let arr2 = Array.from(set)
+            //     //将数组转换为对象数组
+            //     let arr3 = []
+            //     for(let i=0;i<arr2.length;i++){
+            //         arr3.push({value:arr2[i],label:arr2[i]})
+            //     }
+            //     //将对象数组赋值给过去
+            //     if(op === "username"){
+            //         this.userOption = arr3
+            //     }
+            //     else if(op === "taskTypeName"){
+            //         this.taskOption = arr3
+            //     } 
+            //     else if(op === "inputTypeName"){
+            //         this.inputOption = arr3
+            //     }
+            // },
+
             //解决select组件清空后参数值变成undefined的问题，避免搜索参数出错
             selectClear(key) {
                 if(this.searchOption[key] == undefined){
@@ -383,8 +416,9 @@ export default {
                     userId:this.searchOption.value2,
                     taskTypeId:this.searchOption.value3,
                     inputTid:this.searchOption.value4,
-                    createDate:this.searchDate
+                    uploadDate:this.searchDate
                 }
+                console.log(paramsdata);
                 let res = await searchFileApi(paramsdata)
                     if(res.data.length===0){
                         this.$Message.error('没有找到匹配的结果');
@@ -392,7 +426,58 @@ export default {
                     else {
                         this.$Message.success('查找成功');
                         this.userList = res.data   
+                        this.userList.forEach(element => {
+                            this.userOption.forEach(user => {
+                                if(element.uid === user.id){
+                                    element.username = user.username
+                                }
+                            })
+                            this.taskOption.forEach(task => {
+                                if(element.uid === task.id){
+                                    element.taskTypeName = task.func
+                                }
+                            })
+                            this.inputOption.forEach(input => {
+                                if(element.inputTid === input.id){
+                                    element.inputTypeName = input.name
+                                }
+                            })
+                        });
                     }
+            },
+            async downloadFile(id) {
+                let res = await downLoadSigFileApi(id)
+                // const dowmName=res.headers['content-type'].split('.')[0]   //获取下载文件名称（在请求头中）
+                // const url = window.URL.createObjectURL(new Blob([res]))
+                // const link = document.createElement('a')
+                // link.style.display = 'none'
+                // link.href = url
+                // link.setAttribute(
+                //     'download',
+                //     `${dowmName}.xlsx`
+                // )
+                // document.body.appendChild(link)
+                // link.click()
+                console.log(res);
+            },
+            handleSelectionChange(val) {
+                this.trainInfo=[];
+                for(let i=0;i<val.length;i++){
+                    this.trainInfo.push(
+                        {
+                            id:val[i].id,
+                            fname:val[i].fname
+                        }
+                    )
+                }
+            },
+            handleclick(){
+                if(this.trainInfo.length==0){
+                    this.$Message.error('请选择要训练的数据集');
+                    return;
+                }
+                this.setTrainInfo(this.trainInfo);
+                this.$router.push('./trainModel')
             }
 
         }

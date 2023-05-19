@@ -8,21 +8,21 @@
         </Breadcrumb>
         <Row class="rowbox" :gutter="16">
             <Col span="5" >
-                <Input v-model="value1" placeholder="唯一标识" clearable/>
+                <Input v-model="searchOption.value1" placeholder="唯一标识" clearable/>
             </Col>
             <Col span="5" >
-               <Select v-model="value2" clearable placeholder="适用对象">
-                    <Option v-for="item in objectoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+               <Select v-model="searchOption.value2" clearable placeholder="适用对象" @on-change="selectClear('value2')">
+                    <Option v-for="(item,index) in objectoption" :value="item.id" :key="index">{{ item.username }}</Option>
                 </Select>
             </Col>
             <Col span="5">
-                <Select v-model="value3" clearable placeholder="模型功能">
-                    <Option v-for="item in funcoption" :value="item.value" :key="item.value">{{ item.label }}</Option>
+                <Select v-model="searchOption.value3" clearable placeholder="模型功能" @on-change="selectClear('value3')">
+                    <Option v-for="(item,index) in funcoption" :value="item.id" :key="index">{{ item.func }}</Option>
                 </Select>
             </col>
             <Col span="5">
                 <!-- <Input v-model="value4" placeholder="更新日期" clearable style="width: 200px" /> -->
-                <DatePicker v-model="value4" type="datetime" format="yyyy-MM-dd HH:mm:ss" placeholder="更新日期" show-week-numbers/>
+                <DatePicker v-model="searchOption.value4" type="datetime" format="yyyy-MM-dd HH:mm:ss" placeholder="更新日期" show-week-numbers/>
             </Col>
             <Col span="4" style="padding: 0%;">
                 <Button  @click="searchItem" style="margin-right:15px">查询</Button>
@@ -71,15 +71,17 @@
 
 <script>
 import { mapState } from 'vuex';
-import { getModelListApi,searchModelApi,deleteModelApi,getFileNameApi,downloadModelApi,getModelListForUserApi} from "../../network/api/modelApi";
+import { getUsersApi } from "../../network/api/userApi"
+import { getModelListApi,getTaskTypeApi,searchModelApi,deleteModelApi,getFileNameApi,downloadModelApi,getModelListForUserApi} from "../../network/api/modelApi";
 export default {
         data () {
             return {
-                value1: '',
-                value2: '',
-                value3: '',
-                value4: '',
-
+                searchOption: {
+                    value1: '',
+                    value2: '',
+                    value3: '',
+                    value4: '',
+                },
                 objectoption: [],
                 funcoption:[],
                 columns6: [
@@ -172,7 +174,7 @@ export default {
             },
             searchDate() {
                 let str = "";
-                if (this.value4 !== "") {
+                if (this.searchOption.value4 !== "") {
                     // Convert time string to Date object
                     let date = new Date(this.value4);
                     // Extract year, month, and day
@@ -193,54 +195,89 @@ export default {
             this.getUserList()
         },
         methods: {
+            transformTimestamp(timestamp){
+                let a = new Date(timestamp).getTime();
+                const date = new Date(a);
+                const Y = date.getFullYear() + '-';
+                const M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+                const D = (date.getDate() < 10 ? '0'+date.getDate() : date.getDate()) + '  ';
+                const h = (date.getHours() < 10 ? '0'+date.getHours() : date.getHours()) + ':';
+                const m = (date.getMinutes() <10 ? '0'+date.getMinutes() : date.getMinutes()) + ':';
+                const s = date.getSeconds() <10 ? '0'+date.getSeconds() : date.getSeconds(); 
+                const dateString = Y + M + D + h + m + s;
+                return dateString;
+            },
             async getUserList() {
-                let res1 = await getModelListForUserApi(this.uid)
-                let res2 = await getModelListApi()
-                let res
-                if (this.auth == 1) res = res2
-                else res = res1
-                if(res.type === 'success'){
-                    this.userList = res.data
-                    let op1="uid"
-                    let op2="taskTid"
-                    this.getOptionList(op1);
-                    this.getOptionList(op2);
-                }
-                else{
-                    this.$Message.error('获取选项列表失败');
-                }
+                // 权限管理
+                // let res1 = await getModelListForUserApi(this.uid)
+                // let res2 = await getModelListApi()
+                // let res
+                // if (this.auth == 1) res = res2
+                // else res = res1
+
+                let res = await getModelListApi()
+                    if(res.type === 'success'){
+                        this.userList = res.data
+                        this.userList.forEach(element => {
+                            element.updateDate = this.transformTimestamp(element.updateDate)
+                        })
+                        // let op1="username"
+                        // let op2="taskTypeName"
+                        // this.getOptionList(op1);
+                        // this.getOptionList(op2);
+                    }
+                    else{
+                        this.$Message.error('获取选项列表失败');
+                    }
+                //任务类型选项
+                let taskList = await getTaskTypeApi()
+                    if(taskList.type === 'success'){
+                        this.funcoption = taskList.data  
+                    }
+                    else{
+                        this.$Message.error('获取任务类型失败');
+                    }
+
+                //适用对象选项
+                let userlist = await getUsersApi()
+                    if(userlist.type === 'success'){
+                        this.objectoption = userlist.data
+                    }
+                    else{
+                        this.$Message.error('获取适用对象列表失败');
+                    } 
                 
             },
             //将表中数据选项转换为数组
-            getOptionList(op) {
-                //将userList中的uid项的值提取出来放入数组
-                let arr = []
-                for(let i=0;i<this.userList.length;i++){
+            // getOptionList(op) {
+            //     //将userList中的username项的值提取出来放入数组
+            //     let arr = []
+            //     for(let i=0;i<this.userList.length;i++){
                     
-                    arr.push(this.userList[i][op])
-                }
-                //去重
+            //         arr.push(this.userList[i][op])
+            //     }
+            //     //去重
                 
-                let set = new Set(arr)
-                let arr2 = Array.from(set)
-                //将数组转换为对象数组
-                let arr3 = []
-                for(let i=0;i<arr2.length;i++){
-                    arr3.push({value:arr2[i],label:arr2[i]})
-                }
-                //将对象数组赋值给过去
-                if(op === "uid"){
-                    this.objectoption = arr3
-                    //console.log(this.objectoption)
-                }
-                else if(op === "taskTid"){
-                    this.funcoption = arr3
-                    //console.log(this.funcoption)
-                }
+            //     let set = new Set(arr)
+            //     let arr2 = Array.from(set)
+            //     //将数组转换为对象数组
+            //     let arr3 = []
+            //     for(let i=0;i<arr2.length;i++){
+            //         arr3.push({value:arr2[i],label:arr2[i]})
+            //     }
+            //     //将对象数组赋值给过去
+            //     if(op === "username"){
+            //         this.objectoption = arr3
+            //         //console.log(this.objectoption)
+            //     }
+            //     else if(op === "taskTypeName"){
+            //         this.funcoption = arr3
+            //         //console.log(this.funcoption)
+            //     }
 
                 
 
-            },
+            // },
             //切换页码
             changePage(num) {
                 this.currentPage = num -1;
@@ -248,6 +285,12 @@ export default {
             //切换页数
             changePageSize(num) {
                 this.currentPageSize = num;
+            },
+            //解决select组件清空后参数值变成undefined的问题，避免搜索参数出错
+            selectClear(key) {
+                if(this.searchOption[key] == undefined){
+                    this.searchOption[key] = ''
+                }
             },
             downloadModal(id) {
                 window.open("http://43.248.188.73:11234/model/download/"+id)
@@ -285,11 +328,11 @@ export default {
                 
             },
            async searchItem() {
-             if(this.value1){
+             if(this.searchOption.value1){
                 let data = {
-                    modelName: this.value1,
-                    userId: this.value2,
-                    taskTypeId: this.value3,
+                    modelName: this.searchOption.value1,
+                    userId: this.searchOption.value2,
+                    taskTypeId: this.searchOption.value3,
                     updateDate: this.searchDate
                 }
                 let res= await searchModelApi(data)
@@ -298,7 +341,19 @@ export default {
                     }
                     else
                         this.$Message.success('查找成功');
-                    this.userList = res.data   
+                    this.userList = res.data  
+                    this.userList.forEach(element => {
+                            this.objectoption.forEach(user => {
+                                if(element.uid === user.id){
+                                    element.username = user.username
+                                }
+                            })
+                            this.funcoption.forEach(task => {
+                                if(element.uid === task.id){
+                                    element.taskTypeName = task.func
+                                }
+                            })
+                        }); 
             }
              else{
                 this.$Message.error("请传入模型唯一标识！")

@@ -15,6 +15,20 @@ export const getFileListApi = () => {
 };
 
 /**
+ * 获取数据集列表详情
+ * GET
+ * 传入的参数通过字符串拼接
+ * @param null
+ * @returns {Promise} res.data
+ */
+export const getFileListDetailApi = () => {
+    return serviceAxios({
+        url: "/sigFile/detail",
+        method: "get",
+    });
+};
+
+/**
  * 获取正在训练的任务列表
  * GET
  * @param null
@@ -28,15 +42,14 @@ export const getTrainListApi = () => {
 };
 
 /**
- * 获取指定用户的模型列表，针对user级别用户
+ * 获取正在训练的任务列表详情
  * GET
- * 传入的参数通过字符串拼接
  * @param null
  * @returns {Promise} res.data
  */
-export const getModelListForUserApi = (uid) => {
+export const getTrainListDetailApi = () => {
     return serviceAxios({
-        url: "/model/byUid/" + uid,
+        url: "/train/detail",
         method: "get",
     });
 };
@@ -56,9 +69,23 @@ export const searchFileApi = (data) => {
 };
 
 /**
+ * 请求模型训练，创建一个训练任务
+ * POST
+ * @param {FormData} data
+ * @returns {Promise} res.data
+ */
+export const addTrainApi = (data) => {
+    return serviceAxios({
+        url: "/train/",
+        method: "post",
+        data,
+    })
+};
+
+/**
  * 删除数据集
  * DELETE
- * @param {String} modelId
+ * @param {String} fileId
  * @returns {Promise} res.data
  */
 export const deleteFileApi = (fileId) => {
@@ -69,29 +96,18 @@ export const deleteFileApi = (fileId) => {
 };
 
 /**
- * 下载模型
+ * 下载数据集
  * GET
- * @param {String} modelId
- * @param {String} fileName
- * @returns {Blob} file
+ * @param {String} fileId
+ * @returns {Promise} res.data
  */
-// export const getFileNameApi = (modelId) => {
-//   return serviceAxios({
-//     url: '/model/url/' + modelId,
-//     method: "get",
-//   })
-// };
-// export const downloadModelApi = (fileName) => {
-//   return serviceAxios({
-//     url: '/modelFile/' + fileName,
-//     method: "get",
-//     responseType: "blob",
-
-//   }
-//   )
-// };
-
-
+export const downLoadSigFileApi = (fileId) => {
+    return serviceAxios({
+        url: '/sigFile/download/processed/' + fileId,
+        method: "get",
+        responseType: 'blob'
+    })
+};
 
 /**
  * 数据集添加
@@ -102,28 +118,6 @@ export const deleteFileApi = (fileId) => {
 export const addFileApi = (data) => {
     return serviceAxios({
         url: "/sigFile/",
-        method: "post",
-        data,
-    });
-}
-
-
-/**
- * 添加模型输入/输出模型
- * POST
- * @param {FormData} data
- * @returns {Promise} res
- */
-export const addINModelApi = (data) => {
-    return serviceAxios({
-        url: "/inputType/",
-        method: "post",
-        data,
-    });
-}
-export const addOUTModelApi = (data) => {
-    return serviceAxios({
-        url: "/outputType/",
         method: "post",
         data,
     });

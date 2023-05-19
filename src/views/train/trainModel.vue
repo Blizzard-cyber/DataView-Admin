@@ -10,7 +10,7 @@
              <Input v-model="formValidate.trainName" placeholder="请输入训练名称" style="width:250px"></Input>
         </FormItem>
         <FormItem label="选择数据集sigFileIdList" prop="signalList">
-            <Input v-model="formValidate.signalList" disabled type="textarea" placeholder="" style="width:250px"></Input>
+            <Input v-model="formValidate.signalList" disabled type="textarea" :rows="4" placeholder="" style="width:250px"></Input>
         </FormItem>
         <FormItem label="训练对象uid" prop="trainFor">
             <Select v-model="formValidate.trainFor" placeholder="请选择" style="width:250px">
@@ -37,8 +37,8 @@
         </FormItem>
          <FormItem label="是否监督isSupervised" prop="isSupervised">
            <RadioGroup v-model="formValidate.isSupervised">
-                <Radio label="监督学习" border></Radio>
-                <Radio label="无监督学习" border></Radio>
+                <Radio label="1" border>监督学习</Radio>
+                <Radio label="0" border>无监督学习</Radio>
             </RadioGroup>
         </FormItem>
          <FormItem label="任务类型taskTid" prop="taskType">
@@ -61,7 +61,9 @@
 
 <script>
 import {getUsersApi} from '../../network/api/userApi'
-import {getTaskTypeApi,getOUTModelApi} from '../../network/api/modelApi'
+import {getTaskTypeApi,getOUTModelApi} from '../../network/api/modelApi' 
+import {addTrainApi} from '../../network/api/trainApi' 
+import {mapGetters} from 'vuex'
     export default {
         data () {
             return {
@@ -88,6 +90,7 @@ import {getTaskTypeApi,getOUTModelApi} from '../../network/api/modelApi'
                 outputList: [ //输出类型选项
                     
                 ],
+                trainFileList: [], //传递过来的训练集
                 formValidate: {
                     trainName: '', //训练名称
                     signalList: '',  //选择数据集
@@ -110,7 +113,7 @@ import {getTaskTypeApi,getOUTModelApi} from '../../network/api/modelApi'
                         { required: true,message:'缺少数据集', trigger: 'blur'}
                     ],
                     trainFor: [
-                        { required: true, message: '请选择训练对象', trigger: 'change' }
+                        { required: true, message: '请选择训练对象', trigger: 'change',type:'number' }
                     ],
                     trainMethod: [
                         { required: true, message: '请选择训练模型', trigger: 'change' }
@@ -135,10 +138,10 @@ import {getTaskTypeApi,getOUTModelApi} from '../../network/api/modelApi'
                         { required: true, message: '请选择训练类型', trigger: 'change' }
                     ],
                     taskType: [
-                        { required: true, message: '任务类型不能为空', trigger: 'change' }
+                        { required: true, message: '任务类型不能为空', trigger: 'change',type:'number' }
                     ],
                     outputType: [
-                        { required: true, message: '输出类型不能为空', trigger: 'change' }
+                        { required: true, message: '输出类型不能为空', trigger: 'change',type:'number' }
                     ],
                     
                 }
@@ -147,7 +150,18 @@ import {getTaskTypeApi,getOUTModelApi} from '../../network/api/modelApi'
         created () {
            this.getList()
         },
+        mounted() {
+            this.getData();
+        },
         methods: {
+            ...mapGetters(['gettrainInfo']),
+            getData(){
+                this.trainFileList = this.gettrainInfo()
+                this.formValidate.signalList = ""
+                this.trainFileList.forEach(element => {
+                    this.formValidate.signalList += element.fname + "\n"
+                })
+            },
             async getList(){
                 //获取训练对象列表
              let userList = await getUsersApi()
@@ -180,8 +194,30 @@ import {getTaskTypeApi,getOUTModelApi} from '../../network/api/modelApi'
             handleSubmit (name) {
                 this.$refs[name].validate(async(valid) => {
                     if (valid) {
-                        
-                        this.$Message.success('Success!');
+                        let FileList = []
+                        this.trainFileList.forEach(element=>{
+                            FileList.push(element.id)
+                        })
+                        let FileString = FileList.join(",")
+                        let trainData={
+                            name:this.formValidate.trainName,
+                            method:this.formValidate.trainMethod,
+                            uid:this.formValidate.trainFor,
+                            epoch:this.formValidate.epoch,
+                            learningRate:this.formValidate.learningRate,
+                            batchSize:this.formValidate.batchSize,
+                            isSupervised:this.formValidate.isSupervised,
+                            second:this.formValidate.secondSize,
+                            taskTid:this.formValidate.taskType,
+                            outputTid:this.formValidate.outputType,
+                            sigFileIdList:FileString
+                        }
+                        let res = await addTrainApi(trainData)
+                        if(res.type==="success"){
+                            this.$Message.success('添加训练任务成功，开始训练!');
+                        }else {
+                            this.$Message.error(res.message);
+                        }
                     } else {
                         this.$Message.error('填写内容不完整或有误，请重新填写！');
                     }
