@@ -11,6 +11,7 @@
         </FormItem>
         <FormItem label="选择数据集sigFileIdList" prop="signalList">
             <Input v-model="formValidate.signalList" disabled type="textarea" :rows="4" placeholder="" style="width:250px"></Input>
+            <Button type="warning" to="/trainList" style="margin-left: 10px;">重新选择</Button>
         </FormItem>
         <FormItem label="训练对象uid" prop="trainFor">
             <Select v-model="formValidate.trainFor" placeholder="请选择" style="width:250px">
@@ -24,8 +25,7 @@
         </FormItem>
         <FormItem label="训练轮数epoch" prop="epoch">
             <Input v-model="formValidate.epoch"  placeholder="请输入训练轮数" style="width:250px"></Input>
-        </FormItem>
-        
+        </FormItem>      
         <FormItem label="学习率learningRate" prop="learningRate">
             <Input v-model="formValidate.learningRate" placeholder="请输入学习率" style="width:250px"></Input>
         </FormItem>
@@ -54,7 +54,7 @@
         <FormItem>
             <Button type="primary" @click="handleSubmit('formValidate')">确认提交</Button>
             <Button @click="handleReset('formValidate')" style="margin-left: 8px">清除内容</Button>
-      </FormItem>
+        </FormItem>
     </Form>
   </div>
 </template>
@@ -62,8 +62,9 @@
 <script>
 import {getUsersApi} from '../../network/api/userApi'
 import {getTaskTypeApi,getOUTModelApi} from '../../network/api/modelApi' 
-import {addTrainApi} from '../../network/api/trainApi' 
+import {addTrainApi,getUserFileApi} from '../../network/api/trainApi' 
 import {mapGetters} from 'vuex'
+import { mapState } from 'vuex'
     export default {
         data () {
             return {
@@ -147,6 +148,9 @@ import {mapGetters} from 'vuex'
                 }
             }
         },
+        computed: {
+            ...mapState(["token","uid","auth"]),
+        },
         created () {
            this.getList()
         },
@@ -155,8 +159,24 @@ import {mapGetters} from 'vuex'
         },
         methods: {
             ...mapGetters(['gettrainInfo']),
-            getData(){
+            async getData(){
                 this.trainFileList = this.gettrainInfo()
+                let res = await getUserFileApi(this.uid)
+                if(res.type==="success"){
+                    let userFile = res.data
+                    if(this.trainFileList.length===0){
+                        userFile.forEach(element=>{
+                            this.trainFileList.push(
+                                {
+                                    id:element.id,
+                                    fname:element.fname
+                                }
+                            )
+                        })
+                    }
+                } else {
+                    this.$Message.error('获取当前用户数据集失败');
+                }
                 this.formValidate.signalList = ""
                 this.trainFileList.forEach(element => {
                     this.formValidate.signalList += element.fname + "\n"

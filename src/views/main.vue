@@ -104,7 +104,7 @@
             </Header>
             <Layout style="min-height:calc( 100vh - 64px )">
                 <Sider ref="side1" hide-trigger collapsible :collapsed-width="78" v-model="isCollapsed" style="background:#fff">
-					<Menu ref="leftMenu" :accordion="true" @on-select="selectItem" :active-name="activName" @on-open-change="isCollapsed=false" theme="light" width="auto" :class="menuitemClasses" :open-names="openNames">
+					<Menu ref="leftMenu" :accordion="true" @on-select="selectItem" :active-name="defaultActive" @on-open-change="isCollapsed=false" theme="light" width="auto" :class="menuitemClasses" :open-names="openNames">
 						<MenuItem name="0-1" to="/">
                             <Icon type="md-contacts" />
                             <span>工作平台</span>
@@ -161,15 +161,15 @@ import { mapMutations, mapGetters, mapState } from 'vuex';
         data () {
             return {
                 openNames: [],
-                activName: '',
+                // activName: '',
                 isCollapsed: false
             }
         },
         created () {
             // this.loginName = util.storage.get(this.$config.KEY.CACHE_LOGIN_USER_NAME)
-
+            
             if(this.$route.meta && this.$route.meta.order) {
-                this.activName = this.$route.meta.order
+                // this.activName = this.$route.meta.order
                 var subMenuName = this.$route.meta.order.split('-')[0]
                 if(subMenuName !== "0") {
                     this.openNames.push(subMenuName)
@@ -188,7 +188,10 @@ import { mapMutations, mapGetters, mapState } from 'vuex';
         },
         computed: {
             ...mapState(["auth"]),
-            ...mapGetters(["LoginToken","UserName"]),
+            ...mapGetters(["UserName"]),
+            defaultActive() {
+                return this.$route.meta.order
+            },
             rotateIcon () {
                 return [
                     'menu-icon',
@@ -203,7 +206,7 @@ import { mapMutations, mapGetters, mapState } from 'vuex';
             }
         },
         methods: {
-            ...mapMutations(["removeLoginToken","removeLoginUserName","removeLoginUserpwd"]),
+            ...mapMutations(["removeLoginToken","removeLoginUserName","removeLoginUserpwd","removeTrainInfo"]),
             collapsedSider () {
                 this.$refs.side1.toggleCollapse();
             },
@@ -219,16 +222,15 @@ import { mapMutations, mapGetters, mapState } from 'vuex';
             logout() {
                 this.removeLoginToken()
                 util.storage.remove('token')
-                this.removeLoginToken()
-                util.storage.remove('token')
                 this.removeLoginUserName()
+                this.removeTrainInfo()
                 this.removeLoginUserpwd()
                 util.storage.remove(this.$config.KEY.CACHE_LOGIN_USER_NAME)
                 util.storage.remove(this.$config.KEY.CACHE_LOGIN_PASS_PWD)
                 this.$router.push("/login")
             },
             dataMap() {
-                //this.$router.push("/data")
+                // this.$router.push("/data")
             }
         }
     }

@@ -90,7 +90,11 @@ const store = new Vuex.Store({
         setTrainInfo(state, trainInfo) {
             state.trainInfo = trainInfo;
             util.storage.set('trainInfo', trainInfo);
-        }
+        },
+        removeTrainInfo(state) {
+            state.trainInfo = []
+            util.storage.remove('trainInfo')
+        },
 
     },
     actions: {

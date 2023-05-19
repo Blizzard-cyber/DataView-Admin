@@ -69,6 +69,20 @@ export const searchFileApi = (data) => {
 };
 
 /**
+ * 获得属于用户的全部信号文件信息
+ * GET
+ * 传入的参数通过字符串拼接
+ * @param {FormData} userId
+ * @returns {Promise} res.data
+ */
+export const getUserFileApi = (userId) => {
+    return serviceAxios({
+        url: "/sigFile/byUid/" + userId,
+        method: "get",
+    })
+};
+
+/**
  * 请求模型训练，创建一个训练任务
  * POST
  * @param {FormData} data
