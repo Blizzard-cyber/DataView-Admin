@@ -46,7 +46,12 @@ serviceAxios.interceptors.request.use(
 // 创建响应拦截
 serviceAxios.interceptors.response.use(
     (res) => {
-        let data = res.data;
+        console.log(res)
+        let data =''
+        if (res.headers['Content-Disposition']) {
+             data=res
+        }
+         data = res.data;
         // 处理自己的业务逻辑，比如判断 token 是否过期等等
         // 代码块
         return data;

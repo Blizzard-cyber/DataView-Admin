@@ -1,7 +1,9 @@
 
 <template>
-    <div>
-        <Breadcrumb style="margin-bottom:20px">
+    <div class='chart-box'>
+        <chartLine :chart-data='lineData'></chartLine>
+      <eline ref="e6" :data="qylist"></eline>
+        <!-- <Breadcrumb style="margin-bottom:20px">
             <BreadcrumbItem>首页</BreadcrumbItem>
             <BreadcrumbItem>工作平台</BreadcrumbItem>
             
@@ -21,11 +23,11 @@
             </Col>
             <Col span="4"> 
                <mycard icon="md-chatbubbles" title="新增互动" bgcolor="#e46cbb" count="12"></mycard>
-            </Col>
+            </Col> -->
             <!-- <Col span="3"> 
                 <mycard icon="md-add-circle" title="新增页面" bgcolor="#9a66e4" count="14"></mycard>
             </Col> -->
-        </Row>
+        <!-- </Row> -->
         <!-- <Row type="flex" justify="space-between" style="margin-top:20px">
             <Col span="7">
                   <Card :padding="0">
@@ -44,40 +46,93 @@
             </Col>
            
         </Row> -->
-        <Row style="margin-top:20px">
+        <!-- <Row style="margin-top:20px">
            <Col span="24">
                 <Card :padding="0">
                     <charts-line id="line"></charts-line>
                 </Card>
             </Col>
-        </Row>
+        </Row> -->
     </div>
 </template>
 
 <script>
-import mycard from '@/components/mycard'
-import column from '@/components/charts/column'
-import line from '@/components/charts/line'
-import pie from '@/components/charts/pie'
+import * as d3 from 'd3'
+import{getModelFileApi} from '../network/api/trainApi'
+import chartLine from '@/components/line.vue'
+import eline from '@/components/echarts/line.vue'
+// import mycard from '@/components/mycard'
+// import column from '@/components/charts/column'
+// import line from '@/components/charts/line'
+// import pie from '@/components/charts/pie'
  
 export default {
     components: {
-        mycard,
-      
-        "charts-line":line,
+        chartLine,
+        eline
        
     },
     data() {
         return {  
+            lineData:{
+               xData: [],
+                color: ["#038BFF"],
+                data: [
+                {
+                    // title: "告警",
+                    data: [],
+                },
+                
+                ],
+                },
+            qylist: {
+                title: ["学生端"],
+				color: ["#66e783"],
+				date: [],
+				data: []
+            },
+            fileName:'pro_2_1684169344002.csv'
 
         }
     },
     created() {
+        this.getModelFile()
 
     },
     mounted() {
     },
     methods: {
+        
+        async getModelFile(){
+            let res = await getModelFileApi(this.fileName)
+           const data = d3.csvParse(res)
+           //console.log(data)
+           for(let i=0;i<data.length;i++){
+            //this.getData(data[i].timestamp)
+            this.lineData.xData.push(this.getData(data[i].timestamp))
+            this.lineData.data[0].data.push(data[i].ecg)
+            //    this.qylist.date.push(data[i].timestamp)
+            //     this.qylist.data.push(data[i].ecg)
+           }
+        },
+        //时间戳转换
+
+         getData(timestamp){
+           
+            var date = new Date(Number(timestamp));//时间戳为10位需*1000，时间戳为13位的话不需乘1000
+            var Y = date.getFullYear() + '-';
+            var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
+            var D = (date.getDate() < 10 ? '0'+date.getDate() : date.getDate()) + ' ';
+            var h = (date.getHours() < 10 ? '0'+date.getHours() : date.getHours()) + ':';
+            var m = (date.getMinutes() < 10 ? '0'+date.getMinutes() : date.getMinutes()) + ':';
+            var s = (date.getSeconds() < 10 ? '0'+date.getSeconds() : date.getSeconds());
+
+            let strDate = Y+M+D+h+m+s;
+            //console.log(strDate) //2020-05-08 17:44:56　
+            return strDate;
+           
+            //console.log(n.toTimeString())
+            }
     }
 }
 </script>

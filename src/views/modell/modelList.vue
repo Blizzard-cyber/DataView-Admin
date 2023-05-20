@@ -292,20 +292,21 @@ export default {
                     this.searchOption[key] = ''
                 }
             },
-            downloadModal(id) {
-                window.open("http://43.248.188.73:11234/model/download/"+id)
+            async downloadModal(id) {
+                this.$axios.get()
+                //window.open("http://43.248.188.73:11234/model/download/"+id)
+                // let res =  downloadModelApi(id)
+                //  console.log(res)
                 
-                        // let blob = new Blob([res.data], {type: 'application/octet-stream'})
-                        // let fileName= "test.png"
-                        // //let fileName = res.headers['content-disposition'].split(';')[1].split('=')[1]
-                        // fileName = decodeURI(fileName)
-                        // let url = window.URL.createObjectURL(blob)
-                        // let link = document.createElement('a')
-                        // link.style.display = 'none'
-                        // link.href = url
-                        // link.setAttribute('download', fileName)
-                        // document.body.appendChild(link)
-                        // link.click()              
+                 //将返回的bolob对象转换为文件对象实现下载
+                    let blob = new Blob([res.data],{type:res.headers['content-type']})
+                    let filename="test.png"
+                    let downloadElement = document.createElement('a')
+                    let href = window.URL.createObjectURL(blob)
+                    downloadElement.setAttribute('href',href)
+                    downloadElement.setAttribute('download',filename)
+                    downloadElement.click()
+                    window.URL.revokeObjectURL(href)
             },
             
             

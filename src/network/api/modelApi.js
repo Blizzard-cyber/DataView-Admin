@@ -59,24 +59,24 @@ export const deleteModelApi = (modelId) => {
  * 下载模型
  * GET
  * @param {String} modelId
- * @param {String} fileName
  * @returns {Blob} file
  */
+
 // export const getFileNameApi = (modelId) => {
 //   return serviceAxios({
 //     url: '/model/url/' + modelId,
 //     method: "get",
 //   })
 // };
-// export const downloadModelApi = (fileName) => {
-//   return serviceAxios({
-//     url: '/modelFile/' + fileName,
-//     method: "get",
-//     responseType: "blob",
+export const downloadModelApi = (modelId) => {
+  return serviceAxios({
+    url: '/model/download/' + modelId,
+    method: "get",
+    responseType: "blob",
 
-//   }
-//   )
-// };
+  }
+  )
+};
 
 /**
  * 获取输入/输出模型

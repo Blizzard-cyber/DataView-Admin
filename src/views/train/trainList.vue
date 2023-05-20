@@ -83,6 +83,20 @@
             </div>
         </Modal>
         <Table height="400" border :columns="columns" :data="userList" @on-selection-change="handleSelectionChange"></Table>
+
+         <Modal v-model="isModalPreview" fullscreen title="数据集预览">
+             <p slot="header" style="text-align:center">
+                <Icon type="ios-analytics-outline"></Icon>
+                <span>{{previewFileName}}</span>
+            </p>
+            <div>This is a fullscreen modal</div>
+            <div slot="footer">
+                <slot name="footer">
+                    <Button type="success" @click="isModalPreview=false">关闭</Button>
+                    
+                </slot>
+            </div>
+        </Modal>
     </div>
 </template>
 
@@ -95,6 +109,8 @@ export default {
         data () {
             return {
                 isModal: false,
+                isModalPreview: false,
+                previewFileName:'',
                 formValidate: {
                     uid: '',
                     taskTid: '',
@@ -161,9 +177,15 @@ export default {
                         align: 'center'
                     },
                     {
-                        title: '输入类型',
+                        title: '输入类型名称',
                         width: 100,
                         key: 'inputTypeName',
+                        align: 'center'
+                    },
+                    {
+                        title: 'BatchSize',
+                        width: 120,
+                        key: 'inputBatchSize',
                         align: 'center'
                     },
                     {
@@ -181,10 +203,24 @@ export default {
                     {
                         title: '操作',
                         key: 'action',
-                        width: 130,
+                        width: 180,
                         align: 'center',
                         render: (h, params) => {
                             return h('div', [
+                                h('Button', {
+                                    props: {
+                                        type: 'info',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight:"5px"
+                                    },
+                                    on: {
+                                        click: () => {
+                                            this.previewFile(params.row.fname)
+                                        }
+                                    }
+                                }, '预览'),
                                 h('Button', {
                                     props: {
                                         type: 'primary',
@@ -460,6 +496,10 @@ export default {
                 // link.click()
                 console.log(res);
             },
+            previewFile(fname) {
+                this.isModalPreview = true
+                this.previewFileName = fname
+            },
             handleSelectionChange(val) {
                 this.trainInfo=[];
                 for(let i=0;i<val.length;i++){
@@ -477,6 +517,7 @@ export default {
                     return;
                 }
                 this.setTrainInfo(this.trainInfo);
+                console.log(this.trainInfo)
                 this.$router.push('./trainModel')
             }
 

@@ -122,3 +122,17 @@ export const addFileApi = (data) => {
         data,
     });
 }
+
+/**
+ * 获取模型文件(预览用)
+ * GET
+ * @param {String} fileName
+ * @returns {Promise} file
+ */
+export const getModelFileApi = (fileName) => { 
+    return serviceAxios({
+        url: "/proSigFile/" + fileName,
+        method: "get",
+        //responseType: 'blob'
+    });
+}
