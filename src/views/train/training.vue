@@ -170,6 +170,7 @@ export default {
                     this.userList = res.data
                     this.userList.forEach(element => {
                         element.createDate = this.transformTimestamp(element.createDate)
+                        element.isSupervised = element.isSupervised == 1 ? "是" : "否"
                     })
                 }
                 else{

@@ -56,9 +56,10 @@
                     </Select>
                 </FormItem>
                 <FormItem label="标签类型" prop="label">
-                    <Select v-model="formValidate.label" placeholder="请选择" style="width:250px">
+                    <Input v-model="formValidate.label" placeholder="" style="width:250px"></Input>
+                    <!-- <Select v-model="formValidate.label" placeholder="请选择" style="width:250px">
                         <Option v-for="item in labelOption" :value="item.value" :key="item.value">{{ item.label }}</Option>  
-                    </Select> 
+                    </Select>  -->
                 </FormItem>
                 <FormItem label="信号文件" prop="sigFile">
                     <Upload 
@@ -268,7 +269,8 @@ export default {
                         { required: true, message:'请选择输入类型', trigger: 'change', type: 'number'}
                     ],
                     label: [
-                        { required: true, message:'请选择标签类型', trigger: 'change', type: 'number'}
+                        { required: true, message:'请输入标签类型', trigger: 'blur'},
+                        { type: 'number',min:0,max:100, message:'请输入正确的标签类型', trigger: 'blur',transform: (value) => Number(value)}
                     ]
                 },
                 trainInfo:[],
@@ -450,11 +452,10 @@ export default {
                 let paramsdata = {
                     fname:this.searchOption.value1,
                     userId:this.searchOption.value2,
-                    taskTypeId:this.searchOption.value3,
+                    taskTid:this.searchOption.value3,
                     inputTid:this.searchOption.value4,
                     uploadDate:this.searchDate
                 }
-                console.log(paramsdata);
                 let res = await searchFileApi(paramsdata)
                     if(res.data.length===0){
                         this.$Message.error('没有找到匹配的结果');
@@ -469,7 +470,7 @@ export default {
                                 }
                             })
                             this.taskOption.forEach(task => {
-                                if(element.uid === task.id){
+                                if(element.taskTid === task.id){
                                     element.taskTypeName = task.func
                                 }
                             })
@@ -494,7 +495,6 @@ export default {
                 // )
                 // document.body.appendChild(link)
                 // link.click()
-                console.log(res);
             },
             previewFile(fname) {
                 this.isModalPreview = true
