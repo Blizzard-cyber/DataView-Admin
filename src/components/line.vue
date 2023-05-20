@@ -23,7 +23,7 @@ export default {
     },
     height: {
       type: String,
-      default: "240px",
+      default: "100%",
     },
     autoResize: {
       type: Boolean,
@@ -113,26 +113,21 @@ export default {
               type:'slider',//滑块模式
               show: true, //是否显示下滑块
               height: 20,//滑块高度
-              xAxisIndex: [0], //对x轴生效
-              bottom: 20,
-              showDetail: false,
-              showDataShadow: 'auto',
-              borderColor: "transparent",
-              textStyle: {
-                fontSize: 0
-              },
+              xAxisIndex: 0, //对x轴生效
+              //filterMode:'filter',
+              buttom:50,
+              
               // start: 0,
               // end: 1000,
+              startValue:100,
               endValue: 1000,
-              backgroundColor: "rgba(0,0,0,0)",
-              borderWidth: 0,
-              handleIcon:
-                "path://M306.1,413c0,2.2-1.8,4-4,4h-59.8c-2.2,0-4-1.8-4-4V200.8c0-2.2,1.8-4,4-4h59.8c2.2,0,4,1.8,4,4V413z",
-              handleSize: "0%",
-              handleStyle: {
-                color: "#d3dee5"
-              },
-              zoomLock: false
+            },
+            {
+              type:'inside',
+              xAxisIndex:0,
+              filterMode:'filter',
+              start:0,
+              end:1000
             }
           ]
 

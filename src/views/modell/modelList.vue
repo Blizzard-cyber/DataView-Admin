@@ -293,14 +293,14 @@ export default {
                 }
             },
             async downloadModal(id) {
-                this.$axios.get()
+                //this.$axios.get()
                 //window.open("http://43.248.188.73:11234/model/download/"+id)
-                // let res =  downloadModelApi(id)
-                //  console.log(res)
+                 let res = await downloadModelApi(id)
+                 //console.log(res)
                 
                  //将返回的bolob对象转换为文件对象实现下载
-                    let blob = new Blob([res.data],{type:res.headers['content-type']})
-                    let filename="test.png"
+                    let blob = new Blob([res.data],{type:'application/octet-stream'})
+                    let filename=res.headers['filename']
                     let downloadElement = document.createElement('a')
                     let href = window.URL.createObjectURL(blob)
                     downloadElement.setAttribute('href',href)

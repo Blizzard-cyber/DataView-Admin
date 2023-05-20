@@ -61,9 +61,9 @@ export default {
                         
                     },
                     {
-                        title: '批大小',
+                        title: 'BatchSize',
                         key: 'batchSize',
-                        width: 100,
+                        width: 110,
                         align: 'center',
                         
                     },
@@ -127,7 +127,7 @@ export default {
                                     on: {
                                         click: () => {
                                             const userData = params.row
-                                            this.handleclick(userData)
+                                            this.handleclick(userData.id)
                                         }
                                     }
                                 }, '查看详情'),
@@ -185,13 +185,10 @@ export default {
             changePageSize(num) {
                 this.currentPageSize = num;
             },
-            handleclick(){
-                if(this.trainInfo.length==0){
-                    this.$Message.error('请选择要训练的数据集');
-                    return;
-                }
-                this.setTrainInfo(this.trainInfo);
-                this.$router.push('./trainModel')
+            handleclick(id){
+              
+                this.$router.push(`/trainLog/${id}`)
+            
             }
         }
     }

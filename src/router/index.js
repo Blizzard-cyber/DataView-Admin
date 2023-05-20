@@ -100,6 +100,16 @@ const router = new VueRouter({
                     }
                 },
                 {
+                    path: 'trainLog/:id',
+                    name: 'trainLog',
+                    component: () =>
+                        import('@/views/train/trainLog.vue'),
+                    meta: {
+                        title: '训练中',
+                        order: '3-4'
+                    }
+                },
+                {
                     path: 'display',
                     component: () =>
                         import ('@/views/dataview/display.vue'),

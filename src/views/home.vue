@@ -1,8 +1,8 @@
 
 <template>
     <div class='chart-box'>
-        <chartLine :chart-data='lineData'></chartLine>
-      <eline ref="e6" :data="qylist"></eline>
+        <chartLine :chart-data='lineData' height="500px"></chartLine>
+     
         <!-- <Breadcrumb style="margin-bottom:20px">
             <BreadcrumbItem>首页</BreadcrumbItem>
             <BreadcrumbItem>工作平台</BreadcrumbItem>
@@ -69,7 +69,7 @@ import eline from '@/components/echarts/line.vue'
 export default {
     components: {
         chartLine,
-        eline
+        
        
     },
     data() {

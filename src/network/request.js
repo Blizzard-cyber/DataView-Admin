@@ -15,6 +15,7 @@ const serviceAxios = axios.create({
 // 创建请求拦截
 serviceAxios.interceptors.request.use(
     (config) => {
+        //console.log(config)
         // 如果开启 token 认证
         if (serverConfig.useTokenAuthorization) {
             let reg = /^\/user\/(login|register)/
@@ -46,12 +47,16 @@ serviceAxios.interceptors.request.use(
 // 创建响应拦截
 serviceAxios.interceptors.response.use(
     (res) => {
-        console.log(res)
+        
         let data =''
-        if (res.headers['Content-Disposition']) {
-             data=res
+        if (res.data.type === "application/octet-stream") {  //处理数据流
+            data = res
+            //console.log(data)
+           
         }
-         data = res.data;
+        else {
+            data = res.data;
+        }
         // 处理自己的业务逻辑，比如判断 token 是否过期等等
         // 代码块
         return data;

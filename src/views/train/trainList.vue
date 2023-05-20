@@ -90,7 +90,9 @@
                 <Icon type="ios-analytics-outline"></Icon>
                 <span>{{previewFileName}}</span>
             </p>
-            <div>This is a fullscreen modal</div>
+            <div class="line-box">
+                 <chartLine :chartData='lineData' width="1550px" height="550px"></chartLine>
+            </div>
             <div slot="footer">
                 <slot name="footer">
                     <Button type="success" @click="isModalPreview=false">关闭</Button>
@@ -102,16 +104,28 @@
 </template>
 
 <script>
+import chartLine from '../../components/line.vue'
+import * as d3 from 'd3'
 import { mapState, mapMutations } from 'vuex';
 import { getTaskTypeApi,getINModelApi } from '../../network/api/modelApi'
 import { getUsersApi } from '../../network/api/userApi'
-import { getFileListApi, getFileListDetailApi, searchFileApi, addFileApi, deleteFileApi, downLoadSigFileApi } from "../../network/api/trainApi"
+import { getFileListApi, getFileListDetailApi, searchFileApi, addFileApi, deleteFileApi, downLoadSigFileApi,getModelFileApi } from "../../network/api/trainApi"
 export default {
+    components: {
+        chartLine
+    },
         data () {
             return {
                 isModal: false,
                 isModalPreview: false,
                 previewFileName:'',
+                lineData:{
+                    xData: [],  //x轴数据
+                    color: ["#038BFF"],
+                    data: [
+                    {data: [],},  //y轴数据
+                    
+                    ]},
                 formValidate: {
                     uid: '',
                     taskTid: '',
@@ -276,6 +290,7 @@ export default {
                 trainInfo:[],
             }
         },
+        
         computed: {
             ...mapState(["uid","auth"]),
             searchDate() {
@@ -296,16 +311,16 @@ export default {
             },
         },
         created () {
-            this.getUserList()
+           this.getUserList();
         },
         methods: {
             ...mapMutations(['setTrainInfo']),
             transformTimestamp(timestamp){
-                let a = new Date(timestamp).getTime();
-                const date = new Date(a);
+                //let a = new Date(timestamp).getTime();
+                const date = new Date(timestamp);
                 const Y = date.getFullYear() + '-';
                 const M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
-                const D = (date.getDate() < 10 ? '0'+date.getDate() : date.getDate()) + '  ';
+                const D = (date.getDate() < 10 ? '0'+date.getDate() : date.getDate()) + ' ';
                 const h = (date.getHours() < 10 ? '0'+date.getHours() : date.getHours()) + ':';
                 const m = (date.getMinutes() <10 ? '0'+date.getMinutes() : date.getMinutes()) + ':';
                 const s = date.getSeconds() <10 ? '0'+date.getSeconds() : date.getSeconds(); 
@@ -351,33 +366,7 @@ export default {
                     }
             },
 
-            // //将表中数据选项转换为数组
-            // getOptionList(op) {
-            //     //将userList中的的值提取出来放入数组
-            //     let arr = []
-            //     for(let i=0;i<this.userList.length;i++){
-            //         arr.push(this.userList[i][op])
-            //     }
-            //     //去重
-            //     let set = new Set(arr)
-            //     let arr2 = Array.from(set)
-            //     //将数组转换为对象数组
-            //     let arr3 = []
-            //     for(let i=0;i<arr2.length;i++){
-            //         arr3.push({value:arr2[i],label:arr2[i]})
-            //     }
-            //     //将对象数组赋值给过去
-            //     if(op === "username"){
-            //         this.userOption = arr3
-            //     }
-            //     else if(op === "taskTypeName"){
-            //         this.taskOption = arr3
-            //     } 
-            //     else if(op === "inputTypeName"){
-            //         this.inputOption = arr3
-            //     }
-            // },
-
+            
             //解决select组件清空后参数值变成undefined的问题，避免搜索参数出错
             selectClear(key) {
                 if(this.searchOption[key] == undefined){
@@ -482,23 +471,37 @@ export default {
                         });
                     }
             },
+            
             async downloadFile(id) {
                 let res = await downLoadSigFileApi(id)
-                // const dowmName=res.headers['content-type'].split('.')[0]   //获取下载文件名称（在请求头中）
-                // const url = window.URL.createObjectURL(new Blob([res]))
-                // const link = document.createElement('a')
-                // link.style.display = 'none'
-                // link.href = url
-                // link.setAttribute(
-                //     'download',
-                //     `${dowmName}.xlsx`
-                // )
-                // document.body.appendChild(link)
-                // link.click()
+
+                //将返回的bolob对象转换为文件对象实现下载
+                    let blob = new Blob([res.data],{type:'application/octet-stream'})
+                    let filename=res.headers['filename']
+                    let downloadElement = document.createElement('a')
+                    let href = window.URL.createObjectURL(blob)
+                    downloadElement.setAttribute('href',href)
+                    downloadElement.setAttribute('download',filename)
+                    downloadElement.click()
+                    window.URL.revokeObjectURL(href)
             },
-            previewFile(fname) {
+            //预览文件
+            async previewFile(fname) {
                 this.isModalPreview = true
                 this.previewFileName = fname
+                let res = await getModelFileApi("pro_"+this.previewFileName)
+                let data = d3.csvParse(res)
+                //console.log(data)
+                for(let i=0;i<data.length;i++){
+                    //console.log(data[i])
+                    let time=Number(data[i].timestamp)
+                    //console.log(this.transformTimestamp(time))
+                    this.lineData.xData.push(this.transformTimestamp(time))
+                    this.lineData.data[0].data.push(data[i].ecg)
+                    
+                }
+                console.log(this.lineData)
+
             },
             handleSelectionChange(val) {
                 this.trainInfo=[];
@@ -532,4 +535,9 @@ export default {
         margin-top: 25px;
         margin-left: 10px;
     }
+    .line-box{
+        
+        margin-top: -50px;
+    }
+    
 </style>

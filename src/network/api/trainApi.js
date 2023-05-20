@@ -150,3 +150,29 @@ export const getModelFileApi = (fileName) => {
         //responseType: 'blob'
     });
 }
+
+/**
+ * 订阅训练任务
+ * GET
+ * @param {String} trainId
+ * @returns {Promise} null
+ */
+export const subscribeTrainApi = (trainId) => {
+    return serviceAxios({
+        url: "/train/subscribe/" + trainId,
+        method: "get",
+    });
+}
+
+/**
+ * 获取订阅任务的信息
+ * GET
+ * @param {String} trainId
+ * @returns {Promise} res.data
+ */
+export const getSubscribeTrainApi = (trainId) => {
+    return serviceAxios({
+        url: "/train/" + trainId,
+        method: "get",
+    });
+}
