@@ -62,9 +62,8 @@
                 <Option v-for="(item,index) in intypeoption" :value="item.id" :key="index">
                     <!-- {{ item.label }} -->
                     <span>{{item.name}}</span>
-                    <span style="float:right;color:#ccc">{{item.batchSize}}</span>
+                    <span style="float:right;margin-right: 10%;color:#ccc">{{item.batchSize}}</span>
                 </Option>
-                
             </Select> 
         </FormItem>
         
@@ -288,7 +287,7 @@ import{getUsersApi} from '../../network/api/userApi'
                                batchSize:this.addformValidate.datalength,
                                desc:this.addformValidate.datadescription
                         }
-                        console.log(datatype)
+                        // console.log(datatype)
                         if(datatype==="输入数据类型"){
                             let addintype = await addINModelApi(addtype)
                             if(addintype.type === 'success'){
@@ -370,9 +369,9 @@ import{getUsersApi} from '../../network/api/userApi'
                             inputTypeIdList:str,
                             outputTid:this.formValidate.outtype
                     }
-                    console.log(adddata)
+                    // console.log(adddata)
                     let res = await addModelApi(adddata)
-                    console.log(res)
+                    // console.log(res)
                     if(res.type === "success"){
                         this.$Message.success('添加成功!');
                     }
@@ -424,7 +423,7 @@ import{getUsersApi} from '../../network/api/userApi'
                     this.formValidate.outtype=data
                 }
                 )
-               console.log(this.formValidate.outtype)
+            //    console.log(this.formValidate.outtype)
             }
         }
     }

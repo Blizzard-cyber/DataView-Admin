@@ -6,7 +6,11 @@
             <BreadcrumbItem>模型训练</BreadcrumbItem>
             <BreadcrumbItem>训练任务</BreadcrumbItem>
         </Breadcrumb>
-        <Table border :columns="columns" :data="showData"></Table>
+        <div>
+            <Table border :columns="columns" :data="showData"></Table>
+            <Spin size="large" fix v-if="isLoading"></Spin>
+        </div>
+        <!-- <Table border :columns="columns" :data="showData"></Table> -->
         <Page
             class="flex j-center"
             style="marginTop:20px"
@@ -26,6 +30,7 @@ import { getTrainListApi, getTrainListDetailApi } from "../../network/api/trainA
 export default {
         data () {
             return {
+                isLoading:false,
                 columns: [
                     {
                         title: '唯一标识',
@@ -165,6 +170,7 @@ export default {
                 return dateString;
             },
             async getUserList() {
+                this.isLoading = true
                 let res = await getTrainListDetailApi()
                 if(res.type === 'success'){
                     this.userList = res.data
@@ -176,6 +182,7 @@ export default {
                 else{
                     this.$Message.error('获取训练任务失败');
                 }
+                this.isLoading = false
             },
             //切换页码
             changePage(num) {
@@ -186,9 +193,7 @@ export default {
                 this.currentPageSize = num;
             },
             handleclick(id){
-              
                 this.$router.push(`/trainLog/${id}`)
-            
             }
         }
     }
@@ -200,5 +205,8 @@ export default {
         margin-bottom: 25px;
         margin-top: 25px;
         margin-left: 10px;
+    }
+    .demo-spin-container{
+        position: relative;
     }
 </style>

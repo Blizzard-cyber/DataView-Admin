@@ -1,8 +1,11 @@
 
 <template>
     <div class='chart-box'>
-        <chartLine :chart-data='lineData' height="500px"></chartLine>
-     
+        <div>
+            <chartLine :chart-data='lineData' height="500px"></chartLine>
+            <Spin size="large" fix v-if="isLoading"></Spin>
+        </div>
+        
         <!-- <Breadcrumb style="margin-bottom:20px">
             <BreadcrumbItem>首页</BreadcrumbItem>
             <BreadcrumbItem>工作平台</BreadcrumbItem>
@@ -74,6 +77,7 @@ export default {
     },
     data() {
         return {  
+            isLoading:false,
             lineData:{
                xData: [],
                 color: ["#038BFF"],
@@ -104,6 +108,7 @@ export default {
     methods: {
         
         async getModelFile(){
+            this.isLoading = true
             let res = await getModelFileApi(this.fileName)
            const data = d3.csvParse(res)
            //console.log(data)
@@ -114,6 +119,7 @@ export default {
             //    this.qylist.date.push(data[i].timestamp)
             //     this.qylist.data.push(data[i].ecg)
            }
+           this.isLoading = false
         },
         //时间戳转换
 
@@ -137,5 +143,7 @@ export default {
 }
 </script>
 <style scoped>
-
+    .demo-spin-container{
+        position: relative;
+    }
 </style>

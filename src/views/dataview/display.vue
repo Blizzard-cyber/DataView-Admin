@@ -4,16 +4,19 @@
             <BreadcrumbItem>首页</BreadcrumbItem>
             <BreadcrumbItem>展示班组</BreadcrumbItem>     
     </Breadcrumb>
-    <Table 
-        border
-        ref="selection"
-        max-height="700" 
-        width="1200"
-        style=" margin-left:auto; margin-right:auto"
-        :columns="columns" 
-        :data="classdata"
-        @on-selection-change="handleSelectionChange"
+    <div>
+        <Table 
+            border
+            ref="selection"
+            max-height="700" 
+            width="1200"
+            style=" margin-left:auto; margin-right:auto"
+            :columns="columns" 
+            :data="classdata"
+            @on-selection-change="handleSelectionChange"
         ></Table>
+        <Spin size="large" fix v-if="isLoading"></Spin>
+    </div>
     <Row style="margin-top:30px">
           <Col span="5" offset="8">
             <DatePicker  v-model="pickDate" type="date" placeholder="请选择日期" style="width: 200px"></DatePicker>
@@ -32,6 +35,7 @@
         //components: { expandRow },
         data () {
             return {
+                isLoading: false,
                 pickDate:'',
                 paramGroup:'',
                 columns: [
@@ -76,6 +80,7 @@
             ...mapMutations(['setParamGroup','setPickDate']),
 
            async getList(){
+                this.isLoading = true
                 let res = await getClassApi();
                 //console.log(res.data.length)
                 for(let i=0;i<res.data.length;i++){
@@ -96,7 +101,7 @@
                         groupInfo:classmates
                     })
                 }
-                
+                this.isLoading = false
             },
             handleSelectionChange(val) {
                 this.paramGroup='';
@@ -117,19 +122,19 @@
                 return y + '-' + m + '-' + d + ' '+'00:00:00';
             },
             handleclick(){
-             if(this.paramGroup==''){
-                 this.$Message.error('请选择班组');
-                 return;
-             }
-            if(this.pickDate==''){
-                    this.$Message.error('请选择日期');
+                this.isLoading = true
+                if(this.paramGroup==''){
+                    this.$Message.error('请选择班组');
                     return;
-            }
-            this.setParamGroup(this.paramGroup);
-            this.setPickDate(this.formatDate(this.pickDate));
-            
-           
-            this.$router.push('./data')
+                }
+                if(this.pickDate==''){
+                        this.$Message.error('请选择日期');
+                        return;
+                }
+                this.setParamGroup(this.paramGroup);
+                this.setPickDate(this.formatDate(this.pickDate));
+                this.$router.push('./data')
+                this.isLoading = false
             }
         }
     }
@@ -146,5 +151,10 @@
     }
     .right-area p {
         margin-top: 25px;
+    }
+    .demo-spin-container{
+    	display: inline-block;
+        position: relative;
+        border: 1px solid #eee;
     }
 </style>

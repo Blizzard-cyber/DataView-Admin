@@ -8,7 +8,7 @@
         </Breadcrumb>
         <Row class="rowbox" :gutter="16">
             <Col span="5" >
-                <Input v-model="searchOption.value1" placeholder="唯一标识" clearable/>
+                <Input v-model="searchOption.value1" placeholder="模型名称" clearable/>
             </Col>
             <Col span="5" >
                <Select v-model="searchOption.value2" clearable placeholder="适用对象" @on-change="selectClear('value2')">
@@ -21,7 +21,6 @@
                 </Select>
             </col>
             <Col span="5">
-                <!-- <Input v-model="value4" placeholder="更新日期" clearable style="width: 200px" /> -->
                 <DatePicker v-model="searchOption.value4" type="datetime" format="yyyy-MM-dd HH:mm:ss" placeholder="更新日期" show-week-numbers/>
             </Col>
             <Col span="4" style="padding: 0%;">
@@ -29,11 +28,15 @@
                 <Button v-if="this.auth==1" type="primary" to="/modelAdd">新增</Button>
             </Col>
         </Row>
-        <Table border :columns="columns6" :data="showData"></Table>
+        <div>
+            <Table border :columns="columns6" :data="showData"></Table>
+            <Spin size="large" fix v-if="isLoading"></Spin>
+        </div>
         <Page
             class="flex j-center"
             style="marginTop:20px"
             :total="userList.length"
+            :current="this.currentPage"
             show-sizer
             show-elevator
             show-total
@@ -76,6 +79,7 @@ import { getModelListApi,getTaskTypeApi,searchModelApi,deleteModelApi,getFileNam
 export default {
         data () {
             return {
+                isLoading: false,
                 searchOption: {
                     value1: '',
                     value2: '',
@@ -92,7 +96,7 @@ export default {
                         key: 'id'
                     },
                     {
-                        title: '唯一标识',
+                        title: '模型名称',
                         key: 'name',
                         align: 'center'
                     },
@@ -146,7 +150,6 @@ export default {
                                                 title: '系统提示',
                                                 content: '删除后无法恢复，确定删除吗？',
                                                 onOk: () => {
-                                                    
                                                     this.remove(params.row.id,params.index);
                                                 }
                                             });
@@ -160,7 +163,7 @@ export default {
                 userList:[],
                
                 // userData: {}
-                currentPage: 0,
+                currentPage: 1,
                 currentPageSize: 10,
             }
         },
@@ -168,7 +171,7 @@ export default {
             ...mapState(["token","uid","auth"]),
             showData() {
                 //再截取数据分页展示
-                const startIndex = this.currentPage * this.currentPageSize;
+                const startIndex = (this.currentPage - 1) * this.currentPageSize;
                 const endIndex = startIndex + this.currentPageSize;
                 return this.userList.slice(startIndex, endIndex);
             },
@@ -176,7 +179,7 @@ export default {
                 let str = "";
                 if (this.searchOption.value4 !== "") {
                     // Convert time string to Date object
-                    let date = new Date(this.value4);
+                    let date = new Date(this.searchOption.value4);
                     // Extract year, month, and day
                     let year = date.getFullYear();
                     let month = ("0" + (date.getMonth() + 1)).slice(-2);
@@ -208,23 +211,18 @@ export default {
                 return dateString;
             },
             async getUserList() {
+                this.isLoading = true
                 // 权限管理
-                // let res1 = await getModelListForUserApi(this.uid)
-                // let res2 = await getModelListApi()
-                // let res
-                // if (this.auth == 1) res = res2
-                // else res = res1
-
-                let res = await getModelListApi()
+                let res1 = await getModelListForUserApi(this.uid)
+                let res2 = await getModelListApi()
+                let res
+                if (this.auth == 1) res = res2
+                else res = res1
                     if(res.type === 'success'){
                         this.userList = res.data
                         this.userList.forEach(element => {
                             element.updateDate = this.transformTimestamp(element.updateDate)
                         })
-                        // let op1="username"
-                        // let op2="taskTypeName"
-                        // this.getOptionList(op1);
-                        // this.getOptionList(op2);
                     }
                     else{
                         this.$Message.error('获取选项列表失败');
@@ -242,11 +240,30 @@ export default {
                 let userlist = await getUsersApi()
                     if(userlist.type === 'success'){
                         this.objectoption = userlist.data
+                        if(this.auth == 0){
+                            this.objectoption = this.objectoption.filter((item)=>{return item.id == this.uid})
+                        }
                     }
                     else{
                         this.$Message.error('获取适用对象列表失败');
                     } 
                 
+                if(this.auth == 0){
+                    //admin初始数据的接口是详细数据，user初始数据的接口是简单数据，需要通过id得到对应的文字信息
+                    this.userList.forEach(element => {
+                        this.objectoption.forEach(user => {
+                            if(element.uid === user.id){
+                                this.$set(element,"username",user.username)
+                            }
+                        })
+                        this.funcoption.forEach(task => {
+                            if(element.taskTid === task.id){
+                                this.$set(element,"taskTypeName",task.func)
+                            }
+                        })
+                    }); 
+                }
+                this.isLoading = false
             },
             //将表中数据选项转换为数组
             // getOptionList(op) {
@@ -274,13 +291,10 @@ export default {
             //         this.funcoption = arr3
             //         //console.log(this.funcoption)
             //     }
-
-                
-
             // },
             //切换页码
             changePage(num) {
-                this.currentPage = num -1;
+                this.currentPage = num;
             },
             //切换页数
             changePageSize(num) {
@@ -308,28 +322,34 @@ export default {
                     downloadElement.click()
                     window.URL.revokeObjectURL(href)
             },
-            
-            
-            async remove (index,row) {   
-                //console.log(index)
+            async remove (index,row) {  
+                this.isLoading = true
                 if(this.auth == 1){
                     let res = await deleteModelApi(index)
                     if(res.type === 'success'){
+                        //删除的是当前页剩余的最后一条数据时，跳转到上一页
+                        let cur = (this.currentPage - 1) * this.currentPageSize + row
+                        if(row === 0 && (cur === this.userList.length - 1) && this.currentPage !== 1){
+                            this.currentPage = this.currentPage - 1
+                        }
+                        this.userList.splice(cur, 1)
                         this.$Message.success('删除成功');
-                        this.userList.splice(row, 1);
+                        // this.userList.splice(row, 1); //删除非第一页数据时索引不对
+                        // this.getUserList() //删除的是当前页剩余的最后一条数据时，显示会有问题
                     }
                     else{
-                        this.$Message.error('删除失败');
+                        this.$Message.error(res.message);
                     }
                 } else {
                     this.$Message.error('没有权限');
                 }
-                
-                
-                
+                this.isLoading = false
             },
-           async searchItem() {
-             if(this.searchOption.value1){
+            async searchItem() {
+                this.isLoading = true
+                if (this.auth == 0){
+                    this.searchOption.value2 = this.uid
+                }
                 let data = {
                     modelName: this.searchOption.value1,
                     userId: this.searchOption.value2,
@@ -337,28 +357,31 @@ export default {
                     updateDate: this.searchDate
                 }
                 let res= await searchModelApi(data)
+                if (res.type === "success"){
                     if(res.data.length===0){
-                        this.$Message.error(res.error.message);
+                        this.$Message.error('没有找到匹配的结果');
                     }
                     else
                         this.$Message.success('查找成功');
                     this.userList = res.data  
+                    //对搜索返回的数据id处理成对应的文字描述
                     this.userList.forEach(element => {
-                            this.objectoption.forEach(user => {
-                                if(element.uid === user.id){
-                                    element.username = user.username
-                                }
-                            })
-                            this.funcoption.forEach(task => {
-                                if(element.uid === task.id){
-                                    element.taskTypeName = task.func
-                                }
-                            })
-                        }); 
-            }
-             else{
-                this.$Message.error("请传入模型唯一标识！")
-            }
+                        this.objectoption.forEach(user => {
+                            if(element.uid === user.id){
+                                this.$set(element,"username",user.username)
+                            }
+                        })
+                        this.funcoption.forEach(task => {
+                            if(element.taskTid === task.id){
+                                this.$set(element,"taskTypeName",task.func)
+                            }
+                        })
+                    }); 
+                    this.currentPage = 1 // 查询后跳转至第一页
+                } else {
+                    this.$Message.error(res.message);
+                }
+                this.isLoading = false
             }
             
         }
@@ -366,7 +389,9 @@ export default {
 </script>
 <style>
     .ivu-table-overflowX{ overflow-x: hidden;}
-    
+    .ivu-table-wrapper-with-border{
+        border: 3px solid #dcdee2;
+    }
     .rowbox{
         margin-bottom: 25px;
         margin-top: 25px;

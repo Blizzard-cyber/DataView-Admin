@@ -28,11 +28,15 @@
                 <Button v-if="this.auth==1" type="primary" to="/deviceAdd" style="margin-left:10px">新增</Button>
             </Col>
         </Row>
-        <Table border :columns="columns6" :data="showData"></Table>
+        <div>
+            <Table border :columns="columns6" :data="showData"></Table>
+            <Spin size="large" fix v-if="isLoading"></Spin>
+        </div>
         <Page
             class="flex j-center"
             style="marginTop:20px"
             :total="userList.length"
+            :current="this.currentPage"
             show-sizer
             show-elevator
             show-total
@@ -64,9 +68,15 @@
                     </Select>
                 </FormItem>
                 <FormItem label="输出数据类型" prop="outtype">
-                    <Select v-model="modalItem.outtype" multiple placeholder="请选择" style="width:300px">
-                        <Option v-for="item in outtypeoption" :value="item.value" :key="item.value">{{ item.label }}</Option>  
+                    <Select v-model="modalItem.outtype" multiple filterable placeholder="请选择"  style="width:300px">
+                        <Option v-for="(item,index) in outtypeoption" :value="item.id" :key="index">{{ item.label }}
+                            <!-- <span>{{item.name}}</span>
+                            <span style="float:right;margin-right:5%;color:#ccc">{{item.batchSize}}</span> -->
+                        </Option>
                     </Select> 
+                    <!-- <Select v-model="modalItem.outtype" multiple placeholder="请选择" style="width:300px">
+                        <Option v-for="item in outtypeoption" :value="item.value" :key="item.value">{{ item.label }}</Option>  
+                    </Select>  -->
                 </FormItem>
                 <FormItem label="创建时间" prop="createDate">
                     <Input v-model="modalItem.createDate" placeholder="" style="width:300px" disabled/>
@@ -89,6 +99,7 @@ export default {
         data () {
             return {
                 isModal: false,
+                isLoading: false,
                 searchOption: {
                     value1: '',
                     value2: '',
@@ -193,7 +204,7 @@ export default {
                         {required: true, type:'array',min:1,message:'至少选择一个输出数据类型',trigger: 'change' }
                     ]
                 },
-                currentPage: 0,
+                currentPage: 1,
                 currentPageSize: 10,
             }
         },
@@ -201,7 +212,7 @@ export default {
             ...mapState(["token","auth"]),
             showData() {
                 //再截取数据分页展示
-                const startIndex = this.currentPage * this.currentPageSize;
+                const startIndex = (this.currentPage - 1) * this.currentPageSize;
                 const endIndex = startIndex + this.currentPageSize;
                 return this.userList.slice(startIndex, endIndex);
             },
@@ -228,6 +239,7 @@ export default {
         },
         methods: {
             async getUserList() {
+                this.isLoading = true
                 let res = await getDeviceListApi() //同步处理
                     if(res.type === 'success'){
                         this.userList = res.data
@@ -238,7 +250,8 @@ export default {
                     }
                     else{
                         this.$Message.error('获取选项列表失败');
-                    }            
+                    } 
+                this.isLoading = false           
             },
             //将表中数据选项转换为数组
             getOptionList(op) {
@@ -272,14 +285,10 @@ export default {
             async getInputType(){
                 let res = await getInputTypeApi()
                     if(res.type === 'success'){
-                        let inputType = res.data
-                        this.outtypeoption = []
-                        inputType.forEach(element => {
-                            this.outtypeoption.push({
-                                value:element.id,
-                                label:element.id
-                            })
-                        });
+                        this.outtypeoption = res.data
+                        this.outtypeoption.forEach(element=>{
+                        element.label = element.name + element.batchSize
+                    })
                     }
                     else{
                         this.$Message.error('获取设备输出类型失败！');
@@ -287,7 +296,7 @@ export default {
             },
             //切换页码
             changePage(num) {
-                this.currentPage = num -1;
+                this.currentPage = num;
             },
             //切换页数
             changePageSize(num) {
@@ -331,19 +340,25 @@ export default {
                                 this.$Message.error('修改失败')
                             }
                             this.isModal = false
-                            } else {
-                                this.$Message.error('Fail!')
-                            }
+                        } else {
+                            this.$Message.error('您提交的修改数据有误，请检查修改后再提交')
+                        }
                     })
                 } else {
                     this.$Message.error('没有权限');
                 }             
             },
             async remove (deleteId) {
+                this.isLoading = true
                 if (this.auth==1){
                     let res = await deleteDeviceApi(deleteId)
                     if(res.type==="success"){
-                        this.getUserList()
+                        //删除的是当前页剩余的最后一条数据时，跳转到上一页
+                        let cur = (this.currentPage - 1) * this.currentPageSize + row
+                        if(row === 0 && (cur === this.userList.length - 1) && this.currentPage !== 1){
+                            this.currentPage = this.currentPage - 1
+                        }
+                        this.userList.splice(cur, 1)
                         this.$Message.success('删除成功')
                     }    
                     else {
@@ -352,8 +367,10 @@ export default {
                 } else {
                     this.$Message.error('没有权限');
                 }
+                this.isLoading = false
             },
             async searchItem() {
+                this.isLoading = true
                 let paramsdata = {
                     devName:this.searchOption.value1,
                     devType:this.searchOption.value2,
@@ -361,13 +378,18 @@ export default {
                     createDate:this.searchDate
                 }
                 let res = await searchDeviceApi(paramsdata)
+                if (res.type === "success"){
                     if(res.data.length===0){
                         this.$Message.error('没有找到匹配的结果');
+                    } else {
+                        this.$Message.success('查找成功');  
                     }
-                    else {
-                        this.$Message.success('查找成功');
-                        this.userList = res.data   
-                    }
+                    this.userList = res.data 
+                    this.currentPage = 1 // 查询后跳转至第一页
+                } else {
+                    this.$Message.error(res.message);
+                }
+                this.isLoading = true 
             }
         }
     }
@@ -378,5 +400,10 @@ export default {
         margin-bottom: 25px;
         margin-top: 25px;
         margin-left: 10px;
+    }
+    .demo-spin-container{
+    	display: inline-block;
+        position: relative;
+        border: 1px solid #eee;
     }
 </style>

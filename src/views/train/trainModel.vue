@@ -56,6 +56,7 @@
             <Button @click="handleReset('formValidate')" style="margin-left: 8px">清除内容</Button>
         </FormItem>
     </Form>
+    <Spin size="large" fix v-if="isLoading"></Spin>
   </div>
 </template>
 
@@ -63,11 +64,11 @@
 import {getUsersApi} from '../../network/api/userApi'
 import {getTaskTypeApi,getOUTModelApi} from '../../network/api/modelApi' 
 import {addTrainApi,getUserFileApi} from '../../network/api/trainApi' 
-import {mapGetters} from 'vuex'
-import { mapState } from 'vuex'
+import {mapGetters,mapState} from 'vuex'
     export default {
         data () {
             return {
+                isLoading:false,
                 uidList: [ //训练对象选项
                    
                 ],
@@ -160,6 +161,7 @@ import { mapState } from 'vuex'
         methods: {
             ...mapGetters(['gettrainInfo']),
             async getData(){
+                this.isLoading = true
                 this.trainFileList = this.gettrainInfo()
                 let res = await getUserFileApi(this.uid)
                 if(res.type==="success"){
@@ -181,15 +183,18 @@ import { mapState } from 'vuex'
                 this.trainFileList.forEach(element => {
                     this.formValidate.signalList += element.fname + "\n"
                 })
+                this.isLoading = false
             },
             async getList(){
                 //获取训练对象列表
              let userList = await getUsersApi()
                 if(userList.type == 'success'){
                     this.uidList = userList.data
+                    if(this.auth == 0){
+                        this.uidList = this.uidList.filter((item)=>{return item.id == this.uid})
+                    }
                 }
                 else{
-
                     this.$Message.error('获取训练对象列表失败')
                 }
 
@@ -212,6 +217,7 @@ import { mapState } from 'vuex'
                 }
             },
             handleSubmit (name) {
+                this.isLoading = true
                 this.$refs[name].validate(async(valid) => {
                     if (valid) {
                         let FileList = []
@@ -242,6 +248,7 @@ import { mapState } from 'vuex'
                         this.$Message.error('填写内容不完整或有误，请重新填写！');
                     }
                 })
+                this.isLoading = false
             },
             handleReset (name) {
                 this.$refs[name].resetFields();
@@ -251,5 +258,7 @@ import { mapState } from 'vuex'
 </script>
 
 <style>
-
+    .demo-spin-container{
+        position: relative;
+    }
 </style>

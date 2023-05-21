@@ -37,7 +37,10 @@
             </slot>
         </div>
     </Modal>
-    <Table :columns="columns" :data="showData"></Table>
+    <div>
+        <Table border :columns="columns" :data="showData"></Table>
+        <Spin size="large" fix v-if="isLoading"></Spin>
+    </div>
     <Page
         class="flex j-center"
         style="marginTop:20px"
@@ -89,6 +92,7 @@ import { getUsersApi,deleteUserApi,searchUserApi,addUserApi,modifyUserApi} from 
 export default {
   data () {
     return {
+      isLoading:false,
       userList:[],
       searchName:"",
       isModal1:false,
@@ -198,6 +202,7 @@ export default {
   },
   methods: {
     async getUserList(){
+        this.isLoading = true
         let res = await getUsersApi() //同步处理
         if(res.type === 'success'){
             this.userList = res.data
@@ -208,7 +213,8 @@ export default {
         }
         else{
             this.$Message.error('获取用户列表失败');
-        }    
+        } 
+        this.isLoading = false
     },
     //切换页码
     changePage(num) {
@@ -280,6 +286,7 @@ export default {
     })
     },
     async remove (deleteId) {
+      this.isLoading = true
       let res = await deleteUserApi(deleteId)
       if(res.type==="success"){
           this.getUserList()
@@ -288,6 +295,7 @@ export default {
       else {
           this.$Message.error("删除失败");
       }
+      this.isLoading = false
     },
     async searchItem() {
       if(this.searchName === ""){
@@ -315,4 +323,11 @@ export default {
 </script>
 
 <style>
+.demo-spin-container{
+    	display: inline-block;
+        position: relative;
+        border: 1px solid #eee;
+        overflow-y: auto;
+    }
+    
 </style>

@@ -20,18 +20,23 @@
             </Select>
         </FormItem>
         <FormItem label="输出数据类型" prop="outtype">
-            <Select v-model="formValidate.outtype" multiple placeholder="请选择" style="width:250px">
-                <Option v-for="item in outtypeoption" :value="item.value" :key="item.value">{{ item.label }}</Option>  
+            <Select v-model="formValidate.outtype" multiple filterable placeholder="请选择"  style="width:250px">
+                <Option v-for="(item,index) in outtypeList" :value="item.id" :key="index">
+                    <span>{{item.name}}</span>
+                    <span style="float:right;margin-right: 10%;color:#ccc">{{item.batchSize}}</span>
+                </Option>
             </Select> 
             <Button type="warning" style="margin-left:10px"  @click="isModal2=true">输出数据类型详情</Button>
             <Modal 
                 v-model="isModal2"
-                fullscreen>
+                fullscreen
+                footer-hide>
                 <Table border :columns="columns6" :data="showData"></Table>
                 <Page
                     class="flex j-center"
                     style="marginTop:20px"
                     :total="outtypeList.length"
+                    :current="this.currentPage"
                     show-sizer
                     show-elevator
                     show-total
@@ -87,7 +92,7 @@
             return {
                 isModal:false,//弹出框打开状态
                 isModal2:false,
-                currentPage: 0,
+                currentPage: 1,
                 currentPageSize: 5,
                 userList:[],
                 deviceoption:[],
@@ -141,7 +146,7 @@
                                                 title: '系统提示',
                                                 content: '只能删除未使用的数据类型且删除后无法恢复，确定删除吗？',
                                                 onOk: () => {
-                                                    this.remove(params.row.id);
+                                                    this.remove(params.row.id,params.index);
                                                 }
                                             });
                                         }
@@ -193,7 +198,7 @@
         computed:{
             showData() {
                 //再截取数据分页展示
-                const startIndex = this.currentPage * this.currentPageSize;
+                const startIndex = (this.currentPage - 1)* this.currentPageSize;
                 const endIndex = startIndex + this.currentPageSize;
                 return this.outtypeList.slice(startIndex, endIndex);
             }
@@ -204,7 +209,7 @@
         },
         methods: {
             changePage(num) {
-                this.currentPage = num -1;
+                this.currentPage = num;
             },
             //切换页数
             changePageSize(num) {
@@ -249,24 +254,22 @@
             async getInputType(){
                 let res = await getInputTypeApi()
                     if(res.type === 'success'){
-                        let inputType = res.data
-                        this.outtypeList = inputType
-                        this.outtypeoption = []
-                        inputType.forEach(element => {
-                            this.outtypeoption.push({
-                                value:element.id,
-                                label:element.id
-                            })
-                        });
+                        this.outtypeList = res.data
                     }
                     else{
                         this.$Message.error('获取设备输出类型失败！');
                     }
             },
-            async remove(deleteId){
+            async remove(deleteId,row){
                 let res = await deleteInputTypeApi(deleteId)
                 if(res.type==="success"){
                     this.getInputType()
+                    //删除的是当前页剩余的最后一条数据时，跳转到上一页
+                    let cur = (this.currentPage - 1) * this.currentPageSize + row
+                        if(row === 0 && (cur === this.userList.length - 1) && this.currentPage !== 1){
+                            this.currentPage = this.currentPage - 1
+                        }
+                        this.userList.splice(cur, 1)
                     this.$Message.success('删除成功')
                 }    
                 else {
@@ -286,13 +289,12 @@
                         let res = await addDeviceApi(paramsdata)
                         if (res.type==='success'){
                             this.$Message.success("添加设备成功")
-                            this.handleReset('formValidate')
+                            // this.handleReset('formValidate')
                         }else {
-                            this.$Message.error(res.data.message);
+                            this.$Message.error(res.message);
                         }
-                        
                     } else {
-                        this.$Message.error('添加失败！');
+                        this.$Message.error('您提交的修改数据有误，请检查修改后再提交');
                     }
                 })
             },
@@ -314,7 +316,7 @@
                                 this.$Message.error(res.message);
                             }
                     } else {
-                        this.$Message.error('Fail!');
+                        this.$Message.error('您提交的数据有误，请检查修改后再提交');
                     }
                 })
             },

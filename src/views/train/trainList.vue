@@ -57,9 +57,6 @@
                 </FormItem>
                 <FormItem label="标签类型" prop="label">
                     <Input v-model="formValidate.label" placeholder="" style="width:250px"></Input>
-                    <!-- <Select v-model="formValidate.label" placeholder="请选择" style="width:250px">
-                        <Option v-for="item in labelOption" :value="item.value" :key="item.value">{{ item.label }}</Option>  
-                    </Select>  -->
                 </FormItem>
                 <FormItem label="信号文件" prop="sigFile">
                     <Upload 
@@ -83,15 +80,17 @@
                 </slot>
             </div>
         </Modal>
-        <Table height="400" border :columns="columns" :data="userList" @on-selection-change="handleSelectionChange"></Table>
-
-         <Modal v-model="isModalPreview" fullscreen title="数据集预览">
-             <p slot="header" style="text-align:center">
+        <div>
+            <Table height="400" border :columns="columns" :data="userList" @on-selection-change="handleSelectionChange"></Table>
+            <Spin size="large" fix v-if="isLoading2"></Spin>
+        </div>
+        <Modal v-model="isModalPreview" fullscreen title="数据集预览">
+            <p slot="header" style="text-align:center">
                 <Icon type="ios-analytics-outline"></Icon>
                 <span>{{previewFileName}}</span>
             </p>
             <div class="line-box">
-                 <chartLine :chartData='lineData' width="1550px" height="550px"></chartLine>
+                <chartLine :chartData='lineData' width="1550px" height="550px"></chartLine>
             </div>
             <div slot="footer">
                 <slot name="footer">
@@ -99,6 +98,7 @@
                     
                 </slot>
             </div>
+            <Spin size="large" fix v-if="isLoading2"></Spin>
         </Modal>
     </div>
 </template>
@@ -109,7 +109,7 @@ import * as d3 from 'd3'
 import { mapState, mapMutations } from 'vuex';
 import { getTaskTypeApi,getINModelApi } from '../../network/api/modelApi'
 import { getUsersApi } from '../../network/api/userApi'
-import { getFileListApi, getFileListDetailApi, searchFileApi, addFileApi, deleteFileApi, downLoadSigFileApi,getModelFileApi } from "../../network/api/trainApi"
+import { getFileListApi, getFileListDetailApi, searchFileApi, addFileApi, deleteFileApi, downLoadSigFileApi,getModelFileApi,getUserFileApi } from "../../network/api/trainApi"
 export default {
     components: {
         chartLine
@@ -118,6 +118,8 @@ export default {
             return {
                 isModal: false,
                 isModalPreview: false,
+                isLoading:false,
+                isLoading2:false,
                 previewFileName:'',
                 lineData:{
                     xData: [],  //x轴数据
@@ -199,7 +201,7 @@ export default {
                     },
                     {
                         title: 'BatchSize',
-                        width: 120,
+                        width: 110,
                         key: 'inputBatchSize',
                         align: 'center'
                     },
@@ -261,7 +263,7 @@ export default {
                                                 title: '系统提示',
                                                 content: '删除后无法恢复，确定删除吗？',
                                                 onOk: () => {
-                                                    this.remove(params.row.id);
+                                                    this.remove(params.row.id,params.index);
                                                 }
                                             });
                                         }
@@ -328,9 +330,19 @@ export default {
                 return dateString;
             },
             async getUserList() {
-                let res = await getFileListDetailApi()
+                this.isLoading = true
+                let res1 = await getFileListDetailApi()
+                let detailInfo = res1.data
+                let res2 = await getUserFileApi(this.uid)
+                let res
+                if(this.auth == 1){
+                    res = res1
+                } else {
+                    res = res2
+                }
                     if(res.type === 'success'){
                         this.userList = res.data
+                        //处理后端返回的时间
                         this.userList.forEach(element => {
                             element.uploadDate = this.transformTimestamp(element.uploadDate)
                         })
@@ -351,6 +363,9 @@ export default {
                 let userlist = await getUsersApi()
                     if(userlist.type === 'success'){
                         this.userOption = userlist.data
+                        if(this.auth == 0){
+                            this.userOption = this.userOption.filter((item)=>{return item.id == this.uid})
+                        }
                     }
                     else{
                         this.$Message.error('获取适用对象列表失败');
@@ -364,6 +379,34 @@ export default {
                     else{
                         this.$Message.error('获取输入数据类型列表失败');
                     }
+                
+                if(this.auth == 0){
+                    //admin初始数据的接口是详细数据，user初始数据的接口是简单数据，需要通过id得到对应的文字信息
+                    this.userList.forEach(element => {
+                        this.userOption.forEach(user => {
+                            if(element.uid === user.id){
+                                this.$set(element,"username",user.username)
+
+                            }
+                        })
+                        this.taskOption.forEach(task => {
+                            if(element.taskTid === task.id){
+                                this.$set(element,"taskTypeName",task.func)
+                            }
+                        })
+                        this.inputOption.forEach(input => {
+                            if(element.inputTid === input.id){
+                                this.$set(element,"inputTypeName",input.name)
+                            }
+                        })
+                        detailInfo.forEach(item=>{
+                            if(element.id === item.id){
+                                this.$set(element,"inputBatchSize",item.inputBatchSize)
+                            }
+                        })
+                    });
+                }
+                this.isLoading = false
             },
 
             
@@ -412,7 +455,6 @@ export default {
                             this.$Message.error(res.message);
                         }
                         this.isModal = false
-                        
                     }
                     else if(isfile===''){
                         this.$Message.error('请选择上传文件！');
@@ -423,21 +465,22 @@ export default {
                     }
                 })
             },
-            async remove (deleteId) {
-                if (this.auth==1){
-                    let res = await deleteFileApi(deleteId)
-                    if(res.type==="success"){
-                        this.getUserList()
-                        this.$Message.success('删除成功')
-                    }    
-                    else {
-                        this.$Message.error("删除失败");
-                    }
-                } else {
-                    this.$Message.error('没有权限');
+            async remove (deleteId,row) {
+                this.isLoading = true
+                let res = await deleteFileApi(deleteId)
+                if(res.type==="success"){
+                    this.userList.splice(row, 1)
+                    this.$Message.success('删除成功')
+                }    
+                else {
+                    this.$Message.error("删除失败");
                 }
+                this.isLoading = false
             },
             async searchItem() {
+                if (this.auth == 0){
+                    this.searchOption.value2 = this.uid
+                }
                 let paramsdata = {
                     fname:this.searchOption.value1,
                     userId:this.searchOption.value2,
@@ -452,20 +495,28 @@ export default {
                     else {
                         this.$Message.success('查找成功');
                         this.userList = res.data   
+                        let res1 = await getFileListDetailApi()
+                        let detailInfo = res1.data
                         this.userList.forEach(element => {
                             this.userOption.forEach(user => {
                                 if(element.uid === user.id){
-                                    element.username = user.username
+                                    this.$set(element,"username",user.username)
+
                                 }
                             })
                             this.taskOption.forEach(task => {
                                 if(element.taskTid === task.id){
-                                    element.taskTypeName = task.func
+                                    this.$set(element,"taskTypeName",task.func)
                                 }
                             })
                             this.inputOption.forEach(input => {
                                 if(element.inputTid === input.id){
-                                    element.inputTypeName = input.name
+                                    this.$set(element,"inputTypeName",input.name)
+                                }
+                            })
+                            detailInfo.forEach(item=>{
+                                if(element.id === item.id){
+                                    this.$set(element,"inputBatchSize",item.inputBatchSize)
                                 }
                             })
                         });
@@ -474,7 +525,6 @@ export default {
             
             async downloadFile(id) {
                 let res = await downLoadSigFileApi(id)
-
                 //将返回的bolob对象转换为文件对象实现下载
                     let blob = new Blob([res.data],{type:'application/octet-stream'})
                     let filename=res.headers['filename']
@@ -488,6 +538,7 @@ export default {
             //预览文件
             async previewFile(fname) {
                 this.isModalPreview = true
+                this.isLoading2 = true
                 this.previewFileName = fname
                 let res = await getModelFileApi("pro_"+this.previewFileName)
                 let data = d3.csvParse(res)
@@ -498,10 +549,8 @@ export default {
                     //console.log(this.transformTimestamp(time))
                     this.lineData.xData.push(this.transformTimestamp(time))
                     this.lineData.data[0].data.push(data[i].ecg)
-                    
                 }
-                console.log(this.lineData)
-
+                this.isLoading2 = false
             },
             handleSelectionChange(val) {
                 this.trainInfo=[];
@@ -520,7 +569,6 @@ export default {
                     return;
                 }
                 this.setTrainInfo(this.trainInfo);
-                console.log(this.trainInfo)
                 this.$router.push('./trainModel')
             }
 
