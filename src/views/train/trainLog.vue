@@ -1,11 +1,12 @@
 <template>
     <div>
+        <Spin size="large" fix v-if="isLoading"></Spin>
         <!-- <Row>
              <Progress :percent="90" :stroke-color="['#108ee9', '#87d068']" />
         </Row> -->
         <Row type="flex" justify="center" align="middle">
-            <Col span="8">
-                <Card style="width:350px">
+            <Col span="6">
+                <Card style="width:300px">
                     <p slot="title">
                       <Icon type="ios-planet-outline" />
                         训练任务信息
@@ -24,28 +25,28 @@
                     </ul>
                 </Card>
             </Col>
-            <Col span="16">
+            <Col span="18">
             <div>
                 <Row>
                    
                     
                         <Card :padding="0"> 
-                            <ChartLine :data="testData" :label="'温度'" :threshold="30" :options="{}"></ChartLine>
+                            <Pline :pdata="pdataAcc" label='acc'></Pline>
                         </Card>
-                        <span style="text-align: center;display:block;">loss</span>
+                       
                     
                 </Row>
                 <Row>
                      <Card :padding="0"> 
-                        <ChartLine :data="testData" :label="'温度'" :threshold="30" :options="{}"></ChartLine>
+                        <Pline :pdata="pdataLoss" label="loss"></Pline>
                     </Card>
-                    <span style="text-align: center;display:block;">loss</span>
+                    
                 </Row>
                 <Row>
                     <Card :padding="0"> 
-                        <ChartLine :data="testData" :label="'温度'" :threshold="30" :options="{}"></ChartLine>
+                       <Pline :pdata="pdataEpoch" label="epoch"></Pline>
                     </Card>
-                    <span style="text-align: center;display:block;">loss</span>
+                   
                 </Row>
             </div>
             </Col>
@@ -55,64 +56,74 @@
 
 <script>
 import { EventSourcePolyfill } from 'event-source-polyfill';
-import ChartLine from "@/components/chart-line.vue";
-import {getSubscribeTrainApi} from "@/network/api/trainApi";
+import Pline from '@/components/Pline.vue'
+import {getSubscribeTrainApi,unsubscribeTrainApi} from "@/network/api/trainApi";
 import util from "@/util";
+
 export default {
     data() {
         return {
+            isLoading: false,
             changed: false, //监听路由是否变化
             trainId: '',
             infoList:[],
-            testData: [
-                {
-                name: '上海',
-                data: [
-                    ['2022-08-06 17:20:20', 15],
-                    ['2022-08-06 17:30:20', 20],
-                    ['2022-08-06 17:40:20', 30],
-                    ['2022-08-06 17:50:20', 25],
-                    ['2022-08-06 18:00:20', 35],
-                    ['2022-08-06 18:10:20', 10],
-                ]
-                },
-                {
-                name: '北京',
-                data: [
-                    ['2022-08-06 17:20:20', 25],
-                    ['2022-08-06 17:30:20', 10],
-                    ['2022-08-06 17:40:20', 20],
-                    ['2022-08-06 17:50:20', 15],
-                    ['2022-08-06 18:00:20', 30],
-                    ['2022-08-06 18:10:20', 35],
-                ]
-                }
-            ]  
+            pdataAcc: {
+                time: [],
+                dataOne: []
+            },
+            pdataLoss: {
+                time: [],
+                dataOne: []
+            },
+            pdataEpoch: {
+                time: [],
+                dataOne: []
+            },
+              
         }
     },
     components: {
-        ChartLine
+       
+        Pline
+        
     },
     
 
     created() {
         this.trainId = this.$route.params.id
+        this.isLoading = true
         this.getSubscribeTrain(this.trainId)
-        //this.subscribe()
+        this.subscribe()
     },
     watch: {
-        'route': 'hasChanged'
-        // $route(to, from) {
-        //     this.subscribe()
-        // }
+        // 'route': 'hasChanged'
+        $route:{
+            handler: 'haschanged',
+            deep: true
+        }
+    },
+    mounted() {
+
+        //监听页面是否刷新
+        window.addEventListener('beforeunload', e => {
+            this.beforeunloadFn(e)
+           // this.unsubcribe(this.trainId)
+        })
+        
+    },
+    destroyed() {
+        //页面关闭
+        window.removeEventListener('beforeunload', e => this.beforeunloadFn(e))
     },
     methods: {
         subscribe() {
+            
             let token=util.storage.get('token')
-            console.log(token)
+            //console.log(token)
             let that=this
+            const baseUrl='http://43.248.188.73:11234/train/subscribe/'
             if(typeof(EventSource) !== "undefined") {  //判断浏览器是否支持EventSource
-                const source = new EventSourcePolyfill("/train/subscribe/" + trainId,{
+                const source = new EventSourcePolyfill(baseUrl + this.trainId,{
                     headers:{
                         'Auth':token
                     }
@@ -121,10 +132,19 @@ export default {
                     console.log("连接打开");
                 };
                 source.onmessage = function(event) {
-                    console.log(event.data);
-                    if(!that.changed){
+                    //console.log(JSON.parse(event.data));
+                    that.handleLog(JSON.parse(event.data))
+                    if(event.data==="finish"){
+                        //let res=that.unsubcribe(that.trainId)
+                        //console.log(res)
+                         source.close()
+                         console.log("连接关闭")
+                        that.$Message.success("训练结束!")    
+                    }
+                    else if(this.changed){
+                        this.unsubcribe(this.trainId)
                         source.close()
-                        that.changed=false
+                        console.log("连接关闭")
                     }
                 };
                 source.onerror = function(event) {
@@ -136,11 +156,64 @@ export default {
             }
             
         },
+        // transformTimestamp(timestamp){
+        //         let a = new Date(timestamp).getTime();
+        //         const date = new Date(a);
+        //         const Y = date.getFullYear() + '-';
+        //         const M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
+        //         const D = (date.getDate() < 10 ? '0'+date.getDate() : date.getDate()) + ' ';
+        //         const h = (date.getHours() < 10 ? '0'+date.getHours() : date.getHours()) + ':';
+        //         const m = (date.getMinutes() <10 ? '0'+date.getMinutes() : date.getMinutes()) + ':';
+        //         const s = date.getSeconds() <10 ? '0'+date.getSeconds() : date.getSeconds(); 
+        //         const dateString = Y + M + D + h + m + s;
+        //         return dateString;
+        //     },
         haschanged() {
-            this.changed = true
+           // this.changed = true
+           console.log("路由变化")
+        },
+        handleLog(eventLog){
+           //let time= this.transformTimestamp(eventLog.time)
+           let time = new Date().toLocaleTimeString()
+              this.pdataAcc.time.push(time)
+              this.pdataAcc.dataOne.push(eventLog.acc)
+              if(this.pdataAcc.time.length>10){
+                    this.pdataAcc.time.shift()
+                    this.pdataAcc.dataOne.shift()
+            }
+            this.pdataLoss.time.push(time)
+            this.pdataLoss.dataOne.push(eventLog.loss)
+            if(this.pdataLoss.time.length>10){
+                this.pdataLoss.time.shift()
+                this.pdataLoss.dataOne.shift()
+            }
+            this.pdataEpoch.time.push(time)
+            this.pdataEpoch.dataOne.push(eventLog.epoch)
+            if(this.pdataEpoch.time.length>10){
+                this.pdataEpoch.time.shift()
+                this.pdataEpoch.dataOne.shift()
+            }
+        this.isLoading=false
+        },
+        beforeunloadFn(e){
+             this.unsubcribe(this.trainId)
+             console.log(e)
+             console.log("页面刷新")
+        },
+        changeLimit(){
+           this.unsubcribe(this.trainId)
+           console.log("切换路由")
+           this.$route.replace({path:'/trainLog'})
+           this.changed=true
+        },
+        async unsubcribe(id){
+            let res=await unsubscribeTrainApi(id)
+            console.log(res)
+            return res
         },
          async  getSubscribeTrain(trainId) {
             let res = await getSubscribeTrainApi(trainId)
+           // console.log(res)
             let labelList = ['唯一标识：', '训练名称：', '模型选择：', '轮数：', '学习率：', 'BatchSize:', '切片大小：', '是否监督：', '训练用户：', '任务类型：', '输出类型：', '创建时间:']
             let valueList = ['id', 'name', 'method', 'epoch', 'learningRate', 'batchSize', 'second', 'isSupervised', 'username', 'taskTypeName', 'outputTypeName', 'createDate']
                 for(let i = 0; i < labelList.length; i++) {

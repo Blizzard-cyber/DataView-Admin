@@ -5,14 +5,14 @@
 </style>
 <template>
     <div>
-        <Row class="expand-row" v-for="index in row" :key="index">
+        <Row class="expand-row" v-for="(item,index) in row" :key="index">
             <Col span="8" offset="4">
                 <span class="expand-key">姓名: </span>
-                <span class="expand-value">{{ index.name }}</span>
+                <span class="expand-value">{{ item.name }}</span>
             </Col>
             <Col span="8" offset="4">
                 <span class="expand-key">属性: </span>
-                <span class="expand-value">{{ index.attr }}</span>
+                <span class="expand-value">{{ item.attr }}</span>
             </Col>
         </Row>
     </div>
@@ -20,7 +20,7 @@
 <script>
     export default {
         props: {
-            row: Object
+            row: Array
         }
     };
 </script>

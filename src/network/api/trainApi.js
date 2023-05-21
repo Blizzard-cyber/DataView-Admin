@@ -172,7 +172,20 @@ export const subscribeTrainApi = (trainId) => {
  */
 export const getSubscribeTrainApi = (trainId) => {
     return serviceAxios({
-        url: "/train/" + trainId,
+        url: "/train/detail/" + trainId,
+        method: "get",
+    });
+}
+
+/**
+ * 退订训练任务
+ * GET
+ * @param {String} trainId
+ * @returns {Promise} res.data
+ */
+export const unsubscribeTrainApi = (trainId) => {
+    return serviceAxios({
+        url: "/train/cancel/" + trainId,
         method: "get",
     });
 }
