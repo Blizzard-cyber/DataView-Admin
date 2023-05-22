@@ -13,38 +13,30 @@ const router = new VueRouter({
             meta: {
                 title: '登录'
             }
-    },
-    {
-        path: '/403',
-        name: 'error_403',
-        meta: {
-          hideInMenu: true
-        },
-        component: () => import('@/components/error-page/403.vue')
         },
         {
-            path: '/404',
-            name: 'error_404',
+            path: '/403',
+            name: 'error_403',
             meta: {
-              hideInMenu: true
+                hideInMenu: true
             },
-            component: () => import('@/components/error-page/404.vue')
-          },
-
+            component: () =>
+                import ('@/components/error-page/403.vue')
+        },
         // {
-        //     path: '/test',
-        //     component: () =>
-        //         import ('@/views/test/index.vue'),
+        //     path: '/404',
+        //     name: 'error_404',
         //     meta: {
-        //         title: '测试'
-        //     }
+        //         hideInMenu: true
+        //     },
+        //     component: () =>
+        //         import ('@/components/error-page/404.vue')
         // },
         {
             path: '/',
             component: () =>
                 import ('@/views/main.vue'),
-            children: [
-                {
+            children: [{
                     path: '',
                     component: () =>
                         import ('@/views/home.vue'),
@@ -121,7 +113,7 @@ const router = new VueRouter({
                     path: 'trainLog/:id',
                     name: 'trainLog',
                     component: () =>
-                        import('@/views/train/trainLog.vue'),
+                        import ('@/views/train/trainLog.vue'),
                     meta: {
                         title: '训练中',
                         order: '3-4'
@@ -155,6 +147,15 @@ const router = new VueRouter({
                 title: '大屏数据'
             }
         },
+        {
+            path: '*',
+            name: 'error_404',
+            meta: {
+                hideInMenu: true
+            },
+            component: () =>
+                import ('@/components/error-page/404.vue')
+        },
     ],
     mode: 'history'
 })
@@ -180,7 +181,7 @@ router.beforeEach((to, from, next) => {
         if (!util.storage.get('token')) {
             return next("/login")
         } else {
-            if (to.path === "/modelAdd" || to.path === "/deviceAdd" || to.path === "/usrmanage" || to.path ==="/display") {
+            if (to.path === "/modelAdd" || to.path === "/deviceAdd" || to.path === "/usrmanage" || to.path === "/display") {
                 if (store.state.auth == 1) { // 是否有访问权限
                     if (to.meta && to.meta.title) document.title = to.meta.title
                     next()

@@ -45,7 +45,7 @@
                     <Input type="text" v-model="item.value" placeholder="" style="width:250px" ></Input>
                 </Col>
                 
-                <Col span="6" offset="0">
+                <Col span="6" offset="1">
                     <Button @click="handleRemove(index)">删除</Button>
                 </Col>
             </Row>

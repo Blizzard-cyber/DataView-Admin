@@ -152,7 +152,4 @@ export default {
 }
 </script>
 <style scoped>
-    .demo-spin-container{
-        position: relative;
-    }
 </style>
