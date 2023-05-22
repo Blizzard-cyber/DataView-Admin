@@ -147,10 +147,10 @@ window.addEventListener("message", function(event) {
   // (1)准备数据
   var data = {
     month: [
-      [],
-      [],
-      [],
-      []
+      [0],
+      [0],
+      [0],
+      [0]
       // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       // [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -380,9 +380,9 @@ window.addEventListener("message", function(event) {
   // 基于准备好的dom，初始化echarts实例
   var myChart = echarts.init(document.querySelector(".bar1 .chart"));
 
-  var data = [20, 12, 8, 7, 9];
+  var data = [0, 0, 0, 0, 0];
   var titlename = ["异常总人数", "情感异常", "压力异常", "极度疲劳", "心脏状态异常"];
-  var valdata = ["20人", "12人", "8人", "7人", "9人"];
+  var valdata = ["0人", "0人", "0人", "0人", "0人"];
   var myColor = ["#1089E7", "#F57474", "#56D0E3", "#F8B448", "#8B78F6"];
   var option = {
     //图标位置
@@ -505,10 +505,10 @@ window.addEventListener("message", function(event) {
   // (1)准备数据
   var data = {
     month: [
-      [],
-      [],
-      [],
-      []
+      [0],
+      [0],
+      [0],
+      [0]
     ]
   };
   var option = {

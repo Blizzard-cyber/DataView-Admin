@@ -101,6 +101,7 @@ export default {
         //this.$Message.info('离开了')
         this.changed = true //路由变化
        console.log('离开了')
+       console.log(this.changed)
         next();
     },
     // watch: {
@@ -149,8 +150,8 @@ export default {
                          console.log("连接关闭")
                         that.$Message.success("训练结束!")    
                     }
-                    else if(this.changed){
-                        this.unsubcribe(this.trainId)
+                    else if(that.changed){
+                        that.unsubcribe(that.trainId)
                         source.close()
                         console.log("连接关闭")
                     }
