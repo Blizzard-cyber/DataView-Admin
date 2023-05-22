@@ -84,10 +84,10 @@
                         </div>
                     </div>
                     <div>
-                        <a @click="dataMap" v-if="this.auth == 1">
+                        <!-- <a @click="dataMap" v-if="this.auth == 1">
                             <Icon type="md-desktop" />
                             大屏数据
-                        </a>
+                        </a> -->
                         <Dropdown trigger="click" style="margin-left: 20px; margin-right:20px">
                             <a>
                                 <Avatar style="color: #f56a00;background-color: #fde3cf">U</Avatar>

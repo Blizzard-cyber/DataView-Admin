@@ -16,9 +16,10 @@
                     </a>
                     <ul>
                         <li v-for="(item,index) in infoList" :key="index">
-                            <span>{{item.label}}</span>
-                            <span>
-                                  
+                            <span style="font-weight:bold">
+                                {{item.label}}
+                            </span>
+                            <span style="float:right">      
                                 {{ item.value  }}
                             </span>
                         </li>
@@ -95,13 +96,20 @@ export default {
         this.getSubscribeTrain(this.trainId)
         this.subscribe()
     },
-    watch: {
-        // 'route': 'hasChanged'
-        $route:{
-            handler: 'haschanged',
-            deep: true
-        }
+    beforeRouteLeave(to, from, next) {
+        
+        //this.$Message.info('离开了')
+        this.changed = true //路由变化
+       console.log('离开了')
+        next();
     },
+    // watch: {
+    //     // 'route': 'hasChanged'
+    //     $route:{
+    //         handler: 'haschanged',
+    //         deep: true
+    //     }
+    // },
     mounted() {
 
         //监听页面是否刷新
@@ -156,18 +164,7 @@ export default {
             }
             
         },
-        // transformTimestamp(timestamp){
-        //         let a = new Date(timestamp).getTime();
-        //         const date = new Date(a);
-        //         const Y = date.getFullYear() + '-';
-        //         const M = (date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '-';
-        //         const D = (date.getDate() < 10 ? '0'+date.getDate() : date.getDate()) + ' ';
-        //         const h = (date.getHours() < 10 ? '0'+date.getHours() : date.getHours()) + ':';
-        //         const m = (date.getMinutes() <10 ? '0'+date.getMinutes() : date.getMinutes()) + ':';
-        //         const s = date.getSeconds() <10 ? '0'+date.getSeconds() : date.getSeconds(); 
-        //         const dateString = Y + M + D + h + m + s;
-        //         return dateString;
-        //     },
+       
         haschanged() {
            // this.changed = true
            console.log("路由变化")
@@ -183,7 +180,7 @@ export default {
             }
             this.pdataLoss.time.push(time)
             this.pdataLoss.dataOne.push(eventLog.loss)
-            if(this.pdataLoss.time.length>10){
+            if(this.pdataLoss.time.length>8){
                 this.pdataLoss.time.shift()
                 this.pdataLoss.dataOne.shift()
             }
@@ -201,10 +198,11 @@ export default {
              console.log("页面刷新")
         },
         changeLimit(){
-           this.unsubcribe(this.trainId)
-           console.log("切换路由")
-           this.$route.replace({path:'/trainLog'})
+           //this.unsubcribe(this.trainId)
            this.changed=true
+           console.log("切换路由")
+           this.$router.replace({path:'/training'})
+           
         },
         async unsubcribe(id){
             let res=await unsubscribeTrainApi(id)
@@ -217,6 +215,13 @@ export default {
             let labelList = ['唯一标识：', '训练名称：', '模型选择：', '轮数：', '学习率：', 'BatchSize:', '切片大小：', '是否监督：', '训练用户：', '任务类型：', '输出类型：', '创建时间:']
             let valueList = ['id', 'name', 'method', 'epoch', 'learningRate', 'batchSize', 'second', 'isSupervised', 'username', 'taskTypeName', 'outputTypeName', 'createDate']
                 for(let i = 0; i < labelList.length; i++) {
+                    if(valueList[i] === 'isSupervised') {
+                        if(res.data[valueList[i]] === 1) {
+                            res.data[valueList[i]] = '是'
+                        } else {
+                            res.data[valueList[i]] = '否'
+                        }
+                    } 
                     this.infoList.push({
                         label: labelList[i],
                         value: res.data[valueList[i]]
@@ -234,5 +239,9 @@ export default {
 .chart-box{
     width: 100%;
     height: 100%;
+}
+li{
+    list-style: none;
+    margin-bottom: 10px;
 }
 </style>

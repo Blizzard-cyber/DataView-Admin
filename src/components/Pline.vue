@@ -20,7 +20,7 @@ export default {
   },
   mounted() {
     this.test()
-    console.log(this.pdata.time)
+    //console.log(this.pdata.time)
   },
   methods: {
     test() {
@@ -48,8 +48,8 @@ export default {
       let time = this.pdata.time
       let dataOne = this.pdata.dataOne
       let label = this.label
-      console.log(this.pdata.time)
-      console.log(this.label)
+      //console.log(this.pdata.time)
+      //console.log(this.label)
       //配置项，可以去查一下官方文档
       let options = {
         grid:{ // 让图表占满容器

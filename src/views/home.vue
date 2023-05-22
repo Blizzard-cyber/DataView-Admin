@@ -1,5 +1,11 @@
 
 <template>
+<div>
+        <Breadcrumb style="margin-bottom:20px">
+            <BreadcrumbItem>首页</BreadcrumbItem>
+            <BreadcrumbItem>工作平台</BreadcrumbItem>
+            
+        </Breadcrumb>
     <div class='chart-box'>
         <div>
             <chartLine :chart-data='lineData' height="500px"></chartLine>
@@ -57,23 +63,26 @@
             </Col>
         </Row> -->
     </div>
+</div>
 </template>
 
 <script>
 import * as d3 from 'd3'
 import{getModelFileApi} from '../network/api/trainApi'
 import chartLine from '@/components/line.vue'
-import eline from '@/components/echarts/line.vue'
-// import mycard from '@/components/mycard'
-// import column from '@/components/charts/column'
-// import line from '@/components/charts/line'
-// import pie from '@/components/charts/pie'
  
 export default {
     components: {
         chartLine,
         
        
+    },
+    beforeRouteLeave(to, from, next) {
+        // 设置下一个路由的 meta
+        //window.confirm('确认要离开吗？')
+        //this.$Message.info('离开了')
+        //to.meta.keepAlive = false;  // 让 A 不缓存，即刷新
+        next();
     },
     data() {
         return {  

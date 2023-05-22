@@ -14,14 +14,14 @@ const router = new VueRouter({
                 title: '登录'
             }
         },
-        {
-            path: '/test',
-            component: () =>
-                import ('@/views/test/index.vue'),
-            meta: {
-                title: '测试'
-            }
-        },
+        // {
+        //     path: '/test',
+        //     component: () =>
+        //         import ('@/views/test/index.vue'),
+        //     meta: {
+        //         title: '测试'
+        //     }
+        // },
         {
             path: '/',
             component: () =>

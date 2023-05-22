@@ -37,7 +37,7 @@
             </slot>
         </div>
     </Modal>
-    <div>
+    <div style="margin-top:20px">
         <Table border :columns="columns" :data="showData"></Table>
         <Spin size="large" fix v-if="isLoading"></Spin>
     </div>
