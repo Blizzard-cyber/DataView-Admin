@@ -40,7 +40,7 @@ export default {
     },
 	methods: {
 
-		...mapMutations(["setUid","setLoginToken","setAuthority","setLoginUserName","setLoginUserpwd"]),
+		...mapMutations(["setUid","setLoginToken","setAuthority","setLoginUserName"]),
 		async userLogin(userName, password){
 			let res = await userLoginApi(userName, password)
 				if(res.type==='success'){
@@ -58,9 +58,7 @@ export default {
 					this.setUid(uid)
 
 					this.setLoginUserName(userName)
-					this.setLoginUserpwd(password)
 					util.storage.set(this.$config.KEY.CACHE_LOGIN_USER_NAME, userName);
-					util.storage.set(this.$config.KEY.CACHE_LOGIN_PASS_PWD, password);
 					setTimeout(() => {
 						this.$router.push("/");
 					}, 300);

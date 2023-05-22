@@ -9,7 +9,6 @@ const store = new Vuex.Store({
         auth: util.storage.get("auth"),
         uid: util.storage.get("uid"),
         loginUserName: "",
-        loginUserpwd: "",
         trainInfo: [], //训练传参
         paramGroup: '', //班组传参
         pickDate: '',
@@ -67,17 +66,9 @@ const store = new Vuex.Store({
             state.loginUserName = val
             util.storage.set(config.KEY.CACHE_LOGIN_USER_NAME, val)
         },
-        setLoginUserpwd(state, val) {
-            state.loginUserpwd = val
-            util.storage.set(config.KEY.CACHE_LOGIN_PASS_PWD, val)
-        },
         removeLoginUserName(state) {
             state.loginUserName = ""
             util.storage.remove(config.KEY.CACHE_LOGIN_USER_NAME)
-        },
-        removeLoginUserpwd(state) {
-            state.loginUserpwd = ""
-            util.storage.remove(config.KEY.CACHE_LOGIN_PASS_PWD)
         },
         setParamGroup(state, paramGroup) {
             state.paramGroup = paramGroup;
