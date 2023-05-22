@@ -170,7 +170,7 @@ export default {
                                                 title: '系统提示',
                                                 content: '删除后无法恢复，确定删除吗？',
                                                 onOk: () => {
-                                                    this.remove(params.row.id);
+                                                    this.remove(params.row.id,params.index);
                                                 }
                                             });
                                         }
@@ -348,7 +348,7 @@ export default {
                     this.$Message.error('没有权限');
                 }             
             },
-            async remove (deleteId) {
+            async remove (deleteId,row) {
                 this.isLoading = true
                 if (this.auth==1){
                     let res = await deleteDeviceApi(deleteId)
