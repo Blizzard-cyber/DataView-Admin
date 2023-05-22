@@ -31,7 +31,7 @@
                 <Row>
                    
                     
-                        <Card :padding="0"> 
+                        <Card :padding="0" > 
                             <Pline :pdata="pdataAcc" label='acc'></Pline>
                         </Card>
                        
@@ -141,7 +141,7 @@ export default {
                 };
                 source.onmessage = function(event) {
                     //console.log(JSON.parse(event.data));
-                    that.handleLog(JSON.parse(event.data))
+                    
                     if(event.data==="finish"){
                         //let res=that.unsubcribe(that.trainId)
                         //console.log(res)
@@ -153,6 +153,9 @@ export default {
                         this.unsubcribe(this.trainId)
                         source.close()
                         console.log("连接关闭")
+                    }
+                    else{
+                        that.handleLog(JSON.parse(event.data))
                     }
                 };
                 source.onerror = function(event) {

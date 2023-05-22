@@ -1,5 +1,5 @@
 <template>
-  <div id="main" style="width: 100%;height:210px;" ref="main">
+  <div id="main" style="width: 960px;height:210px;" ref="main">
   </div>
 </template>
 
