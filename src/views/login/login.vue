@@ -21,7 +21,6 @@
 import LoginForm from "@/components/login-form";
 import { userLoginApi,userRegisterApi } from "../../network/api/loginApi";
 import { mapMutations } from "vuex"
-import lottie from 'lottie-web';
 import util from "@/util";
 export default {
 	components: {

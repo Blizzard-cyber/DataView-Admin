@@ -81,7 +81,7 @@
             </div>
         </Modal>
         <div>
-            <Table height="400" border :columns="columns" :data="userList" @on-selection-change="handleSelectionChange"></Table>
+            <Table max-height="600" border :columns="columns" :data="userList" @on-selection-change="handleSelectionChange"></Table>
             <Spin size="large" fix v-if="isLoading2"></Spin>
         </div>
         <Modal v-model="isModalPreview" fullscreen title="数据集预览">

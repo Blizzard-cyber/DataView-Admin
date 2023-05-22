@@ -5,55 +5,55 @@
             <BreadcrumbItem>模型训练</BreadcrumbItem>
             <BreadcrumbItem>模型训练</BreadcrumbItem>
     </Breadcrumb>
-    <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="150">
-        <FormItem label="训练名称name" prop="trainName">
+    <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="250">
+        <FormItem label="训练名称  [name]" prop="trainName">
              <Input v-model="formValidate.trainName" placeholder="请输入训练名称" style="width:250px"></Input>
         </FormItem>
-        <FormItem label="选择数据集sigFileIdList" prop="signalList">
+        <FormItem label="选择数据集  [sigFileIdList]" prop="signalList">
             <Input v-model="formValidate.signalList" disabled type="textarea" :rows="4" placeholder="" style="width:250px"></Input>
             <Button type="warning" to="/trainList" style="margin-left: 10px;">重新选择</Button>
         </FormItem>
-        <FormItem label="训练对象uid" prop="trainFor">
+        <FormItem label="训练对象  [uid]" prop="trainFor">
             <Select v-model="formValidate.trainFor" placeholder="请选择" style="width:250px">
                 <Option v-for="(item,index) in uidList" :value="item.id" :key="index">{{ item.username }}</Option>
             </Select>
         </FormItem>
-        <FormItem label="模型选择method" prop="trainMethod">
+        <FormItem label="模型选择  [method]" prop="trainMethod">
             <Select v-model="formValidate.trainMethod" placeholder="请选择" style="width:250px">
                 <Option v-for="(item,index) in methodList" :value="item.value" :key="index">{{ item.label }}</Option> 
             </Select>
         </FormItem>
-        <FormItem label="训练轮数epoch" prop="epoch">
+        <FormItem label="训练轮数  [epoch]" prop="epoch">
             <Input v-model="formValidate.epoch"  placeholder="请输入训练轮数" style="width:250px"></Input>
         </FormItem>      
-        <FormItem label="学习率learningRate" prop="learningRate">
+        <FormItem label="学习率   [learningRate]" prop="learningRate">
             <Input v-model="formValidate.learningRate" placeholder="请输入学习率" style="width:250px"></Input>
         </FormItem>
-        <FormItem label="批大小batchSize" prop="batchSize">
+        <FormItem label="批大小   [batchSize]" prop="batchSize">
             <Input v-model="formValidate.batchSize"  placeholder="请输入batchSize" style="width:250px"></Input>
         </FormItem>
-        <FormItem label="切片大小second" prop="secondSize">
+        <FormItem label="切片大小  [second]" prop="secondSize">
             <Input v-model="formValidate.secondSize"  placeholder="请输入切片大小" style="width:250px"></Input>
         </FormItem>
-         <FormItem label="是否监督isSupervised" prop="isSupervised">
+         <FormItem label="是否监督  [isSupervised]" prop="isSupervised">
            <RadioGroup v-model="formValidate.isSupervised">
                 <Radio label="1" border>监督学习</Radio>
                 <Radio label="0" border>无监督学习</Radio>
             </RadioGroup>
         </FormItem>
-         <FormItem label="任务类型taskTid" prop="taskType">
+         <FormItem label="任务类型  [taskTid]" prop="taskType">
             <Select v-model="formValidate.taskType" placeholder="请选择" style="width:250px">
                 <Option v-for="(item,index) in taskList" :value="item.id" :key="index">{{ item.func }}</Option>
             </Select>
         </FormItem>
-         <FormItem label="输出类型outputTid" prop="outputType">
+         <FormItem label="输出类型    [outputTid]" prop="outputType">
              <Select v-model="formValidate.outputType" placeholder="请选择" style="width:250px">
                 <Option v-for="(item,index) in outputList" :value="item.id" :key="index">{{ item.name }}</Option>
             </Select>
         </FormItem>
         <FormItem>
-            <Button type="primary" @click="handleSubmit('formValidate')">确认提交</Button>
-            <Button @click="handleReset('formValidate')" style="margin-left: 8px">清除内容</Button>
+            <Button type="primary" @click="handleSubmit('formValidate')" style="margin-left: 10px">确认提交</Button>
+            <Button @click="handleReset('formValidate')" style="margin-left: 18px">清除内容</Button>
         </FormItem>
     </Form>
     <Spin size="large" fix v-if="isLoading"></Spin>
@@ -63,7 +63,7 @@
 <script>
 import {getUsersApi} from '../../network/api/userApi'
 import {getTaskTypeApi,getOUTModelApi} from '../../network/api/modelApi' 
-import {addTrainApi,getUserFileApi} from '../../network/api/trainApi' 
+import {addTrainApi,getUserFileApi,getFileListApi} from '../../network/api/trainApi' 
 import {mapGetters,mapState} from 'vuex'
     export default {
         data () {
@@ -161,23 +161,36 @@ import {mapGetters,mapState} from 'vuex'
         methods: {
             ...mapGetters(['gettrainInfo']),
             async getData(){
+                let res=''
                 this.isLoading = true
                 this.trainFileList = this.gettrainInfo()
-                let res = await getUserFileApi(this.uid)
-                if(res.type==="success"){
-                    let userFile = res.data
-                    if(this.trainFileList.length===0){
-                        userFile.forEach(element=>{
-                            this.trainFileList.push(
-                                {
-                                    id:element.id,
-                                    fname:element.fname
-                                }
-                            )
-                        })
+                if(this.trainFileList.length===0){  //如果没有传递过来的数据集
+                    if(this.uid==='1'){
+                        res = await getFileListApi()  //获取所有数据集[admin]
                     }
-                } else {
-                    this.$Message.error('获取当前用户数据集失败');
+                    else{
+                        res = await getUserFileApi(this.uid)  //获取当前用户数据集
+                    }
+                   
+                    console.log(res)
+                    if(res.type==="success"){
+                        let userFile = res.data
+                        if(userFile.length!==0){
+                            userFile.forEach(element=>{
+                                this.trainFileList.push(
+                                    {
+                                        id:element.id,
+                                        fname:element.fname
+                                    }
+                                )
+                            })
+                        }
+                        else{
+                            this.$Message.error('当前用户没有数据集');
+                        }
+                    } else {
+                        this.$Message.error('获取当前用户数据集失败');
+                    }
                 }
                 this.formValidate.signalList = ""
                 this.trainFileList.forEach(element => {

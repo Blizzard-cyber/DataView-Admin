@@ -18,16 +18,13 @@ Vue.use(VueMask); //掩码输入
 import config from '@/config';
 Vue.prototype.$config = config
 
-import G2 from '@antv/g2';
-import DataSet from '@antv/data-set';
 
 
 import './assets/css/comment.css'
 
 Vue.use(router);
 Vue.use(ViewUI);
-Vue.use(G2);
-Vue.use(DataSet);
+
 
 Vue.config.productionTip = false
 
