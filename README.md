@@ -9,7 +9,7 @@
 - 状态管理：vuex
 - HTTP请求工具：axios
 - UI组件库：View UI
-- 可视化：ECharts ，AntV G2引擎
+- 可视化：ECharts 
 
 ##  Develop-bash
 
@@ -72,7 +72,6 @@ $ npm run serve
 ## 参考
 
 - [View UI](http://v4.iviewui.com/docs/introduce)
-- [G2 可视化引擎](https://antv-g2.gitee.io/zh/)
 - [echart](https://www.echartsjs.com/zh/index.html)
 
 ## License
