@@ -95,7 +95,7 @@
                                 <Icon type="ios-arrow-down"></Icon>
                             </a>
                             <DropdownMenu slot="list">
-                                <DropdownItem>账户中心</DropdownItem>
+                                <!-- <DropdownItem>账户中心</DropdownItem> -->
                                 <DropdownItem @click.native="logout">退出</DropdownItem>
                             </DropdownMenu>
                         </Dropdown>

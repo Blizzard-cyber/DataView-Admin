@@ -26,7 +26,8 @@ const router = new VueRouter({
             path: '/',
             component: () =>
                 import ('@/views/main.vue'),
-            children: [{
+            children: [
+                {
                     path: '',
                     component: () =>
                         import ('@/views/home.vue'),
@@ -162,7 +163,7 @@ router.beforeEach((to, from, next) => {
         if (!util.storage.get('token')) {
             return next("/login")
         } else {
-            if (to.path === "/modelAdd" || to.path === "/deviceAdd" || to.path === "/usrmanage") {
+            if (to.path === "/modelAdd" || to.path === "/deviceAdd" || to.path === "/usrmanage" || to.path ==="/display") {
                 if (store.state.auth == 1) { // 是否有访问权限
                     if (to.meta && to.meta.title) document.title = to.meta.title
                     next()

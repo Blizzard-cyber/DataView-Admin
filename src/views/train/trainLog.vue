@@ -6,7 +6,7 @@
         </Row> -->
         <Row type="flex" justify="center" align="middle">
             <Col span="6">
-                <Card style="width:300px">
+                <Card style="width:100%">
                     <p slot="title">
                       <Icon type="ios-planet-outline" />
                         训练任务信息
@@ -26,25 +26,27 @@
                     </ul>
                 </Card>
             </Col>
-            <Col span="18">
-            <div>
+            <Col span="17" offset='1'>
+            <div >
                 <Row>
                    
                     
-                        <Card :padding="0" > 
+                        <Card :padding="0" style="width:100%"> 
                             <Pline :pdata="pdataAcc" label='acc'></Pline>
                         </Card>
                        
                     
                 </Row>
+                <br>
                 <Row>
-                     <Card :padding="0"> 
+                     <Card :padding="0" style="width:100%"> 
                         <Pline :pdata="pdataLoss" label="loss"></Pline>
                     </Card>
                     
                 </Row>
+                <br>
                 <Row>
-                    <Card :padding="0"> 
+                    <Card :padding="0" style="width:100%"> 
                        <Pline :pdata="pdataEpoch" label="epoch"></Pline>
                     </Card>
                    
@@ -60,6 +62,7 @@ import { EventSourcePolyfill } from 'event-source-polyfill';
 import Pline from '@/components/Pline.vue'
 import {getSubscribeTrainApi,unsubscribeTrainApi} from "@/network/api/trainApi";
 import util from "@/util";
+import serverConfig from "@/network/config/index.js";
 
 export default {
     data() {
@@ -126,13 +129,14 @@ export default {
     },
     methods: {
         subscribe() {
-            
+            const baseUrl = serverConfig.baseURL
             let token=util.storage.get('token')
             //console.log(token)
             let that=this
-            const baseUrl='http://43.248.188.73:11234/train/subscribe/'
+            const url=baseUrl+'/train/subscribe/'
+            //console.log(url)
             if(typeof(EventSource) !== "undefined") {  //判断浏览器是否支持EventSource
-                const source = new EventSourcePolyfill(baseUrl + this.trainId,{
+                const source = new EventSourcePolyfill(url + this.trainId,{
                     headers:{
                         'Auth':token
                     }
@@ -178,7 +182,7 @@ export default {
            let time = new Date().toLocaleTimeString()
               this.pdataAcc.time.push(time)
               this.pdataAcc.dataOne.push(eventLog.acc)
-              if(this.pdataAcc.time.length>10){
+              if(this.pdataAcc.time.length>8){
                     this.pdataAcc.time.shift()
                     this.pdataAcc.dataOne.shift()
             }
@@ -190,7 +194,7 @@ export default {
             }
             this.pdataEpoch.time.push(time)
             this.pdataEpoch.dataOne.push(eventLog.epoch)
-            if(this.pdataEpoch.time.length>10){
+            if(this.pdataEpoch.time.length>8){
                 this.pdataEpoch.time.shift()
                 this.pdataEpoch.dataOne.shift()
             }
