@@ -13,7 +13,24 @@ const router = new VueRouter({
             meta: {
                 title: '登录'
             }
+    },
+    {
+        path: '/403',
+        name: 'error_403',
+        meta: {
+          hideInMenu: true
         },
+        component: () => import('@/components/error-page/403.vue')
+        },
+        {
+            path: '/404',
+            name: 'error_404',
+            meta: {
+              hideInMenu: true
+            },
+            component: () => import('@/components/error-page/404.vue')
+          },
+
         // {
         //     path: '/test',
         //     component: () =>
