@@ -1,0 +1,223 @@
+.flexR {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  flex-shrink: 0;
+  /*如果元素的大小是根据其子元素的来决定，并没有设置width、height或flex-basis 容器重叠在一起的兼容问题*/
+}
+.flexC {
+  display: inline-flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+.workplace-page {
+  background-color: #f5f7f9;
+  width: 100%;
+  min-height: 100%;
+  /*页面头部区域*/
+}
+.workplace-page > .head {
+  padding: 16px 32px 32px 32px;
+  background: #fff;
+  border-bottom: 1px solid #e8eaec;
+  border-radius: 4px;
+}
+.workplace-page > .head p {
+  color: #17233d;
+  font-weight: 500;
+  font-size: 20px;
+  margin-bottom: 16px;
+}
+.workplace-page > .head > div {
+  justify-content: space-between;
+}
+.workplace-page > .head > div > .left > div:first-child {
+  margin-right: 15px;
+}
+.workplace-page > .head > div > .left > div:first-child .ivu-avatar-image {
+  width: 64px;
+  height: 64px;
+  line-height: 64px;
+  border-radius: 50%;
+}
+.workplace-page > .head > div > .left > div:last-child > span:first-child {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+.workplace-page > .head > div > .left > div:last-child > span:last-child {
+  color: #808695;
+}
+.workplace-page > .head > div > .left > div:last-child > span:last-child i {
+  margin-right: 5px;
+}
+.workplace-page > .head > div > .right {
+  align-items: flex-end;
+}
+.workplace-page > .head > div > .right > div:first-child span {
+  margin-left: 10px;
+}
+.workplace-page > .head > div > .right > div:last-child span {
+  font-size: 22px;
+  margin-left: 25px;
+}
+.workplace-page > .content {
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-top: 16px;
+  /*区块头部*/
+}
+.workplace-page > .content .title {
+  justify-content: space-between;
+  border-bottom: 1px solid #e8eaec;
+  padding: 14px 16px;
+}
+.workplace-page > .content .title > .left .ivu-avatar-small {
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  border-radius: 12px;
+  color: #722ed1;
+  background-color: #f9f0ff;
+}
+.workplace-page > .content .title > .left span {
+  margin-left: 8px;
+}
+.workplace-page > .content .title > .right {
+  width: 21%;
+  justify-content: flex-end;
+  position: relative;
+}
+.workplace-page > .content .title > .right > div:first-child {
+  width: calc(100% - 200px);
+  justify-content: space-between;
+  margin-right: 20px;
+}
+.workplace-page > .content .title > .right > div:first-child span {
+  cursor: pointer;
+  font-size: 12px;
+}
+.workplace-page > .content > div {
+  border-radius: 4px;
+  position: relative;
+  transition: all 0.2s ease-in-out;
+}
+.workplace-page > .content > .left {
+  width: calc(66.66% - 12px);
+  height: 100%;
+  /*我的项目*/
+  /*动态*/
+}
+.workplace-page > .content > .left .item {
+  width: 100%;
+  height: 100%;
+  margin-top: 16px;
+  background-color: #fff;
+}
+.workplace-page > .content > .left .item > .body {
+  padding: 6px;
+  flex-wrap: wrap;
+}
+.workplace-page > .content > .left .item > .body > div {
+  width: 33.33%;
+  padding: 6px;
+  position: relative;
+  background-color: #fff;
+}
+.workplace-page > .content > .left .item > .body > div:hover {
+  z-index: 1;
+  -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.2);
+}
+.workplace-page > .content > .left .item > .body > div > .bg {
+  height: 150px;
+  background-color: #17233d;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: 50%;
+  cursor: pointer;
+  border-radius: 3px;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+}
+.workplace-page > .content > .left .item > .body > div > .bg > div {
+  background-color: rgba(0, 0, 0, 0.1);
+  height: 100%;
+}
+.workplace-page > .content > .left .item > .body > div > .bg > div span:first-child {
+  color: #fff;
+  font-weight: 700;
+  padding: 4px 0 0 8px;
+  font-size: 16px;
+  margin-right: 45px;
+  text-align: center;
+}
+.workplace-page > .content > .left .item > .body > div > .bg > div span:last-child {
+  color: #1890FF;
+  padding: 4px 0 0 8px;
+  font-size: 50px;
+  margin-right: 45px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.workplace-page > .content > .left .dynamic > .body {
+  justify-content: center;
+  align-items: center;
+}
+.workplace-page > .content > .left .dynamic > .body > div:last-child {
+  border-bottom: none;
+}
+.workplace-page > .content > .left .dynamic > .body > div {
+  width: 98%;
+  padding: 20px 0;
+  border-bottom: 1px solid #e8eaec;
+}
+.workplace-page > .content > .left .dynamic > .body > div:hover {
+  box-shadow: none;
+}
+.workplace-page > .content > .left .dynamic > .body > div > div:first-child {
+  margin: 0 20px 0 10px;
+}
+.workplace-page > .content > .left .dynamic > .body > div > div:last-child > span:last-child {
+  font-size: 12px;
+  color: #808695;
+}
+.workplace-page > .content > .right {
+  width: calc(33.33% - 12px);
+  /*快捷操作*/
+}
+.workplace-page > .content > .right .item {
+  width: 100%;
+  margin-top: 16px;
+  background-color: #fff;
+}
+.workplace-page > .content > .right .item > .body {
+  padding: 6px;
+  flex-wrap: wrap;
+}
+.workplace-page > .content > .right .item > .body > div {
+  width: 33.33%;
+  padding: 6px;
+  background-color: #fff;
+  margin-top: 16px;
+  justify-content: center;
+  align-items: center;
+}
+.workplace-page > .content > .right .item > .options {
+  padding: 6px 6px 15px 6px;
+  flex-wrap: wrap;
+}
+.workplace-page > .content > .right .item > .options span {
+  width: 25%;
+  padding: 8px;
+  text-align: center;
+  cursor: pointer;
+}
+.workplace-page > .content > .right .item > .options span:hover {
+  color: #1890FF;
+}
+.workplace-page > .content > .right .item > .options .optionsBtn > span {
+  display: initial;
+  padding: 0;
+}

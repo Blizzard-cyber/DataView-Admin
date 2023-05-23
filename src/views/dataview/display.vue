@@ -63,7 +63,8 @@
                      {
                         type: 'selection',
                         width: 60,
-                        align: 'center'
+                        align: 'center',
+                        
                     }
                 ],
                 classdata: []

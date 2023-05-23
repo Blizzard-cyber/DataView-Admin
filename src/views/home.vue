@@ -1,158 +1,190 @@
 
 <template>
-<div>
+    <div class="workplace-page flexC">
         <Breadcrumb style="margin-bottom:20px">
             <BreadcrumbItem>首页</BreadcrumbItem>
-            <BreadcrumbItem>工作平台</BreadcrumbItem>
-            
+            <BreadcrumbItem>工作平台</BreadcrumbItem>       
         </Breadcrumb>
-    <div class='chart-box'>
-        <div>
-            <chartLine :chart-data='lineData' height="500px"></chartLine>
-            <Spin size="large" fix v-if="isLoading"></Spin>
+        <div class="head flexC">
+            <div class="flexR">
+                <div class="left flexR">
+                    <div>
+                       <Avatar style="color: #f56a00;background-color: #fde3cf" size="70">{{UserName}}</Avatar>
+                    </div>
+                    <div class="flexC">
+                        <span>您好，{{UserName}}，欢迎您登录管理平台！</span>
+                        <span style="font-weight: bold;"> <Icon type="ios-time" />当前时间为：{{nowTime}}</span>
+                    </div>
+                    
+                </div>
+                <div class="right flexC">
+                </div>
+            </div>
         </div>
-        
-        <!-- <Breadcrumb style="margin-bottom:20px">
-            <BreadcrumbItem>首页</BreadcrumbItem>
-            <BreadcrumbItem>工作平台</BreadcrumbItem>
-            
-        </Breadcrumb>
-        <Row type="flex" justify="space-between">
-            <Col span="4"> 
-                <mycard icon="md-person-add" title="新增用户" bgcolor="#2d8cf0" count="803"></mycard>
-            </Col>
-            <Col span="4"> 
-               <mycard icon="ios-disc" title="累计点击" bgcolor="#19be6b" count="232"></mycard>
-            </Col>
-            <Col span="4"> 
-                <mycard icon="md-help" title="新增问答" bgcolor="#ff9900" count="142"></mycard>
-            </Col>
-            <Col span="4"> 
-                 <mycard icon="md-share" title="分享统计" bgcolor="#ed3f14" count="657"></mycard>
-            </Col>
-            <Col span="4"> 
-               <mycard icon="md-chatbubbles" title="新增互动" bgcolor="#e46cbb" count="12"></mycard>
-            </Col> -->
-            <!-- <Col span="3"> 
-                <mycard icon="md-add-circle" title="新增页面" bgcolor="#9a66e4" count="14"></mycard>
-            </Col> -->
-        <!-- </Row> -->
-        <!-- <Row type="flex" justify="space-between" style="margin-top:20px">
-            <Col span="7">
-                  <Card :padding="0">
-                    <charts-line id="line"></charts-line>
-                </Card>
-            </Col>
-            <Col span="7">
-                  <Card :padding="0">
-                    <charts-line id="line"></charts-line>
-                </Card>
-            </Col>
-            <Col span="7">
-                  <Card :padding="0">
-                    <charts-line id="line"></charts-line>
-                </Card>
-            </Col>
-           
-        </Row> -->
-        <!-- <Row style="margin-top:20px">
-           <Col span="24">
-                <Card :padding="0">
-                    <charts-line id="line"></charts-line>
-                </Card>
-            </Col>
-        </Row> -->
+
+        <div class="content flexR">
+            <div class="left flexC">
+                <!--项目-->
+              
+                <div class="item flexC">
+                    <div class="title flexR">
+                        <div class="left flexR">
+                            <Avatar icon="md-apps" style="color: rgb(24, 144, 255); background-color: rgb(230, 247, 255);" size="small"/>
+                            <span>数据概况</span>
+                        </div>
+                       
+                    </div>
+                    <div class="body flexR">
+                        <div class="flexC" v-for="(item,index) in myProjectData" :key="index" >
+                            <div class="bg flexC" >
+                                <div class="flexC">
+                                    <span>{{item.name}}</span>
+                                    <span>{{item.number}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+               
+            </div>
+            <div class="right flexC">
+                <div class="item flexC">
+                    <div class="title flexR">
+                        <div class="left flexR">
+                            <Avatar icon="md-heart" style="color: rgb(255, 77, 79); background-color: rgb(255, 241, 240);" size="small"/>
+                            <span>快捷跳转</span>
+                        </div>
+                        <!-- <div class="right flexR">
+                            <Tooltip content="配置" placement="top">
+                                <Icon class="pointer" type="md-settings"/>
+                            </Tooltip>
+                        </div> -->
+                    </div>
+                    <div class="body flexR">
+                        <div class="pointer flexC" @click="jumpTo('/modelList')">
+                           
+                            <Icon type="md-speedometer" style="font-size: 24px; color: rgb(82, 196, 26);"/>
+                            <span>模型列表</span>
+                        </div>
+                        <div class="pointer flexC" @click="jumpTo('/modelAdd')">
+                            <Icon type="ios-list-box-outline" style="font-size: 24px; color: rgb(24, 144, 255);"/>
+                            <span>模型添加</span>
+                        </div>
+                        <div class="pointer flexC">
+                            <!-- <Icon type="ios-paper-outline" style="font-size: 24px; color: rgb(250, 173, 20);"/>
+                            <span>列表</span> -->
+                        </div>
+                        <Divider style="width: 90%; min-width: 90%;margin: 16px auto;"/>
+                        <div class="pointer flexC" @click="jumpTo('/deviceList')">
+                            <Icon type="ios-search" style="font-size: 24px; color: rgb(114, 46, 209);"/>
+                            <span>设备列表</span>
+                        </div>
+                        <div class="pointer flexC" @click="jumpTo('/deviceAdd')">
+                            <Icon type="md-settings" style="font-size: 24px; color: rgb(19, 194, 194);"/>
+                            <span>设备添加</span>
+                        </div>
+                        <div class="pointer flexC">
+                            <!-- <Icon type="ios-briefcase-outline" style="font-size: 24px; color: rgb(235, 47, 150);"/>
+                            <span>工具</span> -->
+                        </div>
+                        <Divider style="width: 90%; min-width: 90%;margin: 16px auto;"/>
+                        <div class="pointer flexC" @click="jumpTo('/trainList')">
+                            <Icon type="ios-body" style="font-size: 24px; color: rgb(114, 46, 209);"/>
+                            <span>训练数据集</span>
+                        </div>
+                        <div class="pointer flexC" @click="jumpTo('/trainModel')">
+                            <Icon type="logo-rss" style="font-size: 24px; color: rgb(19, 194, 194);"/>
+                            <span>模型训练</span>
+                        </div>
+                        <div class="pointer flexC" @click="jumpTo('/training')">
+                            <Icon type="ios-pulse" style="font-size: 24px; color: rgb(235, 47, 150);"/>
+                            <span>训练任务</span>
+                        </div>
+                    </div>
+
+                    <Divider style="width: 90%; min-width: 90%;margin: 16px auto;"/>
+<!-- 
+                    <div class="options flexR">
+                        <span>操作一</span>
+                        <span>操作一</span>
+                        <span>
+                            <Button icon="md-add" size="small" class="optionsBtn">添加</Button>
+                        </span>
+                    </div> -->
+                </div>
+                
+            </div>
+        </div>
     </div>
-</div>
 </template>
 
 <script>
-import * as d3 from 'd3'
-import{getModelFileApi} from '../network/api/trainApi'
-import chartLine from '@/components/line.vue'
- 
-export default {
-    components: {
-        chartLine,
-        
-       
-    },
-    beforeRouteLeave(to, from, next) {
-        // 设置下一个路由的 meta
-        //window.confirm('确认要离开吗？')
-        //this.$Message.info('离开了')
-        //to.meta.keepAlive = false;  // 让 A 不缓存，即刷新
-        next();
-    },
-    data() {
-        return {  
-            isLoading:false,
-            lineData:{
-               xData: [],
-                color: ["#038BFF"],
-                data: [
-                {
-                    // title: "告警",
-                    data: [],
-                },
-                
-                ],
-                },
-            qylist: {
-                title: ["学生端"],
-				color: ["#66e783"],
-				date: [],
-				data: []
-            },
-            fileName:'pro_2_1684169344002.csv'
-
-        }
-    },
-    created() {
-        this.getModelFile()
-
-    },
-    mounted() {
-    },
-    methods: {
-        
-        async getModelFile(){
-            this.isLoading = true
-            let res = await getModelFileApi(this.fileName)
-           const data = d3.csvParse(res)
-           //console.log(data)
-           for(let i=0;i<data.length;i++){
-            //this.getData(data[i].timestamp)
-            this.lineData.xData.push(this.getData(data[i].timestamp))
-            this.lineData.data[0].data.push(data[i].ecg)
-            //    this.qylist.date.push(data[i].timestamp)
-            //     this.qylist.data.push(data[i].ecg)
-           }
-           this.isLoading = false
-        },
-        //时间戳转换
-
-         getData(timestamp){
-           
-            var date = new Date(Number(timestamp));//时间戳为10位需*1000，时间戳为13位的话不需乘1000
-            var Y = date.getFullYear() + '-';
-            var M = (date.getMonth()+1 < 10 ? '0'+(date.getMonth()+1) : date.getMonth()+1) + '-';
-            var D = (date.getDate() < 10 ? '0'+date.getDate() : date.getDate()) + ' ';
-            var h = (date.getHours() < 10 ? '0'+date.getHours() : date.getHours()) + ':';
-            var m = (date.getMinutes() < 10 ? '0'+date.getMinutes() : date.getMinutes()) + ':';
-            var s = (date.getSeconds() < 10 ? '0'+date.getSeconds() : date.getSeconds());
-
-            let strDate = Y+M+D+h+m+s;
-            //console.log(strDate) //2020-05-08 17:44:56　
-            return strDate;
-           
-            //console.log(n.toTimeString())
+import {mapGetters} from 'vuex'
+    export default {
+        name: "workplace",
+        data() {
+            return {
+                nowTime:new Date(),
+                avatarImg: 'https://githup.zengxiaohui.com/vueImg/avatar1.jpg',
+                myProjectData: [
+                    {
+                        name:'模型总数',
+                        number:0,
+                        
+                   }, 
+                     {
+                         name:'设备总数',
+                        number:0,
+                     },
+                     {
+                        name:'数据集总数',
+                        number:0,
+                     },
+                     {
+                        name:'训练任务数',
+                        number:0,
+                     },
+                     {
+                        name:'班组总数',
+                        number:0,
+                     },
+                     {
+                        name:'用户总数',
+                        number:0,
+                     },
+                    
+                ], 
             }
+        },
+        // 挂载时间
+        mounted () {
+            let that = this
+            this.timer = setInterval(function () {
+            that.nowTime = new Date().toLocaleString()
+            })
+        },
+        // 销毁时清除计时器
+        beforeDestroy: function () {
+            if (this.timer) {
+            clearInterval(this.timer)
+            }
+        },
+        created() {
+        },
+        computed:{
+            ...mapGetters(["UserName"]),
+        },
+        
+        methods: {
+            jumpTo(url){
+                this.$router.push(url)
+            }
+        },
+        watch: {},
+        filters: {}
     }
-}
 </script>
-<style scoped>
-    .demo-spin-container{
-        position: relative;
-    }
+
+<style lang="less">
+    @import "../assets/css/workplace.less";
 </style>

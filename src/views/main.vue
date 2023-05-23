@@ -90,7 +90,7 @@
                         </a> -->
                         <Dropdown trigger="click" style="margin-left: 20px; margin-right:20px">
                             <a>
-                                <Avatar style="color: #f56a00;background-color: #fde3cf">U</Avatar>
+                                <Avatar style="color: #f56a00;background-color: #fde3cf">{{UserName}}</Avatar>
                                 {{UserName}}
                                 <Icon type="ios-arrow-down"></Icon>
                             </a>
@@ -171,6 +171,7 @@ import { mapMutations, mapGetters, mapState } from 'vuex';
             if(this.$route.meta && this.$route.meta.order) {
                 // this.activName = this.$route.meta.order
                 var subMenuName = this.$route.meta.order.split('-')[0]
+                console.log(subMenuName)
                 if(subMenuName !== "0") {
                     this.openNames.push(subMenuName)
                 }
@@ -186,10 +187,13 @@ import { mapMutations, mapGetters, mapState } from 'vuex';
             }
           }
         },
+         
         computed: {
             ...mapState(["auth"]),
             ...mapGetters(["UserName"]),
             defaultActive() {
+                console.log(this.$route.meta.order)
+                
                 return this.$route.meta.order
             },
             rotateIcon () {
