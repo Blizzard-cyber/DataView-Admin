@@ -189,5 +189,6 @@ router.beforeEach((to, from, next) => {
 
 //路由后置首卫
 router.afterEach(route => {
+    console.log(route)
     ViewUI.LoadingBar.finish();
 })

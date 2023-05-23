@@ -213,7 +213,7 @@ import { mapMutations, mapGetters, mapState } from 'vuex';
             ...mapState(["auth"]),
             ...mapGetters(["UserName"]),
             defaultActive() {
-                console.log(this.$route.meta.order)
+               
                 
                 return this.$route.meta.order
             },

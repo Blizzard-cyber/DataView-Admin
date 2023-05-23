@@ -119,7 +119,8 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
+import {mapGetters,mapState} from 'vuex'
+import {getHomeDataApi} from '@/network/api/homeApi.js'
     export default {
         name: "workplace",
         data() {
@@ -170,12 +171,23 @@ import {mapGetters} from 'vuex'
             }
         },
         created() {
+            this.getData()
         },
         computed:{
             ...mapGetters(["UserName"]),
+            ...mapState(["uid"])
         },
         
         methods: {
+           async getData(){
+            let res = await getHomeDataApi(this.uid)
+            //console.log(res.data)
+            let mapdata=['model','device','sigFile','train','group','user']
+            for(let i=0;i<mapdata.length;i++){
+                this.myProjectData[i].number=res.data[mapdata[i]]
+            }
+            console.log(this.myProjectData)
+            },
             jumpTo(url){
                 this.$router.push(url)
             }
