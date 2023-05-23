@@ -104,7 +104,17 @@
             </Header>
             <Layout style="min-height:calc( 100vh - 64px )">
                 <Sider ref="side1" hide-trigger collapsible :collapsed-width="78" v-model="isCollapsed" style="background:#fff">
-					<Menu ref="leftMenu" :accordion="true" @on-select="selectItem" :active-name="defaultActive" @on-open-change="isCollapsed=false" theme="light" width="auto" :class="menuitemClasses" :open-names="openNames">
+					<Menu 
+                        ref="leftMenu" 
+                        :accordion="true" 
+                        @on-select="selectItem" 
+                        :active-name="defaultActive" 
+                        @on-open-change="isCollapsed=false" 
+                        theme="light" 
+                        width="auto" 
+                        :class="menuitemClasses" 
+                        :open-names="openNames"
+                    >
 						<MenuItem name="0-1" to="/">
                             <Icon type="md-contacts" />
                             <span>工作平台</span>
@@ -161,13 +171,10 @@ import { mapMutations, mapGetters, mapState } from 'vuex';
         data () {
             return {
                 openNames: [],
-                // activName: '',
                 isCollapsed: false
             }
         },
         created () {
-            // this.loginName = util.storage.get(this.$config.KEY.CACHE_LOGIN_USER_NAME)
-            
             if(this.$route.meta && this.$route.meta.order) {
                 // this.activName = this.$route.meta.order
                 var subMenuName = this.$route.meta.order.split('-')[0]
@@ -178,14 +185,28 @@ import { mapMutations, mapGetters, mapState } from 'vuex';
             }
         },
         watch: {
-          isCollapsed(val) {
-            if(val) {
-              this.openNames = [];
-              this.$nextTick(() => {
-                this.$refs.leftMenu.updateOpened();
-              })
+            isCollapsed(val) {
+                if(val) {
+                this.openNames = [];
+                this.$nextTick(() => {
+                    this.$refs.leftMenu.updateOpened();
+                })
+                }
+            },
+            $route(){
+                if(this.$route.meta && this.$route.meta.order) {
+                    var subMenuName = this.$route.meta.order.split('-')[0]
+                    if(subMenuName !== "0") {
+                        this.openNames = []
+                        this.openNames.push(subMenuName)
+                    }
+                }
+            },
+            openNames(){
+                this.$nextTick(()=>{
+                    this.$refs.leftMenu.updateOpened();
+                })
             }
-          }
         },
          
         computed: {
@@ -210,7 +231,7 @@ import { mapMutations, mapGetters, mapState } from 'vuex';
             }
         },
         methods: {
-            ...mapMutations(["removeLoginToken","removeLoginUserName","removeLoginUserpwd","removeTrainInfo"]),
+            ...mapMutations(["removeLoginToken","removeLoginUserName","removeTrainInfo"]),
             collapsedSider () {
                 this.$refs.side1.toggleCollapse();
             },
@@ -228,9 +249,7 @@ import { mapMutations, mapGetters, mapState } from 'vuex';
                 util.storage.remove('token')
                 this.removeLoginUserName()
                 this.removeTrainInfo()
-                this.removeLoginUserpwd()
                 util.storage.remove(this.$config.KEY.CACHE_LOGIN_USER_NAME)
-                util.storage.remove(this.$config.KEY.CACHE_LOGIN_PASS_PWD)
                 this.$router.push("/login")
             },
             dataMap() {
