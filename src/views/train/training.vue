@@ -26,7 +26,8 @@
 </template>
 
 <script>
-import { getTrainListApi, getTrainListDetailApi } from "../../network/api/trainApi"
+import { getUserTrainListDetailApi, getTrainListDetailApi } from "../../network/api/trainApi"
+import {mapState} from 'vuex'
 export default {
         data () {
             return {
@@ -146,6 +147,7 @@ export default {
             }
         },
         computed: {
+            ...mapState(["uid","auth"]),
             showData() {
                 //再截取数据分页展示
                 const startIndex = this.currentPage * this.currentPageSize;
@@ -171,15 +173,19 @@ export default {
             },
             async getUserList() {
                 this.isLoading = true
-                let res = await getTrainListDetailApi()
+                let res
+                if(this.auth == 1){
+                    res = await getTrainListDetailApi()
+                } else {
+                    res = await getUserTrainListDetailApi(this.uid)
+                }
                 if(res.type === 'success'){
                     this.userList = res.data
                     this.userList.forEach(element => {
                         element.createDate = this.transformTimestamp(element.createDate)
                         element.isSupervised = element.isSupervised == 1 ? "是" : "否"
                     })
-                }
-                else{
+                } else {
                     this.$Message.error('获取训练任务失败');
                 }
                 this.isLoading = false
@@ -199,7 +205,10 @@ export default {
     }
 </script>
 <style>
-    .ivu-table-overflowX{ overflow-x: auto;}
+    /* .ivu-table-overflowX{ overflow-x: auto;} */
+    .ivu-table-overflowX {
+        overflow-x: scroll;
+    }
     
     .rowbox{
         margin-bottom: 25px;

@@ -55,6 +55,19 @@ export const getTrainListDetailApi = () => {
 };
 
 /**
+ * 获取某个用户正在训练的任务列表详情
+ * GET
+ * @param null
+ * @returns {Promise} res.data
+ */
+export const getUserTrainListDetailApi = (uid) => {
+    return serviceAxios({
+        url: "/train/byUid/detail/" + uid,
+        method: "get",
+    });
+};
+
+/**
  * 数据集搜索
  * POST
  * @param {FormData} data
@@ -143,7 +156,7 @@ export const addFileApi = (data) => {
  * @param {String} fileName
  * @returns {Promise} file
  */
-export const getModelFileApi = (fileName) => { 
+export const getModelFileApi = (fileName) => {
     return serviceAxios({
         url: "/proSigFile/" + fileName,
         method: "get",

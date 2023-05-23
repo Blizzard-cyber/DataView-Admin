@@ -9,7 +9,6 @@
             border
             ref="selection"
             max-height="700" 
-            width="1200"
             style=" margin-left:auto; margin-right:auto"
             :columns="columns" 
             :data="classdata"
@@ -152,10 +151,5 @@
     }
     .right-area p {
         margin-top: 25px;
-    }
-    .demo-spin-container{
-    	display: inline-block;
-        position: relative;
-        border: 1px solid #eee;
     }
 </style>
