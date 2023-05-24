@@ -163,10 +163,15 @@ import {mapGetters,mapState} from 'vuex'
             async getData(){
                 let res=''
                 this.isLoading = true
+                
                 this.trainFileList = this.gettrainInfo()
+                //console.log(this.trainFileList)
                 if(this.trainFileList.length===0){  //如果没有传递过来的数据集
-                    if(this.uid==='1'){
+              
+                
+                    if(this.uid=='1'){
                         res = await getFileListApi()  //获取所有数据集[admin]
+                        console.log(res)
                     }
                     else{
                         res = await getUserFileApi(this.uid)  //获取当前用户数据集

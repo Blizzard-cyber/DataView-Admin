@@ -8,10 +8,11 @@
     <iframe
       :src="`dataview/index.html`" 
       frameborder="0"
-      scrolling="no"
+      scrolling="yes"
       width="100%"
       height="100%"
       ref="iframeDom"
+      style="transform: scale(1)"
     ></iframe>
   </div>
 </template>
@@ -171,9 +172,10 @@ export default {
 </script>
 <style>
 .iframe_box {
-  transform: scale(1);
+  /* transform: scale(1.0); */
   width: 100%;
-  height: 858px;
+  height: 100%;
   position: relative;
+  overflow-y: hidden;
 }
 </style>

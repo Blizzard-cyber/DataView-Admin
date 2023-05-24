@@ -11,7 +11,7 @@
   flex-shrink: 0;
 }
 body {
-  overflow: hidden;
+  overflow: auto;
 }
 .workplace-page {
   background-color: #f5f7f9;

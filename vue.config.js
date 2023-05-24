@@ -24,8 +24,6 @@ module.exports = {
     port: 9000,
     proxy: {
       '/api': {
-        // target: 'http://172.20.83.50:8181',
-        // target: 'https://view.inews.qq.com', // 腾讯接口代理
         target: 'http://43.248.188.73:11234', 
         changeOrigin: true,
         ws: true,

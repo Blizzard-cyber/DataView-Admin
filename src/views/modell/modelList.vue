@@ -308,7 +308,6 @@ export default {
             },
             async downloadModal(id) {
                 //this.$axios.get()
-                //window.open("http://43.248.188.73:11234/model/download/"+id)
                  let res = await downloadModelApi(id)
                  //console.log(res)
                 
