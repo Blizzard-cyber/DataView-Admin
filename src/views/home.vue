@@ -186,7 +186,7 @@ import {getHomeDataApi} from '@/network/api/homeApi.js'
             for(let i=0;i<mapdata.length;i++){
                 this.myProjectData[i].number=res.data[mapdata[i]]
             }
-            console.log(this.myProjectData)
+            //console.log(this.myProjectData)
             },
             jumpTo(url){
                 this.$router.push(url)

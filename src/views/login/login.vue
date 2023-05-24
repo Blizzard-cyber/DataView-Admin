@@ -43,7 +43,7 @@ export default {
 		...mapMutations(["setUid","setLoginToken","setAuthority","setLoginUserName"]),
 		async userLogin(userName, password){
 			let res = await userLoginApi(userName, password)
-			console.log(res)
+			//console.log(res)
 				if(res.type==='success'){
 					this.$Notice.success({
 						title: "登录成功！"

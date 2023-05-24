@@ -103,8 +103,8 @@ export default {
         
         //this.$Message.info('离开了')
         this.changed = true //路由变化
-       console.log('离开了')
-       console.log(this.changed)
+       //console.log('离开了')
+       
         next();
     },
     // watch: {
@@ -202,7 +202,7 @@ export default {
         },
         beforeunloadFn(e){
              this.unsubcribe(this.trainId)
-             console.log(e)
+             //console.log(e)
              console.log("页面刷新")
         },
         changeLimit(){
@@ -214,7 +214,7 @@ export default {
         },
         async unsubcribe(id){
             let res=await unsubscribeTrainApi(id)
-            console.log(res)
+            //console.log(res)
             return res
         },
          async  getSubscribeTrain(trainId) {

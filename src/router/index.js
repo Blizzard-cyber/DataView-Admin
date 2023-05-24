@@ -185,10 +185,13 @@ router.beforeEach((to, from, next) => {
     ViewUI.LoadingBar.start();
     if (to.meta && to.meta.title) document.title = to.meta.title
     next()
+    ViewUI.LoadingBar.finish();
+   // console.log(to)
+
 })
 
 //路由后置首卫
 router.afterEach(route => {
-    console.log(route)
-    ViewUI.LoadingBar.finish();
+    //console.log(route)
+    //ViewUI.LoadingBar.finish();
 })

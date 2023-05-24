@@ -178,7 +178,7 @@ import { mapMutations, mapGetters, mapState } from 'vuex';
             if(this.$route.meta && this.$route.meta.order) {
                 // this.activName = this.$route.meta.order
                 var subMenuName = this.$route.meta.order.split('-')[0]
-                console.log(subMenuName)
+                //console.log(subMenuName)
                 if(subMenuName !== "0") {
                     this.openNames.push(subMenuName)
                 }

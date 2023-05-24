@@ -172,7 +172,7 @@ import {mapGetters,mapState} from 'vuex'
                         res = await getUserFileApi(this.uid)  //获取当前用户数据集
                     }
                    
-                    console.log(res)
+                    //console.log(res)
                     if(res.type==="success"){
                         let userFile = res.data
                         if(userFile.length!==0){

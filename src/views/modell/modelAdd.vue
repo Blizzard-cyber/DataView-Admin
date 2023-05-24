@@ -17,21 +17,24 @@
              {{ formValidate.file.name }} 
         </div>
       </FormItem>
+      
+      
         <FormItem label="模型名称" prop="name">
-            <Input v-model="formValidate.name" placeholder="" style="width:250px"></Input>
+            <Input v-model="formValidate.name" placeholder="" style="width:21%"></Input>
         </FormItem>
+       
         <FormItem label="模型功能" prop="mfunction">
-            <Select v-model="formValidate.mfunction" placeholder="请选择" style="width:250px">
+            <Select v-model="formValidate.mfunction" placeholder="请选择" style="width:21%">
                 <Option v-for="(item,index) in funcoption" :value="item.id" :key="index">{{ item.func }}</Option> 
             </Select>
         </FormItem>
        <FormItem label="适用对象" prop="mobject">
-            <Select v-model="formValidate.mobject" placeholder="请选择" style="width:250px">
+            <Select v-model="formValidate.mobject" placeholder="请选择" style="width:21%">
                 <Option v-for="(item,index) in objectoption" :value="item.id" :key="index">{{ item.username }}</Option>
             </Select>
         </FormItem>
         <FormItem label="输入数据秒数" prop="dsecond">
-            <Input v-model="formValidate.dsecond" placeholder="" style="width:250px"></Input>
+            <Input v-model="formValidate.dsecond" placeholder="" style="width:21%"></Input>
         </FormItem>
         <FormItem
                 v-for="(item, index) in formValidate.dimlist"
@@ -40,25 +43,22 @@
                 :prop="'dimlist.' + index + '.value'"
                 :rules="[{required: true, message: '输入数据维度 ' + index +' 不能为空', trigger: 'blur'},
                 { type: 'number', min:1,max:100, message: '数据维度在1-100之间', trigger: 'blur', transform: (value) => Number(value) }]">
-            <Row>
-                <Col span="6">
-                    <Input type="text" v-model="item.value" placeholder="" style="width:250px" ></Input>
+            <Row type='flex'>
+                <Col span="5">
+                    <Input type="text" v-model="item.value" placeholder="" style="width:100%" ></Input>
                 </Col>
                 
-                <Col span="6" offset="1">
-                    <Button @click="handleRemove(index)">删除</Button>
+                <Col span="5" offset="1">
+                    <Button type='error' @click="handleRemove(index)" >删除</Button>
                 </Col>
             </Row>
         </FormItem>
         <FormItem>
-            <Row>
-                <Col span="6">
-                    <Button type="dashed" @click="handleAdd" icon="md-add" style="width:130px">增加维度</Button>
-                </Col>
-            </Row>
+            <Button type="dashed" @click="handleAdd" icon="md-add" style="width:10%">增加维度</Button>
+            
         </FormItem>
         <FormItem label="输入数据类型" prop="intype">
-            <Select v-model="formValidate.intype" multiple filterable placeholder="请选择"  style="width:250px">
+            <Select v-model="formValidate.intype" multiple filterable placeholder="请选择"  style="width:21%">
                 <Option v-for="(item,index) in intypeoption" :value="item.id" :key="index">
                     <!-- {{ item.label }} -->
                     <span>{{item.name}}</span>
@@ -68,7 +68,7 @@
         </FormItem>
         
         <FormItem label="输出数据类型" prop="outtype">
-            <Select v-model="formValidate.outtype"  placeholder="请选择"  style="width:250px" >
+            <Select v-model="formValidate.outtype"  placeholder="请选择"  style="width:21%" >
                 <Option v-for="item in outtypeoption" :value="item.id" :key="item.id">  
                     {{ item.name }}
               
